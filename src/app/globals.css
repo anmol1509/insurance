@@ -1,2 +1,2 @@
-/* Redirect to our custom globals */
+@import "tailwindcss";
 @import '../styles/globals.css';
