@@ -156,7 +156,9 @@ export default function TestimonialsSection() {
               className="rounded-4xl p-7 border border-[var(--border-default)] flex flex-col justify-between"
               style={{
                 backgroundColor: t.bg,
-                border: t.bg === 'white' ? '1px solid var(--border-default)' : 'none',
+                border: ['white', 'var(--medical-50)', 'var(--business-50)'].includes(t.bg)
+                  ? '1px solid var(--border-default)'
+                  : 'none',
               }}
             >
               {!t.bigQuote && i < 2 && (

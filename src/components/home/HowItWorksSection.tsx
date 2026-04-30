@@ -163,7 +163,7 @@ export default function HowItWorksSection() {
                   <div className="pt-0.5">
                     <p
                       className="font-sans font-semibold text-[12px] uppercase tracking-[0.06em] mb-1"
-                      style={{ color: '#7C3AED' }}
+                      style={{ color: 'var(--green-700)' }}
                     >
                       {step.label}
                     </p>

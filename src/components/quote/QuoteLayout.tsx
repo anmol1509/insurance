@@ -222,7 +222,7 @@ export default function QuoteLayout({
                     className="h-full rounded-full"
                     style={{ backgroundColor: config.color }}
                     initial={{ width: '0%' }}
-                    animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+                    animate={{ width: `${progressPct}%` }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>

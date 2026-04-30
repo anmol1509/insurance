@@ -156,7 +156,7 @@ export default function ProductBentoGrid() {
       </motion.div>
 
       {/* Bento grid */}
-      <div className="grid grid-cols-2 grid-rows-[auto_auto] gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-[auto_auto] gap-3.5">
         {products.map((p, i) => (
           <motion.div
             key={p.id}
