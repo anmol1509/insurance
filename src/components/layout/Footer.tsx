@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Shield } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 
 const footerLinks = {
   PRODUCTS: [
@@ -41,11 +41,8 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-8 h-8 rounded-[9px] border border-white/20 flex items-center justify-center shrink-0">
-                <Shield className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-display font-bold text-xl text-white">ShopInsurance</span>
+            <div className="mb-3">
+              <Logo size={36} variant="white" wordmarkColor="white" />
             </div>
             <div className="space-y-0.5">
               <p className="font-sans font-medium text-[13px]" style={{ color: '#9CA3AF' }}>

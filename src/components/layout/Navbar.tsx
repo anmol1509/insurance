@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Shield, ChevronDown, Car, Heart, Plane, Building2, X } from 'lucide-react'
+import { Menu, ChevronDown, Car, Heart, Plane, Building2, X } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -40,14 +41,7 @@ export default function Navbar() {
             )}
           >
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 shrink-0">
-              <div className="w-7 h-7 rounded-[8px] bg-[var(--green-700)] flex items-center justify-center">
-                <Shield className="w-3.5 h-3.5 text-white" fill="white" />
-              </div>
-              <span className="font-display font-bold text-[17px] text-[var(--text-primary)]">
-                ShopInsurance
-              </span>
-            </Link>
+            <Logo size={34} />
 
             {/* Desktop centre nav */}
             <div className="hidden md:flex items-center gap-0.5">
@@ -158,12 +152,7 @@ export default function Navbar() {
               className="fixed right-0 top-0 bottom-0 w-72 bg-white z-50 shadow-xl p-6 overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-[8px] bg-[var(--green-700)] flex items-center justify-center">
-                    <Shield className="w-3.5 h-3.5 text-white" fill="white" />
-                  </div>
-                  <span className="font-display font-bold text-base">ShopInsurance</span>
-                </div>
+                <Logo size={30} />
                 <button type="button" onClick={() => setDrawerOpen(false)}>
                   <X className="w-5 h-5 text-[var(--text-muted)]" />
                 </button>
