@@ -2,62 +2,72 @@
 import { useQuoteStore } from '@/store/quoteStore'
 import Input from '@/components/ui/Input'
 import RadioCard from '@/components/ui/RadioCard'
+import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { AnimatePresence, motion } from 'framer-motion'
-
-const expOptions = [
-  { id: '0-5', label: '0–5 years' },
-  { id: '6-10', label: '6–10 years' },
-  { id: '10+', label: '10+ years' },
-]
-
-const securityChips = [
-  { id: 'gps', label: 'GPS Tracker' },
-  { id: 'immobiliser', label: 'Immobiliser' },
-  { id: 'alarm', label: 'Alarm System' },
-  { id: 'dashcam', label: 'Dash Camera' },
-]
+import { DRIVING_EXPERIENCE_OPTIONS, SECURITY_FEATURES } from '@/lib/constants'
 
 export default function MotorStep2() {
   const { motorData, updateMotor } = useQuoteStore()
 
-  const toggleSecurity = (id: string) => {
+  const toggleSecurity = (feat: string) => {
     const current = motorData.securityFeatures
+    const isNone = feat === 'None of the above'
+
+    if (isNone) {
+      updateMotor({ securityFeatures: current.includes(feat) ? [] : [feat] })
+      return
+    }
+    const without = current.filter((x) => x !== 'None of the above')
     updateMotor({
-      securityFeatures: current.includes(id)
-        ? current.filter((x) => x !== id)
-        : [...current, id],
+      securityFeatures: without.includes(feat)
+        ? without.filter((x) => x !== feat)
+        : [...without, feat],
     })
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <div className="grid md:grid-cols-2 gap-5">
         <Input
           label="Driver's License Number"
+          required
           value={motorData.licenseNumber}
           onChange={(e) => updateMotor({ licenseNumber: e.target.value })}
           placeholder="e.g. FKJ-20130001"
+          productColor="var(--motor-600)"
         />
         <Input
-          label="Age of Primary Driver"
-          type="number"
-          value={motorData.driverAge ?? ''}
-          onChange={(e) => updateMotor({ driverAge: Number(e.target.value) })}
-          placeholder="e.g. 35"
+          label="License Expiry Date"
+          required
+          type="date"
+          value={motorData.licenseExpiry}
+          onChange={(e) => updateMotor({ licenseExpiry: e.target.value })}
+          productColor="var(--motor-600)"
         />
       </div>
 
+      <Input
+        label="Age of Primary Driver"
+        required
+        type="number"
+        value={motorData.driverAge ?? ''}
+        onChange={(e) => updateMotor({ driverAge: Number(e.target.value) })}
+        placeholder="e.g. 35"
+        hint="Must be between 18 and 70 years"
+        productColor="var(--motor-600)"
+      />
+
       <div>
         <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Years of driving experience
+          Years of driving experience <span className="text-[var(--error)]">*</span>
         </p>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {expOptions.map((o) => (
+        <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {DRIVING_EXPERIENCE_OPTIONS.map((opt) => (
             <RadioCard
-              key={o.id}
-              label={o.label}
-              selected={motorData.yearsExperience === o.id}
-              onClick={() => updateMotor({ yearsExperience: o.id as typeof motorData.yearsExperience })}
+              key={opt}
+              label={opt}
+              selected={motorData.drivingExperience === opt}
+              onClick={() => updateMotor({ drivingExperience: opt })}
               productColor="var(--motor-600)"
               productColorBg="var(--motor-50)"
             />
@@ -65,30 +75,28 @@ export default function MotorStep2() {
         </div>
       </div>
 
-      {/* Previous accidents toggle */}
+      {/* Claims history */}
       <div
-        className="flex justify-between items-center p-5 rounded-xl border"
+        className="flex justify-between items-center p-5 rounded-2xl border"
         style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
       >
-        <p className="font-sans font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-          Any previous accidents in the last 3 years?
-        </p>
-        <button
-          type="button"
-          onClick={() => updateMotor({ previousAccidents: !motorData.previousAccidents })}
-          className="relative w-11 h-6 rounded-full transition-colors duration-200"
-          style={{ backgroundColor: motorData.previousAccidents ? 'var(--motor-600)' : 'var(--border-medium)' }}
-        >
-          <motion.div
-            className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm"
-            animate={{ x: motorData.previousAccidents ? 22 : 2 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
-        </button>
+        <div>
+          <p className="font-sans font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+            Any insurance claims in the last 3 years?
+          </p>
+          <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            Honest disclosure is required under NAICOM regulations
+          </p>
+        </div>
+        <ToggleSwitch
+          checked={motorData.claimsHistory}
+          onChange={(v) => updateMotor({ claimsHistory: v })}
+          productColor="var(--motor-600)"
+        />
       </div>
 
       <AnimatePresence>
-        {motorData.previousAccidents && (
+        {motorData.claimsHistory && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -96,78 +104,37 @@ export default function MotorStep2() {
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="pt-2">
+            <div className="pt-1">
               <label className="font-sans font-semibold text-xs text-[var(--text-secondary)] block mb-1.5">
-                Please briefly describe the most recent incident
+                Describe the most recent claim <span className="text-[var(--error)]">*</span>
               </label>
               <textarea
-                className="w-full min-h-[80px] p-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] font-sans text-sm resize-y outline-none focus:border-[var(--motor-600)]"
-                value={motorData.previousAccidentsDetails}
-                onChange={(e) => updateMotor({ previousAccidentsDetails: e.target.value })}
-                placeholder="Describe the incident..."
+                className="w-full min-h-[90px] p-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] font-sans text-sm resize-y outline-none focus:border-[var(--motor-600)]"
+                value={motorData.claimsDetail}
+                onChange={(e) => updateMotor({ claimsDetail: e.target.value })}
+                placeholder="Date, nature of incident, amount claimed…"
               />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Claim free toggle */}
-      <div
-        className="flex justify-between items-center p-5 rounded-xl border"
-        style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
-      >
-        <p className="font-sans font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
-          No claims in the last 12 months?
-        </p>
-        <button
-          type="button"
-          onClick={() => updateMotor({ claimFree: !motorData.claimFree })}
-          className="relative w-11 h-6 rounded-full transition-colors duration-200"
-          style={{ backgroundColor: motorData.claimFree ? 'var(--motor-600)' : 'var(--border-medium)' }}
-        >
-          <motion.div
-            className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm"
-            animate={{ x: motorData.claimFree ? 22 : 2 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          />
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {motorData.claimFree && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="overflow-hidden"
-          >
-            <div
-              className="flex items-center gap-3 px-4 py-3 rounded-xl border"
-              style={{ backgroundColor: 'var(--green-50)', borderColor: 'var(--green-100)' }}
-            >
-              <span className="text-lg">✓</span>
-              <p className="font-sans font-medium text-[13px]" style={{ color: 'var(--green-700)' }}>
-                You may qualify for a claim-free discount on your premium.
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Security features */}
+      {/* Security features — underwriting requirement, not premium factor */}
       <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Security features installed on vehicle (optional)
+        <p className="font-sans font-semibold text-[13px] mb-1" style={{ color: 'var(--text-secondary)' }}>
+          Security features installed on the vehicle <span className="text-[var(--error)]">*</span>
+        </p>
+        <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          Required for underwriting assessment. Select all that apply.
         </p>
         <div className="flex flex-wrap gap-2">
-          {securityChips.map((chip) => {
-            const selected = motorData.securityFeatures.includes(chip.id)
+          {SECURITY_FEATURES.map((feat) => {
+            const selected = motorData.securityFeatures.includes(feat)
             return (
               <button
-                key={chip.id}
+                key={feat}
                 type="button"
-                onClick={() => toggleSecurity(chip.id)}
+                onClick={() => toggleSecurity(feat)}
                 className="border-[1.5px] rounded-full px-4 py-2 font-sans font-medium text-[13px] transition-all duration-200"
                 style={
                   selected
@@ -175,7 +142,7 @@ export default function MotorStep2() {
                     : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }
                 }
               >
-                {chip.label}
+                {feat}
               </button>
             )
           })}

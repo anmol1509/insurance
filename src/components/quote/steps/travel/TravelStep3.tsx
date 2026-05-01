@@ -1,65 +1,152 @@
 'use client'
 import { useQuoteStore } from '@/store/quoteStore'
 import Input from '@/components/ui/Input'
+import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { AnimatePresence, motion } from 'framer-motion'
-
-function ToggleRow({ label, checked, onToggle, disabled, note, color = 'var(--travel-600)' }: { label: string; checked: boolean; onToggle: () => void; disabled?: boolean; note?: string; color?: string }) {
-  return (
-    <div className={`p-5 rounded-xl border ${disabled ? 'opacity-80' : ''}`} style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}>
-      <div className="flex justify-between items-center">
-        <p className="font-sans font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{label}</p>
-        <button type="button" onClick={disabled ? undefined : onToggle} disabled={disabled} className="relative w-11 h-6 rounded-full transition-colors duration-200" style={{ backgroundColor: checked ? color : 'var(--border-medium)', cursor: disabled ? 'not-allowed' : 'pointer' }}>
-          <motion.div className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm" animate={{ x: checked ? 22 : 2 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }} />
-        </button>
-      </div>
-      {note && <p className="font-sans text-xs mt-2" style={{ color: '#92400E' }}>{note}</p>}
-    </div>
-  )
-}
 
 export default function TravelStep3() {
   const { travelData, updateTravel } = useQuoteStore()
-  const isSchengen = travelData.destination === 'schengen'
 
   return (
-    <div className="space-y-6">
-      <ToggleRow label="Any pre-existing medical conditions?" checked={travelData.preexistingConditions} onToggle={() => updateTravel({ preexistingConditions: !travelData.preexistingConditions })} />
+    <div className="space-y-7">
+      {/* Pre-existing conditions */}
+      <div
+        className="flex justify-between items-center p-5 rounded-2xl border"
+        style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
+      >
+        <div>
+          <p className="font-sans font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+            Any pre-existing medical conditions?
+          </p>
+          <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            Non-disclosure may invalidate your travel policy
+          </p>
+        </div>
+        <ToggleSwitch
+          checked={travelData.preexistingConditions}
+          onChange={(v) => updateTravel({ preexistingConditions: v })}
+          productColor="var(--travel-600)"
+        />
+      </div>
+
       <AnimatePresence>
         {travelData.preexistingConditions && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }} className="overflow-hidden">
-            <textarea className="w-full min-h-[80px] p-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] font-sans text-sm resize-y outline-none" value={travelData.conditionDetails} onChange={(e) => updateTravel({ conditionDetails: e.target.value })} placeholder="Describe your conditions..." />
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-1">
+              <label className="font-sans font-semibold text-xs text-[var(--text-secondary)] block mb-1.5">
+                Describe your condition(s) <span className="text-[var(--error)]">*</span>
+              </label>
+              <textarea
+                className="w-full min-h-[90px] p-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] font-sans text-sm resize-y outline-none focus:border-[var(--travel-600)]"
+                value={travelData.conditionDetails}
+                onChange={(e) => updateTravel({ conditionDetails: e.target.value })}
+                placeholder="Include the condition, current treatment, and whether it is stable…"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <ToggleRow label="Currently on prescription medication?" checked={travelData.takingMedication} onToggle={() => updateTravel({ takingMedication: !travelData.takingMedication })} />
-
-      <ToggleRow
-        label="Medical Emergency Coverage"
-        checked={isSchengen ? true : travelData.medicalEmergencyCover}
-        onToggle={() => !isSchengen && updateTravel({ medicalEmergencyCover: !travelData.medicalEmergencyCover })}
-        disabled={isSchengen}
-        note={isSchengen ? 'Required for Schengen visa compliance. Cannot be unchecked.' : undefined}
-      />
-
-      <div className="grid md:grid-cols-2 gap-5">
-        <Input label="Emergency Contact Name" value={travelData.emergencyContactName} onChange={(e) => updateTravel({ emergencyContactName: e.target.value })} placeholder="e.g. Ngozi Eze" />
-        <Input label="Emergency Contact Phone" prefix="phone" type="tel" value={travelData.emergencyContactPhone} onChange={(e) => updateTravel({ emergencyContactPhone: e.target.value })} placeholder="8012345678" />
+      {/* Medication */}
+      <div
+        className="flex justify-between items-center p-5 rounded-2xl border"
+        style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
+      >
+        <p className="font-sans font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+          Currently taking any prescription medication?
+        </p>
+        <ToggleSwitch
+          checked={travelData.takingMedication}
+          onChange={(v) => updateTravel({ takingMedication: v })}
+          productColor="var(--travel-600)"
+        />
       </div>
 
-      <button
-        type="button"
-        onClick={() => updateTravel({ confirmed: !travelData.confirmed })}
-        className="w-full flex items-start gap-4 p-5 rounded-xl border-[1.5px] text-left transition-all"
-        style={travelData.confirmed ? { borderColor: 'var(--green-700)', backgroundColor: 'var(--green-50)' } : { borderColor: 'var(--border-medium)', backgroundColor: 'var(--surface)' }}
+      <AnimatePresence>
+        {travelData.takingMedication && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="pt-1">
+              <label className="font-sans font-semibold text-xs text-[var(--text-secondary)] block mb-1.5">
+                List medications
+              </label>
+              <textarea
+                className="w-full min-h-[80px] p-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] font-sans text-sm resize-y outline-none focus:border-[var(--travel-600)]"
+                value={travelData.medications}
+                onChange={(e) => updateTravel({ medications: e.target.value })}
+                placeholder="e.g. Insulin, Aspirin…"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Medical emergency cover */}
+      <div
+        className="flex justify-between items-center p-5 rounded-2xl border"
+        style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
       >
-        <div className="w-5 h-5 rounded-[5px] border-[1.5px] flex items-center justify-center shrink-0 mt-0.5" style={travelData.confirmed ? { backgroundColor: 'var(--green-700)', borderColor: 'var(--green-700)' } : { borderColor: 'var(--border-medium)' }}>
-          {travelData.confirmed && <span className="text-white text-[10px]">✓</span>}
+        <div>
+          <p className="font-sans font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+            Include medical emergency / evacuation cover?
+          </p>
+          <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            Recommended for all international travel
+          </p>
         </div>
-        <p className="font-sans font-medium text-sm" style={{ color: travelData.confirmed ? 'var(--green-700)' : 'var(--text-primary)' }}>
-          I confirm all information provided is accurate and complete
+        <ToggleSwitch
+          checked={travelData.medicalEmergencyCover}
+          onChange={(v) => updateTravel({ medicalEmergencyCover: v })}
+          productColor="var(--travel-600)"
+        />
+      </div>
+
+      {/* Emergency contact */}
+      <div>
+        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
+          Emergency contact (someone staying behind)
         </p>
-      </button>
+        <div className="grid md:grid-cols-2 gap-5">
+          <Input
+            label="Contact Name"
+            required
+            value={travelData.emergencyContactName}
+            onChange={(e) => updateTravel({ emergencyContactName: e.target.value })}
+            placeholder="Full name"
+            productColor="var(--travel-600)"
+          />
+          <Input
+            label="Contact Phone"
+            required
+            prefix="phone"
+            value={travelData.emergencyContactPhone.replace(/^(\+234|0)/, '')}
+            onChange={(e) => updateTravel({ emergencyContactPhone: '0' + e.target.value.replace(/\D/g, '') })}
+            placeholder="8012345678"
+            inputMode="tel"
+            productColor="var(--travel-600)"
+          />
+        </div>
+      </div>
+
+      {/* ECOWAS declaration */}
+      <div
+        className="flex items-start gap-3 px-4 py-3.5 rounded-2xl border"
+        style={{ backgroundColor: 'var(--travel-50)', borderColor: 'var(--travel-100)' }}
+      >
+        <span className="text-lg mt-0.5">✈️</span>
+        <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+          By proceeding you confirm you are fit to travel and agree to the insurer's health declaration terms.
+        </p>
+      </div>
     </div>
   )
 }

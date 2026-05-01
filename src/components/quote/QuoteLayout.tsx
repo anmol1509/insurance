@@ -5,6 +5,7 @@ import { Shield, Lock, Zap } from 'lucide-react'
 import StepCircle from '@/components/ui/StepCircle'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
+import { PRODUCT_STEPS } from '@/lib/constants'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business'
 
@@ -21,34 +22,10 @@ interface QuoteLayoutProps {
 }
 
 const PRODUCT_CONFIG = {
-  motor: {
-    color: 'var(--motor-600)',
-    colorBg: 'var(--motor-50)',
-    label: 'Motor Insurance',
-    icon: '🚗',
-    steps: ['Vehicle info', 'Driver details', 'Add-ons'],
-  },
-  medical: {
-    color: 'var(--medical-600)',
-    colorBg: 'var(--medical-50)',
-    label: 'Medical Insurance',
-    icon: '❤️',
-    steps: ['Personal details', 'Health details', 'Coverage'],
-  },
-  travel: {
-    color: 'var(--travel-600)',
-    colorBg: 'var(--travel-50)',
-    label: 'Travel Insurance',
-    icon: '✈️',
-    steps: ['Your details', 'Trip info', 'Health declaration'],
-  },
-  business: {
-    color: 'var(--business-600)',
-    colorBg: 'var(--business-50)',
-    label: 'Business Insurance',
-    icon: '🏢',
-    steps: ['Business info', 'Coverage', 'Operations'],
-  },
+  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'Motor Insurance',    icon: '🚗' },
+  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'Medical Insurance',  icon: '❤️' },
+  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'Travel Insurance',   icon: '✈️' },
+  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'Business Insurance', icon: '🏢' },
 }
 
 export default function QuoteLayout({
@@ -109,20 +86,21 @@ export default function QuoteLayout({
                     {config.label}
                   </p>
                   <p className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
-                    Quick quote · 3 steps
+                    Quick quote · {PRODUCT_STEPS[product].length} steps
                   </p>
                 </div>
               </div>
 
               {/* Step list */}
               <div className="mt-6 flex flex-col">
-                {config.steps.map((stepLabel, i) => {
+                {PRODUCT_STEPS[product].map((step, i) => {
                   const stepNum = i + 1
+                  const stepLabel = step.label
                   const state =
                     stepNum < currentStep ? 'completed' : stepNum === currentStep ? 'active' : 'upcoming'
                   return (
                     <div
-                      key={stepLabel}
+                      key={step.id}
                       className="flex gap-3.5 py-3 border-b border-[var(--border-subtle)]"
                     >
                       <StepCircle state={state} number={stepNum} productColor={config.color} />
