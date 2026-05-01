@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Shield, Clock, Check, ArrowRight } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
-import PlanCard from '@/components/ui/PlanCard'
 
 function CarSVG() {
   return (
@@ -29,33 +28,6 @@ const coverageItems = [
   { title: 'Flood & natural perils', desc: 'Cover for flood, storms and other natural disasters.' },
   { title: 'Roadside assistance', desc: '24/7 towing, battery jump-start and flat tyre support.' },
   { title: 'NIID auto-registration', desc: 'Instant NIID registration — certificate in under 3 minutes.' },
-]
-
-const plans = [
-  {
-    tier: 'Third Party Only',
-    price: '₦15,000',
-    period: '/year',
-    description: 'Basic mandatory cover for third-party injuries and property damage.',
-    features: ['3rd party injury liability', 'Property damage liability', 'NIID certificate', 'NAICOM compliant'],
-    featured: false,
-  },
-  {
-    tier: 'Comprehensive',
-    price: '₦65,000',
-    period: '/year',
-    description: 'Complete protection — your car and everyone else on the road.',
-    features: ['All TPO benefits', 'Own vehicle damage', 'Theft & fire', 'Flood cover', 'Roadside assistance', 'NIID registration'],
-    featured: true,
-  },
-  {
-    tier: 'Third Party F&T',
-    price: '₦35,000',
-    period: '/year',
-    description: 'Third party plus fire and theft protection.',
-    features: ['3rd party injury liability', 'Fire damage cover', 'Vehicle theft', 'NIID certificate'],
-    featured: false,
-  },
 ]
 
 const steps = [
@@ -199,31 +171,6 @@ export default function MotorProductPage() {
                   {item.desc}
                 </p>
               </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Plans */}
-      <section className="py-16 px-5 lg:px-20 bg-white">
-        <div className="max-w-[1280px] mx-auto">
-          <h2 className="font-display font-extrabold text-[34px] tracking-tight mb-10 text-center" style={{ color: 'var(--text-primary)' }}>
-            Choose your plan
-          </h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {plans.map((plan) => (
-              <PlanCard
-                key={plan.tier}
-                tier={plan.tier}
-                price={plan.price}
-                period={plan.period}
-                description={plan.description}
-                features={plan.features}
-                featured={plan.featured}
-                productColor="var(--motor-600)"
-                productColorBg="var(--motor-50)"
-                onSelect={() => { window.location.href = '/quote/motor' }}
-              />
             ))}
           </div>
         </div>

@@ -266,7 +266,7 @@ export default function QuoteLayout({
                   className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md"
                   style={{ backgroundColor: config.color }}
                 >
-                  {isFinalStep ? 'Get my quote →' : 'Next step →'}
+                  {isFinalStep ? 'Submit →' : 'Next step →'}
                 </button>
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function QuoteLayout({
             className="flex-1 h-12 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white"
             style={{ backgroundColor: config.color }}
           >
-            {isFinalStep ? 'Get my quote →' : 'Next step →'}
+            {isFinalStep ? 'Submit →' : 'Next step →'}
           </button>
         </div>
       </div>

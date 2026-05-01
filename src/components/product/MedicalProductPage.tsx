@@ -1,34 +1,25 @@
 'use client'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { ArrowRight, Check } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
-import PlanCard from '@/components/ui/PlanCard'
 
-const planTypes = ['Individual', 'Family', 'Group/Corporate']
+const coverageItems = [
+  { title: 'Inpatient care', desc: 'Full hospitalisation cover including surgery, ward, and specialist fees.' },
+  { title: 'Outpatient & consultations', desc: 'GP visits, specialist referrals, and diagnostic tests covered.' },
+  { title: 'Maternity cover', desc: 'Antenatal, delivery, and postnatal care for mother and newborn.' },
+  { title: 'Dental & vision', desc: 'Optional dental treatment and optical cover for the whole family.' },
+  { title: 'Emergency evacuation', desc: 'Air ambulance and emergency evacuation to the nearest facility.' },
+  { title: '500+ partner hospitals', desc: 'Cashless treatment nationwide across our accredited hospital network.' },
+]
 
-const allPlans = {
-  Individual: [
-    { tier: 'Basic', price: '₦45,000', description: 'Inpatient care, emergency treatment, 200+ hospitals.', features: ['Inpatient care', 'Emergency treatment', '200+ partner hospitals', 'NAICOM compliant'], featured: false },
-    { tier: 'Standard', price: '₦120,000', description: 'Full inpatient + maternity, specialist, 400+ hospitals.', features: ['All Basic benefits', 'Maternity care', 'Specialist consultations', '400+ hospitals', 'Annual check-up'], featured: true },
-    { tier: 'Premium', price: '₦280,000', description: 'Complete cover including dental, vision, and international care.', features: ['All Standard benefits', 'Dental cover', 'Vision/eye care', 'International coverage', 'VIP hospitals'], featured: false },
-  ],
-  Family: [
-    { tier: 'Family Basic', price: '₦180,000', description: 'Family inpatient cover for up to 4 members.', features: ['Inpatient care', 'Emergency treatment', 'Up to 4 members', '200+ hospitals'], featured: false },
-    { tier: 'Family Standard', price: '₦420,000', description: 'Comprehensive family cover with maternity.', features: ['All Basic benefits', 'Maternity for spouse', 'Specialist referrals', '400+ hospitals'], featured: true },
-    { tier: 'Family Premium', price: '₦850,000', description: 'Premium family cover with dental and vision.', features: ['All Standard benefits', 'Dental for all', 'Vision for all', 'International option'], featured: false },
-  ],
-  'Group/Corporate': [
-    { tier: 'SME Plan', price: '₦45,000', period: '/life/yr', description: 'Per-life pricing for small teams.', features: ['Inpatient care', 'Emergency', '5-50 employees', 'Group rate'], featured: false },
-    { tier: 'Corporate', price: '₦38,000', period: '/life/yr', description: 'Volume discounts for larger companies.', features: ['All SME benefits', 'Dental optional', '50+ employees', 'HR dashboard'], featured: true },
-    { tier: 'Enterprise', price: 'Custom', description: 'Bespoke plan for large organisations.', features: ['Custom benefits', 'International option', 'Dedicated account manager', 'Any size'], featured: false },
-  ],
-}
+const steps = [
+  { title: 'Fill in your details',   icon: '⌨' },
+  { title: 'Compare health plans',   icon: '📋' },
+  { title: 'Pay & get covered',      icon: '❤️' },
+]
 
 export default function MedicalProductPage() {
-  const [activeTab, setActiveTab] = useState('Individual')
-
   return (
     <div style={{ backgroundColor: 'var(--page-bg)' }}>
       <section className="bg-white py-16 px-5 lg:px-20">
@@ -38,12 +29,15 @@ export default function MedicalProductPage() {
             <h1 className="font-display font-extrabold mt-4 mb-4 tracking-tight" style={{ fontSize: 'clamp(36px, 4vw, 52px)', color: 'var(--text-primary)' }}>
               Health cover for<br />every family.
             </h1>
-            <p className="font-sans text-[17px] leading-relaxed max-w-[460px] mb-8" style={{ color: 'var(--text-muted)' }}>
-              Cashless treatment at 500+ partner hospitals. Individual, family, and group plans.
+            <p className="font-sans text-[17px] leading-relaxed max-w-[460px] mb-5" style={{ color: 'var(--text-muted)' }}>
+              Cashless treatment at 500+ partner hospitals. Compare plans from Nigeria's leading HMOs.
             </p>
-            <Link href="/quote/medical" className="inline-flex items-center gap-2 w-fit h-14 px-8 rounded-[var(--radius-xl)] font-sans font-semibold text-base text-white transition-all hover:-translate-y-px hover:shadow-lg" style={{ backgroundColor: 'var(--medical-600)' }}>
-              Get health quote <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="flex flex-col gap-1.5">
+              <Link href="/quote/medical" className="inline-flex items-center gap-2 w-fit h-14 px-8 rounded-[var(--radius-xl)] font-sans font-semibold text-base text-white transition-all hover:-translate-y-px hover:shadow-lg" style={{ backgroundColor: 'var(--medical-600)' }}>
+                Get health quote <ArrowRight className="w-4 h-4" />
+              </Link>
+              <p className="font-sans text-xs" style={{ color: 'var(--text-subtle)' }}>Compare plans from multiple insurers — free</p>
+            </div>
           </motion.div>
           <div className="hidden lg:flex justify-center">
             <div className="w-64 h-64 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--medical-50)' }}>
@@ -58,54 +52,50 @@ export default function MedicalProductPage() {
         </div>
       </section>
 
-      {/* Plan toggle */}
+      <section className="py-16 px-5 lg:px-20" style={{ backgroundColor: 'var(--surface-raised)' }}>
+        <div className="max-w-[1280px] mx-auto">
+          <h2 className="font-display font-extrabold text-[34px] tracking-tight mb-8" style={{ color: 'var(--text-primary)' }}>What's covered</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {coverageItems.map((item, i) => (
+              <motion.div key={item.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                className="bg-white rounded-3xl border border-[var(--border-default)] p-6 hover:border-[var(--medical-600)] hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <div className="w-11 h-11 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--medical-50)' }}>
+                  <Check className="w-5 h-5" style={{ color: 'var(--medical-600)' }} strokeWidth={2.5} />
+                </div>
+                <h3 className="font-display font-semibold text-base mb-2" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
+                <p className="font-sans text-[13px] leading-relaxed" style={{ color: 'var(--text-muted)' }}>{item.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 px-5 lg:px-20 bg-white">
         <div className="max-w-[1280px] mx-auto">
-          <div className="flex justify-center mb-10">
-            <div className="flex p-1.5 rounded-2xl border border-[var(--border-default)]" style={{ backgroundColor: 'var(--surface-raised)' }}>
-              {planTypes.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className="px-5 py-2.5 rounded-xl font-sans font-medium text-sm transition-all duration-200"
-                  style={activeTab === tab ? { backgroundColor: 'var(--medical-600)', color: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+          <h2 className="font-display font-extrabold text-[34px] tracking-tight mb-10 text-center" style={{ color: 'var(--text-primary)' }}>How it works</h2>
+          <div className="grid md:grid-cols-3 gap-5">
+            {steps.map((step, i) => (
+              <div key={step.title} className="bg-white rounded-3xl border border-[var(--border-default)] p-7">
+                <div className="text-4xl mb-4 h-16 flex items-center">{step.icon}</div>
+                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center mb-4">
+                  <span className="font-display font-bold text-sm text-white">{i + 1}</span>
+                </div>
+                <h3 className="font-display font-bold text-[19px] mb-2" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
+              </div>
+            ))}
           </div>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-              className="grid md:grid-cols-3 gap-5"
-            >
-              {allPlans[activeTab as keyof typeof allPlans].map((plan) => (
-                <PlanCard
-                  key={plan.tier}
-                  tier={plan.tier}
-                  price={plan.price}
-                  description={plan.description}
-                  features={plan.features}
-                  featured={plan.featured}
-                  productColor="var(--medical-600)"
-                  productColorBg="var(--medical-50)"
-                  onSelect={() => { window.location.href = '/quote/medical' }}
-                />
-              ))}
-            </motion.div>
-          </AnimatePresence>
+          <div className="text-center mt-10">
+            <Link href="/quote/medical" className="inline-flex items-center h-[54px] px-9 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-sans font-semibold text-base transition-all hover:-translate-y-px hover:shadow-lg">
+              Compare health plans →
+            </Link>
+          </div>
         </div>
       </section>
 
       <section className="py-14 px-5 lg:px-20 text-center" style={{ backgroundColor: 'var(--medical-600)' }}>
         <div className="max-w-[1280px] mx-auto">
-          <h2 className="font-display font-extrabold text-[36px] text-white tracking-tight mb-2">Protect your family&apos;s health</h2>
+          <h2 className="font-display font-extrabold text-[36px] text-white tracking-tight mb-2">Protect your family's health</h2>
           <p className="font-sans text-base mb-8" style={{ color: 'rgba(255,255,255,0.8)' }}>Join 50,000+ Nigerians covered by ShopInsurance.</p>
           <Link href="/quote/medical" className="inline-flex items-center h-12 px-7 bg-white rounded-xl font-sans font-bold text-[15px]" style={{ color: 'var(--medical-600)' }}>
             Get your health quote now →
