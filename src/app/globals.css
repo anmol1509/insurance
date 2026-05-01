@@ -1,2 +1,45 @@
 @import "tailwindcss";
+
+@theme {
+  /* ── Border radius ─────────────────────────── */
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
+  --radius-5xl: 32px;
+
+  /* ── Orange overrides ──────────────────────── */
+  --color-orange-50:  #FFF7F0;
+  --color-orange-100: #FFEDD5;
+  --color-orange-500: #FF6B35;
+  --color-orange-600: #E55A28;
+
+  /* ── Motor colours ─────────────────────────── */
+  --color-motor-50:  #EFF6FF;
+  --color-motor-100: #DBEAFE;
+  --color-motor-600: #1D4ED8;
+  --color-motor-700: #1E40AF;
+
+  /* ── Medical colours ───────────────────────── */
+  --color-medical-50:  #ECFDF5;
+  --color-medical-100: #D1FAE5;
+  --color-medical-600: #059669;
+  --color-medical-700: #047857;
+
+  /* ── Travel colours ────────────────────────── */
+  --color-travel-50:  #FFFBEB;
+  --color-travel-100: #FDE68A;
+  --color-travel-600: #D97706;
+  --color-travel-700: #B45309;
+
+  /* ── Business colours ──────────────────────── */
+  --color-business-50:  #F5F3FF;
+  --color-business-100: #EDE9FE;
+  --color-business-600: #7C3AED;
+  --color-business-700: #6D28D9;
+
+  /* ── Custom shadows ────────────────────────── */
+  --shadow-card:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lift:  0 8px 32px rgba(0,0,0,0.10);
+  --shadow-hover: 0 20px 60px rgba(0,0,0,0.12);
+}
+
 @import '../styles/globals.css';

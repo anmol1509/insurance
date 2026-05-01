@@ -38,7 +38,7 @@ export default function PhoneFrame({ children, animate = true, className }: Phon
           backgroundColor: 'white',
           borderRadius: '32px',
           overflow: 'hidden',
-          minHeight: '440px',
+          height: '440px',
         }}
       >
         {children}
