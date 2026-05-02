@@ -1,11 +1,7 @@
 import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, DM_Sans, Lora } from 'next/font/google'
 import './globals.css'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
-import WhatsAppButton from '@/components/ui/WhatsAppButton'
-import LiveChat from '@/components/ui/LiveChat'
-import CookieBanner from '@/components/ui/CookieBanner'
+import ClientLayout from '@/components/layout/ClientLayout'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -80,13 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${dmSans.variable} ${lora.variable}`}>
       <body className="font-sans antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        {/* Global floating widgets */}
-        <WhatsAppButton />
-        <LiveChat />
-        <CookieBanner />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   )
