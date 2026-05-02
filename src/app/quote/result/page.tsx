@@ -3,8 +3,9 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
-import { Shield, Star, ChevronDown, ChevronUp, SlidersHorizontal, ArrowLeft, Check } from 'lucide-react'
+import { Shield, Star, ChevronDown, ChevronUp, ArrowLeft, Check, Mail, X } from 'lucide-react'
 import Link from 'next/link'
+import { AnimatePresence } from 'framer-motion'
 
 type SortKey = 'popular' | 'price' | 'rating'
 
@@ -341,9 +342,82 @@ function PlanCard({ plan, basePrice, color, index }: {
   )
 }
 
+function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestPrice: number }) {
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+
+  const handleSend = () => {
+    if (!email.includes('@')) return
+    setSent(true)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        transition={{ duration: 0.2 }}
+        className="relative bg-white rounded-3xl shadow-2xl p-8 w-full max-w-[420px]"
+        onClick={e => e.stopPropagation()}
+      >
+        <button type="button" onClick={onClose} className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-muted)]">
+          <X className="w-5 h-5" />
+        </button>
+
+        {sent ? (
+          <div className="text-center py-4">
+            <div className="text-4xl mb-4">📬</div>
+            <h3 className="font-display font-bold text-xl mb-2" style={{ color: 'var(--text-primary)' }}>Quote sent!</h3>
+            <p className="font-sans text-[14px]" style={{ color: 'var(--text-muted)' }}>
+              Check your inbox — we've emailed your comparison results. Valid for 24 hours.
+            </p>
+            <button type="button" onClick={onClose}
+              className="mt-5 h-10 px-6 rounded-xl font-sans font-semibold text-sm text-white"
+              style={{ backgroundColor: 'var(--green-700)' }}
+            >
+              Done
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="text-3xl mb-4">📧</div>
+            <h3 className="font-display font-bold text-xl mb-1" style={{ color: 'var(--text-primary)' }}>Save your quote</h3>
+            <p className="font-sans text-[13px] mb-5" style={{ color: 'var(--text-muted)' }}>
+              We'll email you these {formatNaira(lowestPrice)}/yr+ results so you can compare later or share with your family.
+            </p>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full h-12 rounded-xl border-[1.5px] border-[var(--border-medium)] px-4 font-sans text-[14px] outline-none mb-3 focus:border-[var(--green-700)]"
+              style={{ color: 'var(--text-primary)' }}
+            />
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={!email.includes('@')}
+              className="w-full h-11 rounded-xl font-sans font-semibold text-sm text-white disabled:opacity-40 transition-opacity"
+              style={{ backgroundColor: 'var(--green-700)' }}
+            >
+              Send quote to email
+            </button>
+            <p className="font-sans text-[11px] text-center mt-3" style={{ color: 'var(--text-muted)' }}>
+              No spam. Unsubscribe any time. NDPR compliant.
+            </p>
+          </>
+        )}
+      </motion.div>
+    </div>
+  )
+}
+
 export default function QuoteResultPage() {
   const { calculatedPremium, activeProduct } = useQuoteStore()
   const [sortBy, setSortBy] = useState<SortKey>('popular')
+  const [showEmailModal, setShowEmailModal] = useState(false)
 
   const product = (activeProduct ?? 'motor') as string
   const basePrice = calculatedPremium ?? 50000
@@ -412,6 +486,26 @@ export default function QuoteResultPage() {
           ))}
         </div>
 
+        {/* Save quote CTA */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6 flex items-center justify-center gap-3 flex-wrap"
+        >
+          <button
+            type="button"
+            onClick={() => setShowEmailModal(true)}
+            className="flex items-center gap-2 h-10 px-5 rounded-xl border font-sans font-medium text-[13px] hover:bg-[var(--surface-raised)] transition-colors"
+            style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+          >
+            <Mail className="w-4 h-4" /> Save quote to email
+          </button>
+          <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+            Results valid for 24 hours · No spam
+          </p>
+        </motion.div>
+
         {/* Trust strip */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -432,6 +526,11 @@ export default function QuoteResultPage() {
           ))}
         </motion.div>
       </div>
+
+      {/* Save-to-email modal */}
+      <AnimatePresence>
+        {showEmailModal && <SaveEmailModal onClose={() => setShowEmailModal(false)} lowestPrice={lowestPrice} />}
+      </AnimatePresence>
     </div>
   )
 }

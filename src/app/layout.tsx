@@ -3,6 +3,9 @@ import { Plus_Jakarta_Sans, DM_Sans, Lora } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import WhatsAppButton from '@/components/ui/WhatsAppButton'
+import LiveChat from '@/components/ui/LiveChat'
+import CookieBanner from '@/components/ui/CookieBanner'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -38,11 +41,14 @@ export const metadata: Metadata = {
     'insurance Nigeria',
     'motor insurance Nigeria',
     'health insurance Nigeria',
-    'travel insurance',
-    'business insurance',
-    'NAICOM',
-    'NIID',
+    'travel insurance Nigeria',
+    'business insurance Nigeria',
+    'NAICOM licensed insurer',
+    'NIID certificate',
     'car insurance Lagos',
+    'cheapest motor insurance Nigeria',
+    'HMO Nigeria',
+    'Schengen travel insurance Nigeria',
   ],
   openGraph: {
     type: 'website',
@@ -51,9 +57,23 @@ export const metadata: Metadata = {
     siteName: 'ShopInsurance',
     title: "ShopInsurance — Nigeria's Smartest Insurance Platform",
     description: 'Instant quotes. Digital certificates. Real claims support.',
+    images: [{ url: '/og-image.svg', width: 1200, height: 630, alt: 'ShopInsurance — Nigeria insurance comparison platform' }],
   },
-  twitter: { card: 'summary_large_image', creator: '@shopinsurance_ng' },
+  twitter: {
+    card: 'summary_large_image',
+    creator: '@shopinsurance_ng',
+    site: '@shopinsurance_ng',
+    images: ['/og-image.svg'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '32x32' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   robots: { index: true, follow: true },
+  alternates: { canonical: 'https://shopinsurance.com.ng' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -63,6 +83,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main>{children}</main>
         <Footer />
+        {/* Global floating widgets */}
+        <WhatsAppButton />
+        <LiveChat />
+        <CookieBanner />
       </body>
     </html>
   )

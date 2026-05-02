@@ -88,6 +88,7 @@ export default function Navbar() {
               {[
                 { label: 'Renewals', href: '/renewals' },
                 { label: 'Claims',   href: '/claims' },
+                { label: 'Blog',     href: '/blog' },
               ].map(({ label, href }) => (
                 <Link
                   key={label}
@@ -177,7 +178,7 @@ export default function Navbar() {
               ))}
 
               <div className="mt-4 space-y-1">
-                {[{ label: 'Renewals', href: '/renewals' }, { label: 'Claims', href: '/claims' }].map(({ label, href }) => (
+                {[{ label: 'Renewals', href: '/renewals' }, { label: 'Claims', href: '/claims' }, { label: 'Blog', href: '/blog' }].map(({ label, href }) => (
                   <Link key={label} href={href} onClick={() => setDrawerOpen(false)}
                     className="block py-2.5 font-sans text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                   >

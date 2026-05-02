@@ -79,6 +79,19 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               className
             )}
             {...props}
+            /* Format Nigerian numbers as XXX XXX XXXX while typing */
+            value={prefix === 'phone' && typeof props.value === 'string'
+              ? props.value.replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{0,4})/, '$1 $2 $3').trim()
+              : props.value
+            }
+            onChange={prefix === 'phone' && props.onChange
+              ? (e) => {
+                  const stripped = e.target.value.replace(/\D/g, '').slice(0, 10)
+                  const fakeEvent = { ...e, target: { ...e.target, value: stripped } }
+                  props.onChange!(fakeEvent as React.ChangeEvent<HTMLInputElement>)
+                }
+              : props.onChange
+            }
           />
 
           {suffix && (

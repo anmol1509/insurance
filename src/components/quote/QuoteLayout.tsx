@@ -186,6 +186,17 @@ export default function QuoteLayout({
 
           {/* Main content */}
           <main>
+            {/* Progress persistence notice */}
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <svg viewBox="0 0 16 16" width="14" fill="none" className="shrink-0">
+                <circle cx="8" cy="8" r="7" stroke="var(--green-700)" strokeWidth="1.5"/>
+                <path d="M8 5v3.5l2 1.5" stroke="var(--green-700)" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                Your progress is saved automatically — you can safely close this tab and come back within 24 hours.
+              </p>
+            </div>
+
             <div className="bg-white rounded-4xl border border-[var(--border-default)] p-8 lg:p-10">
               {/* Top bar */}
               <div className="flex items-center gap-4 mb-8">

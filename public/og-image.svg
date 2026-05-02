@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#F0FDF4"/>
+  <!-- Left accent bar -->
+  <rect width="8" height="630" fill="#166534"/>
+  <!-- Shield mark -->
+  <g transform="translate(80, 215)">
+    <rect width="100" height="100" rx="20" fill="#166534"/>
+    <path d="M50 10 L82 24 L82 52 C82 70 68 82 50 88 C32 82 18 70 18 52 L18 24 Z" fill="#15803d"/>
+    <circle cx="38" cy="40" r="7" fill="white"/>
+    <rect x="35" y="49" width="6" height="18" rx="3" fill="white"/>
+    <path d="M48 38 C48 38 60 36 60 43 C60 50 48 50 48 57 C48 64 60 63 60 63" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="200" y="275" font-family="Georgia, serif" font-weight="800" font-size="54" fill="#166534">ShopInsurance</text>
+  <!-- Tagline -->
+  <text x="200" y="322" font-family="Arial, sans-serif" font-size="24" fill="#4B7C5B">Nigeria's smartest insurance platform</text>
+  <!-- Divider -->
+  <line x1="80" y1="370" x2="1120" y2="370" stroke="#BBF7D0" stroke-width="1.5"/>
+  <!-- Product pills -->
+  <g transform="translate(80, 400)">
+    <rect width="160" height="44" rx="22" fill="#DBEAFE"/>
+    <text x="80" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#1D4ED8" text-anchor="middle">🚗 Motor</text>
+  </g>
+  <g transform="translate(256, 400)">
+    <rect width="160" height="44" rx="22" fill="#D1FAE5"/>
+    <text x="80" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#059669" text-anchor="middle">❤️ Medical</text>
+  </g>
+  <g transform="translate(432, 400)">
+    <rect width="160" height="44" rx="22" fill="#FEF3C7"/>
+    <text x="80" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#D97706" text-anchor="middle">✈️ Travel</text>
+  </g>
+  <g transform="translate(608, 400)">
+    <rect width="160" height="44" rx="22" fill="#EDE9FE"/>
+    <text x="80" y="28" font-family="Arial, sans-serif" font-size="16" font-weight="600" fill="#7C3AED" text-anchor="middle">🏢 Business</text>
+  </g>
+  <!-- NAICOM badge -->
+  <g transform="translate(80, 465)">
+    <text font-family="Arial, sans-serif" font-size="15" fill="#6B7280">🛡 NAICOM Licensed · NIID Registered · Instant certificates</text>
+  </g>
+  <!-- URL -->
+  <text x="1120" y="590" font-family="Arial, sans-serif" font-size="18" fill="#9CA3AF" text-anchor="end">shopinsurance.com.ng</text>
+</svg>
