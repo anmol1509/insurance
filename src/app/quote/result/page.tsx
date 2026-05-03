@@ -414,9 +414,14 @@ function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestP
   )
 }
 
+type PremiumFilter = 'all' | 'under30' | '30to80' | 'over80'
+type RatingFilter = 'all' | '4.5' | '4.7'
+
 export default function QuoteResultPage() {
   const { calculatedPremium, activeProduct } = useQuoteStore()
   const [sortBy, setSortBy] = useState<SortKey>('popular')
+  const [premiumFilter, setPremiumFilter] = useState<PremiumFilter>('all')
+  const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
   const [showEmailModal, setShowEmailModal] = useState(false)
 
   const product = (activeProduct ?? 'motor') as string
@@ -424,11 +429,21 @@ export default function QuoteResultPage() {
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
   const rawPlans = PLANS_BY_PRODUCT[product] ?? MOTOR_PLANS
 
-  const plans = [...rawPlans].sort((a, b) => {
-    if (sortBy === 'price') return a.multiplier - b.multiplier
-    if (sortBy === 'rating') return b.rating - a.rating
-    return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
-  })
+  const plans = [...rawPlans]
+    .filter((p) => {
+      const price = Math.round(basePrice * p.multiplier)
+      if (premiumFilter === 'under30' && price >= 30000) return false
+      if (premiumFilter === '30to80' && (price < 30000 || price > 80000)) return false
+      if (premiumFilter === 'over80' && price <= 80000) return false
+      if (ratingFilter === '4.5' && p.rating < 4.5) return false
+      if (ratingFilter === '4.7' && p.rating < 4.7) return false
+      return true
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price') return a.multiplier - b.multiplier
+      if (sortBy === 'rating') return b.rating - a.rating
+      return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
+    })
 
   const lowestPrice = Math.round(basePrice * Math.min(...rawPlans.map(p => p.multiplier)))
 
@@ -460,24 +475,67 @@ export default function QuoteResultPage() {
       </div>
 
       <div className="max-w-[900px] mx-auto px-5 lg:px-0 py-8">
-        {/* Sort bar */}
-        <div className="flex items-center gap-2 mb-6 flex-wrap">
-          <span className="font-sans text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>Sort by:</span>
-          {([['popular', 'Most popular'], ['price', 'Lowest price'], ['rating', 'Highest rated']] as [SortKey, string][]).map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setSortBy(key)}
-              className="h-8 px-3.5 rounded-full font-sans text-[13px] font-medium transition-all border"
-              style={sortBy === key
-                ? { backgroundColor: color.main, color: 'white', borderColor: color.main }
-                : { backgroundColor: 'white', color: 'var(--text-secondary)', borderColor: 'var(--border-medium)' }
-              }
-            >
-              {label}
-            </button>
-          ))}
+        {/* Filter + Sort bar */}
+        <div className="bg-white rounded-2xl border border-[var(--border-default)] p-4 mb-5 flex flex-col sm:flex-row gap-4">
+          {/* Filters */}
+          <div className="flex-1 flex flex-col gap-2">
+            <span className="font-sans font-bold text-[10px] uppercase tracking-[0.08em]" style={{ color: 'var(--text-subtle)' }}>Filter by premium</span>
+            <div className="flex gap-1.5 flex-wrap">
+              {([['all', 'Any price'], ['under30', 'Under ₦30K'], ['30to80', '₦30K–₦80K'], ['over80', 'Over ₦80K']] as [PremiumFilter, string][]).map(([key, label]) => (
+                <button key={key} type="button" onClick={() => setPremiumFilter(key)}
+                  className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border"
+                  style={premiumFilter === key
+                    ? { backgroundColor: color.main, color: 'white', borderColor: color.main }
+                    : { backgroundColor: 'var(--surface-raised)', color: 'var(--text-secondary)', borderColor: 'var(--border-default)' }
+                  }
+                >{label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="w-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+          {/* Rating filter */}
+          <div className="flex flex-col gap-2">
+            <span className="font-sans font-bold text-[10px] uppercase tracking-[0.08em]" style={{ color: 'var(--text-subtle)' }}>Min rating</span>
+            <div className="flex gap-1.5">
+              {([['all', 'Any'], ['4.5', '4.5+'], ['4.7', '4.7+']] as [RatingFilter, string][]).map(([key, label]) => (
+                <button key={key} type="button" onClick={() => setRatingFilter(key)}
+                  className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border"
+                  style={ratingFilter === key
+                    ? { backgroundColor: color.main, color: 'white', borderColor: color.main }
+                    : { backgroundColor: 'var(--surface-raised)', color: 'var(--text-secondary)', borderColor: 'var(--border-default)' }
+                  }
+                >{label}</button>
+              ))}
+            </div>
+          </div>
+          <div className="w-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+          {/* Sort */}
+          <div className="flex flex-col gap-2">
+            <span className="font-sans font-bold text-[10px] uppercase tracking-[0.08em]" style={{ color: 'var(--text-subtle)' }}>Sort by</span>
+            <div className="flex gap-1.5">
+              {([['popular', 'Popular'], ['price', 'Price'], ['rating', 'Rating']] as [SortKey, string][]).map(([key, label]) => (
+                <button key={key} type="button" onClick={() => setSortBy(key)}
+                  className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border"
+                  style={sortBy === key
+                    ? { backgroundColor: color.main, color: 'white', borderColor: color.main }
+                    : { backgroundColor: 'var(--surface-raised)', color: 'var(--text-secondary)', borderColor: 'var(--border-default)' }
+                  }
+                >{label}</button>
+              ))}
+            </div>
+          </div>
         </div>
+
+        {/* Results count */}
+        <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
+          Showing <strong style={{ color: 'var(--text-primary)' }}>{plans.length}</strong> of {rawPlans.length} plans
+          {(premiumFilter !== 'all' || ratingFilter !== 'all') && (
+            <button type="button" onClick={() => { setPremiumFilter('all'); setRatingFilter('all') }}
+              className="ml-2 font-semibold underline" style={{ color: color.main }}>
+              Clear filters
+            </button>
+          )}
+        </p>
 
         {/* Plan cards */}
         <div className="flex flex-col gap-4">

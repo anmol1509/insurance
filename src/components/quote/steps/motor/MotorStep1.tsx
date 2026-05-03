@@ -5,7 +5,7 @@ import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import RadioCard from '@/components/ui/RadioCard'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Search, Loader2 } from 'lucide-react'
+import { Search, Loader2, Info, X } from 'lucide-react'
 import {
   NIGERIAN_STATES, VEHICLE_MAKES, VEHICLE_COLOURS, COLOUR_SWATCHES,
   VEHICLE_TYPES, ENGINE_CAPACITIES, MARKET_VALUE_RANGES,
@@ -23,9 +23,24 @@ const engineOptions = ENGINE_CAPACITIES.map((e) => ({ value: e, label: e }))
 const valueOptions = MARKET_VALUE_RANGES.map((r) => ({ value: r.value, label: r.label }))
 
 const coverTypes = [
-  { id: 'comprehensive' as const, label: 'Comprehensive', priceHint: 'From ₦65,000/yr' },
-  { id: 'tpo' as const, label: 'Third Party Only', priceHint: 'From ₦15,000/yr' },
-  { id: 'tpft' as const, label: 'Third Party Fire & Theft', priceHint: 'From ₦35,000/yr' },
+  {
+    id: 'comprehensive' as const,
+    label: 'Comprehensive',
+    priceHint: 'From ₦65,000/yr',
+    tooltip: 'Covers damage to your own vehicle (accident, fire, theft, flood) AND third-party liability. Best protection — recommended for vehicles under 10 years old.',
+  },
+  {
+    id: 'tpo' as const,
+    label: 'Third Party Only',
+    priceHint: 'From ₦15,000/yr',
+    tooltip: 'The legal minimum in Nigeria. Covers injury or damage you cause to others — does NOT cover any damage to your own vehicle. Mandatory under Nigerian law.',
+  },
+  {
+    id: 'tpft' as const,
+    label: 'Third Party Fire & Theft',
+    priceHint: 'From ₦35,000/yr',
+    tooltip: 'Third party cover PLUS protection if your own vehicle is stolen or damaged by fire. A middle-ground option for older vehicles.',
+  },
 ]
 
 const useTypes = [
@@ -39,6 +54,7 @@ export default function MotorStep1() {
   const { motorData, updateMotor } = useQuoteStore()
   const [lookupLoading, setLookupLoading] = useState(false)
   const [lookupDone, setLookupDone] = useState(false)
+  const [coverTooltip, setCoverTooltip] = useState<string | null>(null)
 
   async function handlePlateLookup() {
     if (!motorData.registrationNumber) return
@@ -209,15 +225,41 @@ export default function MotorStep1() {
         </p>
         <div className="grid sm:grid-cols-3 gap-3">
           {coverTypes.map((ct) => (
-            <RadioCard
-              key={ct.id}
-              label={ct.label}
-              priceHint={ct.priceHint}
-              selected={motorData.coverType === ct.id}
-              onClick={() => updateMotor({ coverType: ct.id })}
-              productColor="var(--motor-600)"
-              productColorBg="var(--motor-50)"
-            />
+            <div key={ct.id} className="relative">
+              <RadioCard
+                label={ct.label}
+                priceHint={ct.priceHint}
+                selected={motorData.coverType === ct.id}
+                onClick={() => updateMotor({ coverType: ct.id })}
+                productColor="var(--motor-600)"
+                productColorBg="var(--motor-50)"
+              />
+              {/* Info tooltip trigger */}
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setCoverTooltip(coverTooltip === ct.id ? null : ct.id) }}
+                className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--motor-50)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+              <AnimatePresence>
+                {coverTooltip === ct.id && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                    className="absolute top-full left-0 right-0 mt-2 z-20 bg-white rounded-xl border shadow-lg p-3"
+                    style={{ borderColor: 'var(--motor-600)' }}
+                  >
+                    <button type="button" onClick={() => setCoverTooltip(null)} className="float-right ml-1 text-[var(--text-muted)]">
+                      <X className="w-3 h-3" />
+                    </button>
+                    <p className="font-sans text-[12px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {ct.tooltip}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ))}
         </div>
       </div>

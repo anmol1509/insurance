@@ -46,17 +46,6 @@ export default function MotorStep2() {
         />
       </div>
 
-      <Input
-        label="Age of Primary Driver"
-        required
-        type="number"
-        value={motorData.driverAge ?? ''}
-        onChange={(e) => updateMotor({ driverAge: Number(e.target.value) })}
-        placeholder="e.g. 35"
-        hint="Must be between 18 and 70 years"
-        productColor="var(--motor-600)"
-      />
-
       <div>
         <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
           Years of driving experience <span className="text-[var(--error)]">*</span>
