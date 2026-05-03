@@ -1,13 +1,45 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <!-- Light green rounded background -->
-  <rect width="200" height="200" rx="44" fill="#c6e8c2"/>
-  <!-- Shield outer body - dark green -->
-  <path d="M100 20 L172 50 L172 108 C172 154 140 178 100 191 C60 178 28 154 28 108 L28 50 Z" fill="#1a4a2c"/>
-  <!-- Shield inner cavity - light green -->
-  <path d="M100 42 L156 67 L156 110 C156 146 132 167 100 178 C68 167 44 146 44 110 L44 67 Z" fill="#c6e8c2"/>
-  <!-- S lettermark - dark green -->
-  <path d="M80 77 C80 77 124 71 124 93 C124 115 80 116 80 138 C80 160 124 155 124 155"
-        stroke="#1a4a2c" stroke-width="14.5" stroke-linecap="round" fill="none"/>
+  <!-- Pale sage-green background -->
+  <rect width="200" height="200" rx="40" fill="#bdddb8"/>
+
+  <!-- Shield outer — dark green, shoulder-notch shape -->
+  <path d="
+    M 30 62
+    Q 28 28 62 26
+    L 80 26
+    Q 90 26 94 44
+    Q 97 56 100 44
+    Q 103 56 106 44
+    Q 110 26 120 26
+    L 138 26
+    Q 172 28 170 62
+    L 170 112
+    Q 158 162 100 184
+    Q 42 162 30 112
+    Z
+  " fill="#1b4a27"/>
+
+  <!-- Shield inner — same pale green -->
+  <path d="
+    M 44 68
+    Q 44 42 66 40
+    L 80 40
+    Q 88 40 91 54
+    Q 95 65 100 55
+    Q 105 65 109 54
+    Q 112 40 120 40
+    L 134 40
+    Q 156 42 156 68
+    L 156 114
+    Q 146 154 100 170
+    Q 54 154 44 114
+    Z
+  " fill="#bdddb8"/>
+
+  <!-- S lettermark -->
+  <path d="M 82 80 C 82 80 122 74 122 96 C 122 118 82 118 82 140 C 82 162 122 157 122 157"
+        stroke="#1b4a27" stroke-width="13.5" stroke-linecap="round" fill="none"/>
+
   <!-- White circle dot -->
-  <circle cx="106" cy="87" r="14" fill="white"/>
+  <circle cx="105" cy="90" r="13" fill="white"/>
 </svg>
