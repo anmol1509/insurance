@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Shield, Lock, Zap, X } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 import StepCircle from '@/components/ui/StepCircle'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
@@ -51,9 +52,7 @@ export default function QuoteLayout({
       {/* App-like header — replaces Navbar during quote flow */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
-          <Link href="/" className="shrink-0 font-display font-bold text-[18px]" style={{ color: 'var(--green-700)' }}>
-            Cover<span style={{ color: 'var(--text-primary)' }}>quick</span>
-          </Link>
+          <Logo size={28} href="/" />
           <div className="flex-1 flex items-center justify-center gap-2">
             <span className="text-base">{config.icon}</span>
             <span className="font-sans text-[13px] hidden sm:inline" style={{ color: 'var(--text-muted)' }}>

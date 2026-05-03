@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Shield, Lock, ChevronDown, ChevronUp, Check, CreditCard, Building2, Smartphone, X } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
 
@@ -156,9 +157,7 @@ export default function CheckoutPage() {
       {/* Slim app header */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1200px] mx-auto">
-          <Link href="/" className="shrink-0 font-display font-bold text-[18px]" style={{ color: 'var(--green-700)' }}>
-            Cover<span style={{ color: 'var(--text-primary)' }}>quick</span>
-          </Link>
+          <Logo size={28} href="/" />
           <div className="flex-1 flex items-center justify-center gap-2">
             <Lock className="w-3.5 h-3.5" style={{ color: 'var(--green-700)' }} />
             <span className="font-sans text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>Secure Checkout</span>

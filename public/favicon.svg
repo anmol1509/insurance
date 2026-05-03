@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#166534"/>
-  <path d="M16 3 L27 7.5 L27 17 C27 23.5 22 28.5 16 30 C10 28.5 5 23.5 5 17 L5 7.5 Z" fill="#15803d"/>
-  <circle cx="12.5" cy="13" r="2.5" fill="white"/>
-  <rect x="11" y="16.5" width="3" height="8" rx="1.5" fill="white"/>
-  <path d="M16.5 12.5 C16.5 12.5 21 12 21 15 C21 18 16.5 18 16.5 21 C16.5 24 21 23.5 21 23.5" stroke="white" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Light green rounded background -->
+  <rect width="200" height="200" rx="44" fill="#c6e8c2"/>
+  <!-- Shield outer body - dark green -->
+  <path d="M100 20 L172 50 L172 108 C172 154 140 178 100 191 C60 178 28 154 28 108 L28 50 Z" fill="#1a4a2c"/>
+  <!-- Shield inner cavity - light green -->
+  <path d="M100 42 L156 67 L156 110 C156 146 132 167 100 178 C68 167 44 146 44 110 L44 67 Z" fill="#c6e8c2"/>
+  <!-- S lettermark - dark green -->
+  <path d="M80 77 C80 77 124 71 124 93 C124 115 80 116 80 138 C80 160 124 155 124 155"
+        stroke="#1a4a2c" stroke-width="14.5" stroke-linecap="round" fill="none"/>
+  <!-- White circle dot -->
+  <circle cx="106" cy="87" r="14" fill="white"/>
 </svg>
