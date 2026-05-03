@@ -1,7 +1,9 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase } from 'lucide-react'
 import WavyUnderline from '@/components/ui/WavyUnderline'
 
 const fadeUp = {
@@ -13,258 +15,280 @@ const fadeUp = {
   }),
 }
 
-const miniCards = [
-  {
-    label: 'Motor',
-    price: '₦65K',
-    period: 'from / year',
-    bg: 'var(--motor-50)',
-    color: 'var(--motor-600)',
-    href: '/motor',
-    illustration: (
-      <svg viewBox="0 0 80 40" width="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="18" width="72" height="16" rx="5" fill="#BFDBFE" />
-        <rect x="14" y="8" width="42" height="16" rx="4" fill="#93C5FD" />
-        <circle cx="18" cy="34" r="6" fill="#1D4ED8" />
-        <circle cx="62" cy="34" r="6" fill="#1D4ED8" />
-        <circle cx="18" cy="34" r="3" fill="#EFF6FF" />
-        <circle cx="62" cy="34" r="3" fill="#EFF6FF" />
-        <rect x="30" y="10" width="20" height="10" rx="2" fill="#DBEAFE" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Medical',
-    price: '₦45K',
-    period: 'from / year',
-    bg: 'var(--medical-50)',
-    color: 'var(--medical-600)',
-    href: '/medical',
-    illustration: (
-      <svg viewBox="0 0 80 60" width="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="30" y="4" width="20" height="52" rx="4" fill="#6EE7B7" />
-        <rect x="4" y="22" width="72" height="20" rx="4" fill="#6EE7B7" />
-        <rect x="36" y="10" width="8" height="40" rx="2" fill="#059669" />
-        <rect x="10" y="28" width="60" height="8" rx="2" fill="#059669" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Travel',
-    price: '₦8K',
-    period: 'from / trip',
-    bg: 'var(--travel-50)',
-    color: 'var(--travel-600)',
-    href: '/travel',
-    illustration: (
-      <svg viewBox="0 0 80 40" width="80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 28 L40 8 L72 28" stroke="#FCD34D" strokeWidth="4" strokeLinecap="round" />
-        <path d="M40 8 L40 32" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
-        <ellipse cx="40" cy="10" rx="14" ry="5" fill="#FDE68A" />
-        <path d="M26 20 L54 20" stroke="#D97706" strokeWidth="2" />
-        <circle cx="40" cy="34" r="4" fill="#FCD34D" />
-      </svg>
-    ),
-  },
-  {
-    label: 'Business',
-    price: '₦50K',
-    period: 'from / year',
-    bg: 'var(--business-50)',
-    color: 'var(--business-600)',
-    href: '/business',
-    illustration: (
-      <svg viewBox="0 0 70 60" width="70" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="10" y="20" width="50" height="38" rx="4" fill="#C4B5FD" />
-        <rect x="18" y="4" width="34" height="20" rx="4" fill="#A78BFA" />
-        <rect x="24" y="30" width="10" height="14" rx="2" fill="#7C3AED" />
-        <rect x="36" y="30" width="10" height="14" rx="2" fill="#7C3AED" />
-        <rect x="16" y="28" width="38" height="4" rx="1" fill="#6D28D9" />
-      </svg>
-    ),
-  },
-]
+const TABS = [
+  { key: 'motor',    label: 'Motor',    icon: Car,       color: 'var(--motor-600)',    bg: 'var(--motor-50)',    href: '/quote/motor'    },
+  { key: 'medical',  label: 'Medical',  icon: Heart,     color: 'var(--medical-600)',  bg: 'var(--medical-50)',  href: '/quote/medical'  },
+  { key: 'travel',   label: 'Travel',   icon: Plane,     color: 'var(--travel-600)',   bg: 'var(--travel-50)',   href: '/quote/travel'   },
+  { key: 'business', label: 'Business', icon: Building2, color: 'var(--business-600)', bg: 'var(--business-50)', href: '/quote/business' },
+] as const
+
+type TabKey = 'motor' | 'medical' | 'travel' | 'business'
+
+const COVERAGE_OPTIONS = ['Just me', 'Me + spouse', 'Family (3–5)', 'Family (6+)']
+const BUSINESS_TYPES  = ['Retail / Shop', 'Restaurant / Food', 'Construction', 'Tech / Agency', 'Manufacturing', 'Other']
+const DESTINATIONS    = ['United Kingdom', 'United States', 'Schengen (Europe)', 'Canada', 'UAE / Dubai', 'Other destination']
 
 export default function HeroSection() {
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<TabKey>('motor')
+  const [plateNum,  setPlateNum]  = useState('')
+
+  const tab = TABS.find((t) => t.key === activeTab)!
+
   return (
-    <section className="pt-20 pb-12" style={{ backgroundColor: 'var(--page-bg)' }}>
+    <section className="pt-16 pb-10 md:pt-20 md:pb-14" style={{ backgroundColor: 'var(--page-bg)' }}>
       <div className="max-w-[1280px] mx-auto px-5 lg:px-20">
-        <div className="grid lg:grid-cols-[55fr_45fr] gap-12 items-center">
-          {/* Left */}
+        <div className="grid lg:grid-cols-[55fr_45fr] gap-10 lg:gap-16 items-center">
+
+          {/* ── Left ── */}
           <div>
             {/* Award badges */}
-            <motion.div
-              className="flex flex-wrap gap-2.5 mb-6"
-              initial="hidden"
-              animate="visible"
-            >
-              <motion.span
-                custom={0}
-                variants={fadeUp}
-                className="inline-flex items-center gap-1.5 bg-white border border-[var(--border-default)] text-[var(--text-secondary)] font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
-              >
-                🏆 Nigeria's #1 Insurance Platform
+            <motion.div className="flex flex-wrap gap-2.5 mb-5" initial="hidden" animate="visible">
+              <motion.span custom={0} variants={fadeUp}
+                className="inline-flex items-center gap-1.5 bg-white border border-[var(--border-default)] text-[var(--text-secondary)] font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full">
+                🏆 Nigeria&apos;s #1 Insurance Platform
               </motion.span>
-              <motion.span
-                custom={1}
-                variants={fadeUp}
+              <motion.span custom={1} variants={fadeUp}
                 className="inline-flex items-center gap-1.5 border font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
-                style={{
-                  backgroundColor: 'var(--green-50)',
-                  borderColor: 'var(--green-100)',
-                  color: 'var(--green-700)',
-                }}
-              >
+                style={{ backgroundColor: 'var(--green-50)', borderColor: 'var(--green-100)', color: 'var(--green-700)' }}>
                 ✦ Best Insurtech 2025
               </motion.span>
             </motion.div>
 
             {/* H1 */}
-            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mb-5">
-              <h1
-                className="font-display font-extrabold leading-[1.08] tracking-tight"
-                style={{ fontSize: 'clamp(38px, 5vw, 56px)', color: 'var(--text-primary)' }}
-              >
+            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mb-4">
+              <h1 className="font-display font-extrabold leading-[1.08] tracking-tight"
+                style={{ fontSize: 'clamp(36px, 4.8vw, 54px)', color: 'var(--text-primary)' }}>
                 Have Nigeria&apos;s smartest
-                <br />
-                insurer by your{' '}
+                <br />insurer by your{' '}
                 <span className="relative inline-block">
-                  <em
-                    className="not-italic font-serif italic"
-                    style={{ fontSize: 'clamp(42px, 5.5vw, 62px)' }}
-                  >
-                    side
-                  </em>
-                  <span className="absolute -bottom-3 left-0 w-full">
-                    <WavyUnderline width={100} />
-                  </span>
+                  <em className="not-italic font-serif italic" style={{ fontSize: 'clamp(40px, 5.3vw, 60px)' }}>side</em>
+                  <span className="absolute -bottom-3 left-0 w-full"><WavyUnderline width={100} /></span>
                 </span>
               </h1>
             </motion.div>
 
-            {/* Subtext */}
-            <motion.p
-              custom={3}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="font-sans text-[17px] leading-relaxed mb-8 max-w-[480px]"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              Instant quotes. Digital certificates. Real claims support.
-              <br />
-              Trusted by 50,000+ Nigerians.
+            <motion.p custom={3} variants={fadeUp} initial="hidden" animate="visible"
+              className="font-sans text-[16px] leading-relaxed mb-7 max-w-[460px]"
+              style={{ color: 'var(--text-muted)' }}>
+              Instant quotes from 10+ NAICOM-licensed insurers.
+              Digital certificate in under 3 minutes.
             </motion.p>
 
-            {/* CTAs */}
-            <motion.div
-              custom={4}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-wrap gap-3 mb-6"
-            >
-              <Link
-                href="/quote/motor"
-                className="inline-flex items-center gap-2 h-14 px-8 bg-orange-500 hover:bg-orange-600 text-white rounded-[var(--radius-xl)] font-sans font-semibold text-base transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
-              >
-                Get a free quote <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/#products"
-                className="inline-flex items-center h-14 px-8 bg-white border-[1.5px] border-[var(--border-medium)] text-[var(--text-secondary)] rounded-[var(--radius-xl)] font-sans font-semibold text-base hover:bg-[var(--surface-raised)] hover:border-[var(--border-strong)] transition-all duration-200"
-              >
-                View all products
-              </Link>
+            {/* ── Quick-Quote Widget ── */}
+            <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible"
+              className="rounded-3xl border overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.07)] mb-6"
+              style={{ backgroundColor: 'white', borderColor: 'var(--border-default)' }}>
+
+              {/* Product tabs */}
+              <div className="flex border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                {TABS.map((t) => {
+                  const active = activeTab === t.key
+                  const Icon = t.icon
+                  return (
+                    <button
+                      key={t.key}
+                      type="button"
+                      onClick={() => setActiveTab(t.key)}
+                      className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-3 text-[11px] sm:text-[12px] font-sans font-semibold transition-all relative"
+                      style={{
+                        color: active ? t.color : 'var(--text-muted)',
+                        backgroundColor: active ? t.bg : 'transparent',
+                      }}
+                    >
+                      <Icon className="w-3.5 h-3.5 shrink-0" />
+                      {t.label}
+                      {active && (
+                        <motion.div
+                          layoutId="tab-indicator"
+                          className="absolute bottom-0 left-0 right-0 h-0.5"
+                          style={{ backgroundColor: t.color }}
+                        />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Tab body */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="p-4"
+                >
+                  {activeTab === 'motor' && (
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
+                        <input
+                          type="text"
+                          placeholder="Plate number (e.g. LAG-123-AA) — optional"
+                          value={plateNum}
+                          onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
+                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,78,216,0.1)' }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/quote/motor')}
+                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
+                        style={{ backgroundColor: 'var(--motor-600)' }}
+                      >
+                        Get Quotes →
+                      </button>
+                    </div>
+                  )}
+
+                  {activeTab === 'medical' && (
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
+                        <select
+                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--medical-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(5,150,105,0.1)' }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+                        >
+                          <option value="">Who needs cover?</option>
+                          {COVERAGE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/quote/medical')}
+                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
+                        style={{ backgroundColor: 'var(--medical-600)' }}
+                      >
+                        Get Quotes →
+                      </button>
+                    </div>
+                  )}
+
+                  {activeTab === 'travel' && (
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
+                        <select
+                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--travel-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(217,119,6,0.1)' }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+                        >
+                          <option value="">Where are you travelling?</option>
+                          {DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/quote/travel')}
+                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
+                        style={{ backgroundColor: 'var(--travel-600)' }}
+                      >
+                        Get Quotes →
+                      </button>
+                    </div>
+                  )}
+
+                  {activeTab === 'business' && (
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
+                        <select
+                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--business-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)' }}
+                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+                        >
+                          <option value="">What type of business?</option>
+                          {BUSINESS_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
+                        </select>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/quote/business')}
+                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
+                        style={{ backgroundColor: 'var(--business-600)' }}
+                      >
+                        Get Quotes →
+                      </button>
+                    </div>
+                  )}
+
+                  {/* From-price hint */}
+                  <p className="font-sans text-[11px] mt-2.5 text-center" style={{ color: 'var(--text-subtle)' }}>
+                    {activeTab === 'motor'    && 'Motor cover from ₦15,000/yr · Compare 5+ insurers instantly'}
+                    {activeTab === 'medical'  && 'Health plans from ₦45,000/yr · 700+ accredited hospitals'}
+                    {activeTab === 'travel'   && 'Travel cover from ₦8,000 · Schengen certificate in 60 seconds'}
+                    {activeTab === 'business' && 'Business cover from ₦50,000/yr · Tax deductible under CITA'}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
 
             {/* Trust pills */}
-            <motion.div
-              custom={5}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-wrap gap-5"
-            >
-              {[
-                'Instant NIID certificate',
-                'Claims in 24 hours',
-                'NAICOM regulated',
-              ].map((pill) => (
+            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-wrap gap-5">
+              {['Instant NIID certificate', 'Claims in 24 hours', 'NAICOM regulated'].map((pill) => (
                 <div key={pill} className="flex items-center gap-1.5">
-                  <div
-                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: 'var(--green-50)' }}
-                  >
-                    <svg
-                      width="10"
-                      height="10"
-                      viewBox="0 0 10 10"
-                      fill="none"
-                    >
-                      <path
-                        d="M2 5 L4 7 L8 3"
-                        stroke="var(--green-700)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5 L4 7 L8 3" stroke="var(--green-700)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
-                    {pill}
-                  </span>
+                  <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{pill}</span>
                 </div>
               ))}
             </motion.div>
           </div>
 
-          {/* Right: mini bento */}
+          {/* ── Right: mini bento (desktop only) ── */}
           <div className="hidden lg:block">
             <div className="grid grid-cols-2 gap-3 max-w-[420px]">
-              {miniCards.map((card, i) => (
-                <motion.div
-                  key={card.label}
-                  custom={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
-                  whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
-                >
-                  <Link
-                    href={card.href}
-                    className="block relative overflow-visible bg-white rounded-4xl border border-[var(--border-default)] p-5 cursor-pointer"
-                    style={{ backgroundColor: card.bg }}
+              {TABS.map((card, i) => {
+                const Icon = card.icon
+                const fromPrices: Record<TabKey, string> = { motor: '₦15K', medical: '₦45K', travel: '₦8K', business: '₦50K' }
+                const periods: Record<TabKey, string> = { motor: 'from / year', medical: 'from / year', travel: 'from / trip', business: 'from / year' }
+                return (
+                  <motion.div
+                    key={card.key}
+                    custom={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
+                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <span
-                        className="font-sans font-semibold text-xs uppercase tracking-wider"
-                        style={{ color: card.color }}
-                      >
-                        {card.label}
-                      </span>
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center border"
-                        style={{ borderColor: card.color }}
-                      >
-                        <ArrowRight className="w-3.5 h-3.5" style={{ color: card.color }} />
-                      </div>
-                    </div>
-                    <p
-                      className="font-display font-bold text-3xl leading-none"
-                      style={{ color: card.color }}
+                    <Link
+                      href={card.href}
+                      className="block relative overflow-hidden rounded-4xl border border-[var(--border-default)] p-5 cursor-pointer"
+                      style={{ backgroundColor: card.bg }}
                     >
-                      {card.price}
-                    </p>
-                    <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                      {card.period}
-                    </p>
-                    <div className="absolute bottom-0 right-0 pointer-events-none opacity-80">
-                      {card.illustration}
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'white' }}>
+                          <Icon className="w-4.5 h-4.5" style={{ color: card.color }} />
+                        </div>
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: card.color }}>
+                          <ArrowRight className="w-3.5 h-3.5" style={{ color: card.color }} />
+                        </div>
+                      </div>
+                      <p className="font-sans font-semibold text-xs uppercase tracking-wider mb-1" style={{ color: card.color }}>
+                        {card.label} Insurance
+                      </p>
+                      <p className="font-display font-bold text-2xl leading-none" style={{ color: card.color }}>
+                        {fromPrices[card.key as TabKey]}
+                      </p>
+                      <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                        {periods[card.key as TabKey]}
+                      </p>
+                    </Link>
+                  </motion.div>
+                )
+              })}
             </div>
 
             {/* Live policy badge */}
@@ -274,15 +298,13 @@ export default function HeroSection() {
               transition={{ delay: 0.8 }}
               className="mt-4 mx-auto w-fit bg-white rounded-full shadow-md px-4 py-2.5 flex items-center gap-2.5"
             >
-              <div
-                className="w-2 h-2 rounded-full animate-pulse shrink-0"
-                style={{ backgroundColor: 'var(--green-500)' }}
-              />
+              <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: 'var(--green-500)' }} />
               <span className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
                 Policy issued · Motor · Lagos · 2 min ago
               </span>
             </motion.div>
           </div>
+
         </div>
       </div>
     </section>
