@@ -107,10 +107,13 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 px-4 pt-3 pb-0 transition-all" style={{ backgroundColor: 'var(--page-bg)' }}>
+      <div
+        className="sticky top-0 z-50 px-4 pt-2 md:pt-3 pb-0 transition-all"
+        style={{ backgroundColor: 'var(--page-bg)', paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
+      >
         <div className="max-w-[1280px] mx-auto">
           <nav className={cn(
-            'bg-white rounded-full border border-[var(--border-default)] px-5 h-[58px] flex items-center justify-between transition-shadow duration-200',
+            'bg-white rounded-full border border-[var(--border-default)] px-5 h-[52px] md:h-[58px] flex items-center justify-between transition-shadow duration-200',
             scrolled ? 'shadow-[0_4px_24px_rgba(0,0,0,0.10)]' : 'shadow-[0_1px_6px_rgba(0,0,0,0.06)]'
           )}>
             <Logo size={34} />
@@ -221,8 +224,8 @@ export default function Navbar() {
                 Login
               </Link>
 
-              {/* Get a Quote → dropdown */}
-              <div className="relative" onMouseEnter={() => setOpenMenu('quote')} onMouseLeave={() => setOpenMenu(null)}>
+              {/* Get a Quote → dropdown (desktop only — mobile uses bottom nav) */}
+              <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('quote')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
                   className="h-9 px-4 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md"
                 >
@@ -234,7 +237,7 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
 
-              <button type="button" className="md:hidden p-1.5 text-[var(--text-primary)]" onClick={() => setDrawerOpen(true)}>
+              <button type="button" className="md:hidden p-2 rounded-full hover:bg-[var(--surface-raised)] text-[var(--text-primary)] transition-colors" onClick={() => setDrawerOpen(true)}>
                 <Menu className="w-5 h-5" />
               </button>
             </div>
@@ -249,68 +252,86 @@ export default function Navbar() {
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 z-50" onClick={() => setDrawerOpen(false)} />
-            <motion.div initial={{ x: 320 }} animate={{ x: 0 }} exit={{ x: 320 }}
-              transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="fixed right-0 top-0 bottom-0 w-72 bg-white z-50 shadow-xl p-6 overflow-y-auto"
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
+              transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+              className="fixed right-0 top-0 bottom-0 w-[85vw] max-w-[340px] bg-white z-[60] shadow-2xl overflow-y-auto"
+              style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))', paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom,0px))' }}
             >
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between px-5 mb-6">
                 <Logo size={30} />
-                <button type="button" onClick={() => setDrawerOpen(false)}><X className="w-5 h-5 text-[var(--text-muted)]" /></button>
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--surface-raised)' }}
+                >
+                  <X className="w-4 h-4 text-[var(--text-muted)]" />
+                </button>
               </div>
 
-              <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2">Get a Quote</p>
-              {products.map(({ name, quoteHref, color, icon: Icon }) => (
-                <Link key={name} href={quoteHref} onClick={() => setDrawerOpen(false)}
-                  className="flex items-center justify-between py-3 border-b border-[var(--border-subtle)]">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}15` }}>
-                      <Icon className="w-4 h-4" style={{ color }} />
-                    </div>
-                    <span className="font-sans font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{name} Insurance</span>
-                  </div>
-                  <span style={{ color: 'var(--text-muted)' }}>→</span>
-                </Link>
-              ))}
-
-              <div className="mt-5 space-y-1">
-                <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2">Renewals</p>
-                {renewalLinks.map(({ label, href }) => (
-                  <Link key={label} href={href} onClick={() => setDrawerOpen(false)}
-                    className="block py-2 font-sans text-sm" style={{ color: 'var(--text-muted)' }}>{label}</Link>
-                ))}
-                <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2 mt-4">Claims</p>
-                {claimLinks.map(({ label, href }) => (
-                  <Link key={label} href={href} onClick={() => setDrawerOpen(false)}
-                    className="block py-2 font-sans text-sm" style={{ color: 'var(--text-muted)' }}>{label}</Link>
-                ))}
-                <Link href="/blog" onClick={() => setDrawerOpen(false)}
-                  className="block py-2.5 font-sans text-sm" style={{ color: 'var(--text-muted)' }}>Blog</Link>
-              </div>
-
-              {/* Mobile language selector */}
-              <div className="mt-5 flex items-center gap-2 flex-wrap">
-                <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider w-full mb-1">Language</p>
-                {LANGUAGES.map(({ code, label }) => (
-                  <button
-                    key={code}
-                    type="button"
-                    onClick={() => setSelectedLang(code)}
-                    className={cn(
-                      'px-3 py-1.5 rounded-full font-sans text-xs font-medium border transition-all',
-                      selectedLang === code
-                        ? 'bg-orange-50 border-orange-400 text-orange-600'
-                        : 'border-[var(--border-medium)] text-[var(--text-muted)]'
-                    )}
+              <div className="px-5">
+                <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2">Get a Quote</p>
+                {products.map(({ name, quoteHref, color, icon: Icon }) => (
+                  <Link key={name} href={quoteHref} onClick={() => setDrawerOpen(false)}
+                    className="flex items-center justify-between py-3.5 border-b"
+                    style={{ borderColor: 'var(--border-subtle)' }}
                   >
-                    {code} · {label}
-                  </button>
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${color}12` }}>
+                        <Icon className="w-4 h-4" style={{ color }} />
+                      </div>
+                      <span className="font-sans font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{name} Insurance</span>
+                    </div>
+                    <ArrowRight className="w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
+                  </Link>
                 ))}
+
+                <div className="mt-6 space-y-0.5">
+                  <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2">Renewals</p>
+                  {renewalLinks.map(({ icon: Icon, label, href }) => (
+                    <Link key={label} href={href} onClick={() => setDrawerOpen(false)}
+                      className="flex items-center gap-3 py-3 rounded-xl px-2 transition-colors hover:bg-[var(--surface-raised)]"
+                    >
+                      <Icon className="w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
+                      <span className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                    </Link>
+                  ))}
+
+                  <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2 mt-4">More</p>
+                  <Link href="/blog" onClick={() => setDrawerOpen(false)}
+                    className="flex items-center gap-3 py-3 rounded-xl px-2 transition-colors hover:bg-[var(--surface-raised)]"
+                  >
+                    <span className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>Blog</span>
+                  </Link>
+                </div>
+
+                {/* Language selector */}
+                <div className="mt-6 pt-5 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-3">Language</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {LANGUAGES.map(({ code, label }) => (
+                      <button
+                        key={code}
+                        type="button"
+                        onClick={() => setSelectedLang(code)}
+                        className={cn(
+                          'px-3 py-1.5 rounded-full font-sans text-xs font-medium border transition-all',
+                          selectedLang === code
+                            ? 'bg-orange-50 border-orange-400 text-orange-600'
+                            : 'border-[var(--border-medium)] text-[var(--text-muted)]'
+                        )}
+                      >
+                        {code} · {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="mt-6 flex flex-col gap-2.5">
+              <div className="mt-6 px-5 flex flex-col gap-2.5">
                 <Link href="/login" onClick={() => setDrawerOpen(false)}
-                  className="h-11 flex items-center justify-center bg-orange-500 hover:bg-orange-600 rounded-full font-sans font-semibold text-sm text-white transition-all">
-                  Login
+                  className="h-12 flex items-center justify-center bg-orange-500 hover:bg-orange-600 rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
+                  Login / Sign up
                 </Link>
               </div>
             </motion.div>

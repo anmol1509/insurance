@@ -81,7 +81,7 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer style={{ backgroundColor: '#000000', color: 'white' }}>
+    <footer style={{ backgroundColor: '#000000', color: 'white' }} className="pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
       {/* NAICOM regulatory bar */}
       <div className="border-b" style={{ borderColor: '#1F2937', backgroundColor: '#0A0A0A' }}>
         <div className="max-w-[1280px] mx-auto px-5 lg:px-20 py-3 flex flex-wrap items-center gap-4">

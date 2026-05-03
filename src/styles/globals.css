@@ -110,6 +110,13 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent rubber-band overscroll revealing white on iOS */
+  overscroll-behavior: none;
+}
+
+/* iOS active-state tap highlight */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer utilities {
