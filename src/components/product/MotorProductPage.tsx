@@ -3,6 +3,16 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Shield, Clock, Check, ArrowRight, Flame, Lock, Users, CloudRain, Wrench, BadgeCheck, Info, Star, PhoneCall } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
+import FAQAccordion from '@/components/product/FAQAccordion'
+
+const MOTOR_FAQS = [
+  { q: 'Is third-party motor insurance mandatory in Nigeria?', a: 'Yes. Under the Insurance Act 2003 and the Motor Vehicles (Third Party Insurance) Act, every vehicle on a Nigerian public road must have at minimum a valid Third Party Only (TPO) policy. Driving without it is a criminal offence and FRSC officers can impound your vehicle.' },
+  { q: 'What is the difference between Comprehensive and Third Party Fire & Theft (TPFT)?', a: 'Comprehensive covers your own vehicle plus all third-party liability — the broadest protection available. TPFT covers your vehicle against theft and fire, plus third-party liability, but not collision/impact damage to your own vehicle. TPO is the legal minimum — it only covers third-party losses, not your own car.' },
+  { q: 'How is my motor premium calculated?', a: 'Your premium is based on the vehicle\'s market value, engine capacity, year, use type (private vs commercial), cover level, driver age and experience, security features, and claims history. Comprehensive cover typically ranges from 2–5% of market value annually.' },
+  { q: 'Can I insure a car that is not in my name?', a: 'Yes — you can insure a vehicle you have a financial or insurable interest in, even if the logbook is in someone else\'s name. You will need to provide the vehicle\'s registration details and owner\'s information.' },
+  { q: 'What documents do I need to file a motor insurance claim?', a: 'You will need: your insurance certificate, vehicle registration documents, a police report (for accidents/theft), photos of the damage, driver\'s licence, and a completed claim form. For theft claims, NIID confirmation is also required. File within 24 hours for fastest processing.' },
+  { q: 'How long does it take to get my insurance certificate?', a: 'Digital certificates are issued within 3 minutes of payment for most motor policies. The certificate is NIID-registered, emailed to you, and available in your ShopInsurance dashboard. A physical certificate can be printed from your account at any time.' },
+]
 
 const coverageItems = [
   { icon: Shield,     color: '#1D4ED8', bg: '#EFF6FF', title: 'Accidental damage',     desc: 'Full cover for your vehicle in case of collision, impact, or rollover.' },
@@ -333,6 +343,9 @@ export default function MotorProductPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      <FAQAccordion faqs={MOTOR_FAQS} productColor="var(--motor-600)" />
 
       {/* ── Footer CTA ── */}
       <section className="py-14 px-5 lg:px-20 text-center" style={{ backgroundColor: 'var(--motor-600)' }}>
