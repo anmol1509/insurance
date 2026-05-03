@@ -3,6 +3,16 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, Heart, Stethoscope, Baby, Eye, Ambulance, Building2, PhoneCall } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
+import FAQAccordion from '@/components/product/FAQAccordion'
+
+const MEDICAL_FAQS = [
+  { q: 'What is the difference between HMO and indemnity health insurance in Nigeria?', a: 'An HMO (Health Maintenance Organisation) plan gives you access to a network of accredited hospitals. You pay a fixed annual premium and receive cashless treatment at any accredited facility. Indemnity (fee-for-service) insurance lets you visit any hospital and claim reimbursement afterwards. HMOs are generally more affordable; indemnity plans offer more flexibility.' },
+  { q: 'Are pre-existing conditions covered?', a: 'Coverage of pre-existing conditions depends on the plan and insurer. Most plans have a waiting period of 3–12 months before pre-existing conditions are covered. Some plans exclude certain chronic conditions entirely. Always disclose all pre-existing conditions accurately — failure to disclose can invalidate your policy.' },
+  { q: 'Is the NHIA (National Health Insurance Authority) different from private HMOs?', a: 'Yes. The NHIA (formerly NHIS) is the federal government\'s public health insurance scheme, primarily for formal sector workers. Private HMOs like Hygeia, Reliance HMO, and Avon offer broader benefits, shorter waiting periods, and access to more facilities. ShopInsurance partners exclusively with NAICOM-regulated private HMOs.' },
+  { q: 'Can I add dependants (spouse, children) to my policy?', a: 'Yes. Most plans on ShopInsurance support family coverage. You can add a spouse and up to 4 children (under 18) to a single plan at a discounted family rate — typically 30–40% cheaper than separate individual plans. Newborns can usually be added within 30 days of birth.' },
+  { q: 'What is the process for getting treatment at an accredited hospital?', a: 'Present your e-card (or physical HMO card) at the hospital reception. For HMO plans, treatment is cashless at accredited facilities — no upfront payment is required for covered services. For indemnity plans, pay out-of-pocket and submit your receipts to the insurer within 30–90 days for reimbursement.' },
+  { q: 'Does health insurance cover maternity and childbirth?', a: 'Maternity cover is available on mid-tier and premium plans. Most plans impose a 10-month waiting period for maternity benefits. Standard maternity cover includes antenatal visits, delivery (normal and Caesarean), and postnatal care up to a specified limit. Check individual plan terms for exact benefit amounts.' },
+]
 
 const coverageItems = [
   { icon: Building2,    color: '#059669', bg: '#ECFDF5', title: 'Inpatient care',            desc: 'Full hospitalisation cover including surgery, ward, specialist, and ICU fees.' },
@@ -261,6 +271,9 @@ export default function MedicalProductPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      <FAQAccordion faqs={MEDICAL_FAQS} productColor="var(--medical-600)" />
 
       {/* ── Footer CTA ── */}
       <section className="py-14 px-5 lg:px-20 text-center" style={{ backgroundColor: 'var(--medical-600)' }}>

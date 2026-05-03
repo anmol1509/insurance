@@ -3,6 +3,16 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, Plane, HeartPulse, Luggage, Clock, Globe, Waves, PhoneCall, X } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
+import FAQAccordion from '@/components/product/FAQAccordion'
+
+const TRAVEL_FAQS = [
+  { q: 'Is travel insurance mandatory for Schengen visa applications?', a: 'Yes. The Schengen visa code requires all applicants to have travel medical insurance covering a minimum of €30,000 for the entire Schengen area and duration of stay. The insurance must cover emergency medical expenses, hospitalisation, and repatriation. ShopInsurance issues Schengen-compliant certificates instantly after payment.' },
+  { q: 'What does "trip cancellation" cover?', a: 'Trip cancellation reimburses your non-refundable travel costs (flights, hotels, tour deposits) if you must cancel your trip due to a covered reason — serious illness or death of the insured or an immediate family member, jury duty, job loss, or severe weather making travel impossible. It does not cover cancellations due to change of mind.' },
+  { q: 'Does travel insurance cover me if I travel multiple times a year?', a: 'Yes. Multi-trip annual plans cover unlimited trips (each typically up to 30 or 45 days) within a 12-month period — ideal for frequent travellers. Single-trip plans cover one specific journey. Multi-trip plans are usually 30–50% cheaper than buying separate single-trip policies for each journey.' },
+  { q: 'Am I covered for adventure sports and activities?', a: 'Standard plans typically exclude hazardous activities like skydiving, bungee jumping, mountaineering, and motor racing. Many insurers offer an optional adventure sports rider. Water sports (snorkelling, scuba up to 40m), skiing, and hiking are included on most mid-tier plans — always check the policy schedule.' },
+  { q: 'What happens if I need emergency medical treatment abroad?', a: 'Call our 24/7 emergency assistance line immediately (number on your policy card). For life-threatening emergencies, go to the nearest hospital — our team will coordinate with the facility. For non-emergency treatment, get pre-authorisation where possible. Keep all receipts and medical reports for reimbursement claims.' },
+  { q: 'How long does it take to get a travel insurance certificate?', a: 'Immediately after payment — your certificate is issued in under 60 seconds, emailed to you, and available in your dashboard. For Schengen visa applications, the certificate includes all required fields: insurer name, policy number, coverage dates, coverage territory, and the €30,000 minimum medical limit.' },
+]
 
 const coverageItems = [
   { icon: HeartPulse, color: '#DC2626', bg: '#FEF2F2', title: 'Medical emergencies',    desc: 'Hospital treatment, surgery, and emergency evacuation abroad — up to $1M.' },
@@ -236,6 +246,9 @@ export default function TravelProductPage() {
       </section>
 
       {/* ── Footer CTA ── */}
+      {/* ── FAQ ── */}
+      <FAQAccordion faqs={TRAVEL_FAQS} productColor="var(--travel-600)" />
+
       <section className="py-14 px-5 lg:px-20 text-center" style={{ backgroundColor: 'var(--travel-600)' }}>
         <div className="max-w-[1280px] mx-auto">
           <h2 className="font-display font-extrabold text-[36px] text-white tracking-tight mb-2">Ready to travel with confidence?</h2>

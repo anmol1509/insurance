@@ -3,6 +3,16 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, Flame, Lock, Users, Briefcase, HeartHandshake, FileCheck, PhoneCall } from 'lucide-react'
 import { useState } from 'react'
+import FAQAccordion from '@/components/product/FAQAccordion'
+
+const BUSINESS_FAQS = [
+  { q: 'Is business insurance compulsory in Nigeria?', a: 'Certain types of business insurance are mandatory under Nigerian law. The Insurance Act 2003 requires buildings in public use to have fire insurance, and employers must carry group life and workmen\'s compensation (NSITF) cover. Professional indemnity is required for legal and medical practitioners. Other covers like property, burglary, and liability are strongly recommended but not legally mandated.' },
+  { q: 'Can I deduct business insurance premiums from my company tax?', a: 'Yes. Under Section 24 of the Companies Income Tax Act (CITA), insurance premiums paid wholly and exclusively for business purposes are deductible from assessable profits. This means a ₦500,000 premium effectively costs your company significantly less after the tax deduction. We recommend consulting your tax adviser for your specific entity type.' },
+  { q: 'What is the difference between fire insurance and fire & special perils?', a: 'Basic fire insurance covers losses from fire alone. Fire & Special Perils (F&SP) is a broader cover that includes lightning, explosion, aircraft impact, riot and civil commotion, storm, flood, burst pipes, and impact by vehicles. For most businesses, F&SP is significantly better value and costs only marginally more than basic fire cover.' },
+  { q: 'How is the insured value (sum insured) determined for my property?', a: 'Buildings should be insured at full reinstatement value — the cost to rebuild from scratch, not the market value. Contents, stock, and equipment should be insured at replacement cost. Under-insuring (under-declaration) means claims will be paid on a proportional (pro-rata) basis — if you insure at 50% of true value, you will only receive 50% of any valid claim.' },
+  { q: 'Does my business policy cover employees working remotely or off-site?', a: 'Standard property cover applies to items at your declared business premises. Many policies extend to cover stock in transit or at a named third-party location. Remote workers are typically covered under Group Personal Accident and Employers\' Liability policies, which follow the employee regardless of location. Check your policy schedule for territorial limits.' },
+  { q: 'How long does it take to issue a business insurance certificate?', a: 'Simple covers (fire, burglary, householder) are issued within 4 business hours. More complex covers (group personal accident, professional indemnity, engineering) may require up to 24 hours for underwriting review. The certificate is emailed, available in your dashboard, and can be presented to clients, banks, or regulators.' },
+]
 import Tag from '@/components/ui/Tag'
 import CheckboxCard from '@/components/ui/CheckboxCard'
 import { formatNaira } from '@/lib/formatters'
@@ -274,6 +284,9 @@ export default function BusinessProductPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      <FAQAccordion faqs={BUSINESS_FAQS} productColor="var(--business-600)" />
 
       {/* ── Footer CTA ── */}
       <section className="py-14 px-5 lg:px-20 text-center" style={{ backgroundColor: 'var(--business-600)' }}>
