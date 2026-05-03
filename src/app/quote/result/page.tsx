@@ -5,6 +5,7 @@ import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
 import { Shield, Star, ChevronDown, ChevronUp, ArrowLeft, Check, Mail, X, GitCompare } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 
 type SortKey = 'popular' | 'price' | 'rating'
@@ -244,6 +245,7 @@ function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleComp
   onToggleCompare: (id: string) => void
   canCompare: boolean
 }) {
+  const router = useRouter()
   const [expanded, setExpanded] = useState(false)
   const price = Math.round(basePrice * plan.multiplier)
 
@@ -349,6 +351,7 @@ function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleComp
         <div className="flex items-center gap-3">
           <button
             type="button"
+            onClick={() => router.push('/quote/checkout')}
             className="flex-1 h-11 rounded-2xl font-sans font-semibold text-sm text-white transition-all hover:-translate-y-px hover:shadow-md"
             style={{ backgroundColor: color.main }}
           >
@@ -374,6 +377,7 @@ function CompareModal({ plans, basePrice, color, onClose }: {
   color: { main: string; light: string; text: string }
   onClose: () => void
 }) {
+  const router = useRouter()
   // Collect all unique feature strings across the selected plans
   const allFeatures = Array.from(new Set(plans.flatMap(p => p.features)))
   const hasNetwork = plans.some(p => p.networkSize)
@@ -502,6 +506,7 @@ function CompareModal({ plans, basePrice, color, onClose }: {
             <div key={plan.id} className="shrink-0" style={{ minWidth: '140px' }}>
               <button
                 type="button"
+                onClick={() => router.push('/quote/checkout')}
                 className="w-full h-10 rounded-2xl font-sans font-semibold text-sm text-white transition-all hover:-translate-y-px hover:shadow-md"
                 style={{ backgroundColor: color.main }}
               >

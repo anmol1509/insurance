@@ -1,7 +1,8 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import { Shield, Lock, Zap } from 'lucide-react'
+import Link from 'next/link'
+import { Shield, Lock, Zap, X } from 'lucide-react'
 import StepCircle from '@/components/ui/StepCircle'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
@@ -46,33 +47,49 @@ export default function QuoteLayout({
   const progressPct = ((currentStep - 1) / totalSteps) * 100
 
   return (
-    <div className="min-h-screen py-10 px-5 lg:px-20" style={{ backgroundColor: 'var(--page-bg)' }}>
-      <div className="max-w-[1280px] mx-auto">
-        {/* Mobile progress bar */}
-        <div className="lg:hidden mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <p className="font-sans font-medium text-sm" style={{ color: config.color }}>
-              Step {currentStep} of {totalSteps}
-            </p>
-            <p className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
+      {/* App-like header — replaces Navbar during quote flow */}
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+        <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
+          <Link href="/" className="shrink-0 font-display font-bold text-[18px]" style={{ color: 'var(--green-700)' }}>
+            Cover<span style={{ color: 'var(--text-primary)' }}>quick</span>
+          </Link>
+          <div className="flex-1 flex items-center justify-center gap-2">
+            <span className="text-base">{config.icon}</span>
+            <span className="font-sans text-[13px] hidden sm:inline" style={{ color: 'var(--text-muted)' }}>
               {config.label}
-            </p>
+            </span>
+            <span className="text-[var(--text-subtle)] hidden sm:inline">·</span>
+            <span className="font-sans font-semibold text-[13px]" style={{ color: config.color }}>
+              Step {currentStep}/{totalSteps}
+            </span>
           </div>
-          <div className="h-1.5 bg-[var(--border-subtle)] rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ backgroundColor: config.color }}
-              initial={{ width: '0%' }}
-              animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 0.4 }}
-            />
-          </div>
+          <Link
+            href="/"
+            className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
+            title="Exit quote"
+          >
+            <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+          </Link>
         </div>
+        <div className="h-1 bg-[var(--border-subtle)]">
+          <motion.div
+            className="h-full"
+            style={{ backgroundColor: config.color }}
+            initial={{ width: '0%' }}
+            animate={{ width: `${progressPct}%` }}
+            transition={{ duration: 0.4 }}
+          />
+        </div>
+      </div>
+
+      <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
+      <div className="max-w-[1280px] mx-auto">
 
         <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            <div className="sticky top-24 bg-white rounded-4xl border border-[var(--border-default)] p-7">
+            <div className="sticky top-[4.5rem] bg-white rounded-4xl border border-[var(--border-default)] p-7">
               {/* Product header */}
               <div className="flex items-center gap-3.5 pb-5 border-b border-[var(--border-subtle)]">
                 <div
@@ -308,6 +325,7 @@ export default function QuoteLayout({
             {isFinalStep ? 'Submit →' : 'Next step →'}
           </button>
         </div>
+      </div>
       </div>
     </div>
   )

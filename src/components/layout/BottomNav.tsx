@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, LayoutGrid, Plus, FileText, User, X, Car, Heart, Plane, Building2, ArrowRight } from 'lucide-react'
+import { Home, RefreshCw, Plus, FileText, User, X, Car, Heart, Plane, Building2, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -118,16 +118,16 @@ export default function BottomNav() {
             <span className="font-sans text-[10px] font-medium">Home</span>
           </Link>
 
-          {/* Products */}
+          {/* Renew */}
           <Link
-            href="/motor"
+            href="/renewals"
             className={cn(
               'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active(['/motor', '/medical', '/travel', '/business']) ? 'text-orange-500' : 'text-[var(--text-subtle)]'
+              active('/renewals') ? 'text-orange-500' : 'text-[var(--text-subtle)]'
             )}
           >
-            <LayoutGrid className="w-5 h-5" />
-            <span className="font-sans text-[10px] font-medium">Products</span>
+            <RefreshCw className="w-5 h-5" />
+            <span className="font-sans text-[10px] font-medium">Renew</span>
           </Link>
 
           {/* Center quote button */}

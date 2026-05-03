@@ -7,13 +7,15 @@ import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import LiveChat from '@/components/ui/LiveChat'
 import CookieBanner from '@/components/ui/CookieBanner'
 
-const CHROME_HIDDEN_PREFIXES = ['/dashboard', '/login', '/register', '/admin']
-const BOTTOM_NAV_HIDDEN_PREFIXES = ['/quote/', '/dashboard', '/admin', '/login', '/register']
+const CHROME_HIDDEN_PREFIXES = ['/dashboard', '/login', '/register', '/admin', '/quote']
+const BOTTOM_NAV_HIDDEN_PREFIXES = ['/quote', '/dashboard', '/admin', '/login', '/register']
+const FLOATING_HIDDEN_PREFIXES = ['/login', '/register', '/admin']
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const hideChrome = CHROME_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
-  const showBottomNav = !hideChrome && !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
+  const showBottomNav = !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
+  const hideFloating = FLOATING_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
 
   return (
     <>
@@ -22,9 +24,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       {!hideChrome && <Footer />}
-      {!hideChrome && <BottomNav />}
-      {!hideChrome && <WhatsAppButton />}
-      {!hideChrome && <LiveChat />}
+      {showBottomNav && <BottomNav />}
+      {!hideFloating && <WhatsAppButton />}
+      {!hideFloating && <LiveChat />}
       <CookieBanner />
     </>
   )
