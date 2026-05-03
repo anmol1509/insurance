@@ -2,10 +2,17 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, RefreshCw, FileText, Search, HelpCircle, ArrowRight } from 'lucide-react'
+import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+
+const LANGUAGES = [
+  { code: 'EN', label: 'English' },
+  { code: 'HA', label: 'Hausa' },
+  { code: 'YO', label: 'Yorùbá' },
+  { code: 'IG', label: 'Igbo' },
+]
 
 const products = [
   { name: 'Motor',    href: '/motor',    quoteHref: '/quote/motor',    color: '#1D4ED8', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
@@ -87,6 +94,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [selectedLang, setSelectedLang] = useState('EN')
   const pathname = usePathname()
 
   useEffect(() => {
@@ -173,8 +181,42 @@ export default function Navbar() {
 
             {/* Right actions */}
             <div className="flex items-center gap-2">
+              {/* Language switcher */}
+              <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('lang')} onMouseLeave={() => setOpenMenu(null)}>
+                <button type="button"
+                  className="flex items-center gap-1.5 h-9 px-3 rounded-full font-sans font-medium text-[13px] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)] transition-colors"
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  {selectedLang}
+                  <ChevronDown className={cn('w-3 h-3 transition-transform duration-200', openMenu === 'lang' && 'rotate-180')} />
+                </button>
+                <AnimatePresence>
+                  {openMenu === 'lang' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute top-full right-0 mt-2 w-40 bg-white rounded-2xl shadow-lg border border-[var(--border-default)] p-1.5 z-50"
+                    >
+                      {LANGUAGES.map(({ code, label }) => (
+                        <button
+                          key={code}
+                          type="button"
+                          onClick={() => { setSelectedLang(code); setOpenMenu(null) }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[var(--surface-raised)] transition-colors"
+                        >
+                          <span className="font-sans text-[13px]" style={{ color: 'var(--text-primary)' }}>{label}</span>
+                          {selectedLang === code && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               <Link href="/login"
-                className="hidden md:flex h-9 px-4 items-center border-[1.5px] border-[var(--border-medium)] rounded-full font-sans font-medium text-[13.5px] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-raised)] transition-all"
+                className="hidden md:flex h-9 px-4 items-center bg-orange-500 hover:bg-orange-600 rounded-full font-sans font-semibold text-[13.5px] text-white transition-all hover:shadow-md"
               >
                 Login
               </Link>
@@ -245,9 +287,29 @@ export default function Navbar() {
                   className="block py-2.5 font-sans text-sm" style={{ color: 'var(--text-muted)' }}>Blog</Link>
               </div>
 
+              {/* Mobile language selector */}
+              <div className="mt-5 flex items-center gap-2 flex-wrap">
+                <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider w-full mb-1">Language</p>
+                {LANGUAGES.map(({ code, label }) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => setSelectedLang(code)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-full font-sans text-xs font-medium border transition-all',
+                      selectedLang === code
+                        ? 'bg-orange-50 border-orange-400 text-orange-600'
+                        : 'border-[var(--border-medium)] text-[var(--text-muted)]'
+                    )}
+                  >
+                    {code} · {label}
+                  </button>
+                ))}
+              </div>
+
               <div className="mt-6 flex flex-col gap-2.5">
                 <Link href="/login" onClick={() => setDrawerOpen(false)}
-                  className="h-11 flex items-center justify-center border-[1.5px] border-[var(--border-medium)] rounded-full font-sans font-medium text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  className="h-11 flex items-center justify-center bg-orange-500 hover:bg-orange-600 rounded-full font-sans font-semibold text-sm text-white transition-all">
                   Login
                 </Link>
               </div>
