@@ -1,11 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/store/authStore'
 
 const LANGUAGES = [
   { code: 'EN', label: 'English' },
@@ -96,6 +97,16 @@ export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [selectedLang, setSelectedLang] = useState('EN')
   const pathname = usePathname()
+  const router = useRouter()
+  const { user } = useAuthStore()
+
+  function requireAuth(dest: string) {
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(dest)}`)
+    } else {
+      router.push(dest)
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -148,6 +159,7 @@ export default function Navbar() {
               {/* Renewals */}
               <div className="relative" onMouseEnter={() => setOpenMenu('renewals')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
+                  onClick={() => requireAuth('/renewals')}
                   className={cn('flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors',
                     pathname.startsWith('/renewals') ? 'text-[var(--green-700)] bg-[var(--green-50)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]'
                   )}
@@ -162,6 +174,7 @@ export default function Navbar() {
               {/* Claims */}
               <div className="relative" onMouseEnter={() => setOpenMenu('claims')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
+                  onClick={() => requireAuth('/claims/new')}
                   className={cn('flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors',
                     pathname.startsWith('/claims') ? 'text-[var(--green-700)] bg-[var(--green-50)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]'
                   )}

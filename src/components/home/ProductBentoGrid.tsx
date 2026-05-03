@@ -132,7 +132,7 @@ const products = [
 
 export default function ProductBentoGrid() {
   return (
-    <section id="products" style={{ backgroundColor: 'var(--page-bg)' }} className="px-5 lg:px-20 pb-20">
+    <section id="products" style={{ backgroundColor: 'var(--page-bg)' }} className="px-5 lg:px-20 pt-16 lg:pt-24 pb-20">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
