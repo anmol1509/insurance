@@ -193,6 +193,14 @@ export default function Navbar() {
               >
                 Blog
               </Link>
+
+              <Link href="/contact"
+                className={cn('px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors',
+                  pathname === '/contact' ? 'text-[var(--green-700)] bg-[var(--green-50)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]'
+                )}
+              >
+                Contact
+              </Link>
             </div>
 
             {/* Right actions */}
