@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Loader2, Info, X } from 'lucide-react'
 import {
   NIGERIAN_STATES, VEHICLE_MAKES, VEHICLE_COLOURS, COLOUR_SWATCHES,
-  VEHICLE_TYPES, ENGINE_CAPACITIES, MARKET_VALUE_RANGES,
+  VEHICLE_TYPES, ENGINE_CAPACITIES,
 } from '@/lib/constants'
 
 const currentYear = new Date().getFullYear()
@@ -20,7 +20,6 @@ const years = Array.from({ length: currentYear - 1989 }, (_, i) => {
 const stateOptions = NIGERIAN_STATES.map((s) => ({ value: s, label: s }))
 const vehicleTypeOptions = VEHICLE_TYPES.map((v) => ({ value: v, label: v }))
 const engineOptions = ENGINE_CAPACITIES.map((e) => ({ value: e, label: e }))
-const valueOptions = MARKET_VALUE_RANGES.map((r) => ({ value: r.value, label: r.label }))
 
 const coverTypes = [
   {
@@ -207,15 +206,31 @@ export default function MotorStep1() {
           placeholder="e.g. JN1AAZX45U0000001"
           productColor="var(--motor-600)"
         />
-        <Select
-          label="Market Value Range"
-          required
-          options={valueOptions}
-          value={motorData.marketValueRange}
-          onChange={(v) => updateMotor({ marketValueRange: v })}
-          placeholder="Select value range"
-          productColor="var(--motor-600)"
-        />
+        <div>
+          <label className="font-sans font-semibold text-xs text-[var(--text-secondary)] block mb-1.5">
+            Current Market Value (₦) <span className="text-[var(--error)]">*</span>
+          </label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-sans font-semibold text-[14px]" style={{ color: 'var(--text-muted)' }}>₦</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={motorData.marketValueRange ? Number(motorData.marketValueRange.replace(/,/g, '')).toLocaleString('en-NG') : ''}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/,/g, '').replace(/\D/g, '')
+                updateMotor({ marketValueRange: raw })
+              }}
+              placeholder="e.g. 4,500,000"
+              className="w-full h-12 pl-8 pr-4 rounded-[var(--radius-md)] border-[1.5px] font-sans text-[14px] outline-none transition-all"
+              style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--motor-600) 12%, transparent)' }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+            />
+          </div>
+          <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
+            Enter the vehicle's current resale value. This determines your IDV (Insured Declared Value).
+          </p>
+        </div>
       </div>
 
       {/* Cover type */}

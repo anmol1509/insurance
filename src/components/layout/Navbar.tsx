@@ -186,14 +186,6 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
 
-              <Link href="/blog"
-                className={cn('px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors',
-                  pathname === '/blog' ? 'text-[var(--green-700)] bg-[var(--green-50)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]'
-                )}
-              >
-                Blog
-              </Link>
-
               <Link href="/contact"
                 className={cn('px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors',
                   pathname === '/contact' ? 'text-[var(--green-700)] bg-[var(--green-50)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]'
@@ -318,12 +310,6 @@ export default function Navbar() {
                     </Link>
                   ))}
 
-                  <p className="font-sans font-bold text-[10px] text-[var(--text-subtle)] uppercase tracking-wider mb-2 mt-4">More</p>
-                  <Link href="/blog" onClick={() => setDrawerOpen(false)}
-                    className="flex items-center gap-3 py-3 rounded-xl px-2 transition-colors hover:bg-[var(--surface-raised)]"
-                  >
-                    <span className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>Blog</span>
-                  </Link>
                 </div>
 
                 {/* Language selector */}

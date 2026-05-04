@@ -9,7 +9,7 @@ const pressItems = [
   },
   {
     outlet: 'BusinessDay',
-    quote: '"The PolicyBazaar of Nigeria: compare, buy, and claim — all in one place."',
+    quote: '"Nigeria\'s most trusted insurance marketplace — compare, buy, and claim all in one place."',
     color: '#E31837',
   },
   {
