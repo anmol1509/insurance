@@ -7,6 +7,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Search, Loader2 } from 'lucide-react'
 import { VEHICLE_MAKES, VEHICLE_COLOURS, COLOUR_SWATCHES, ENGINE_CAPACITIES } from '@/lib/constants'
 
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: currentYear - 1989 }, (_, i) => {
+  const y = currentYear - i
+  return { value: String(y), label: String(y) }
+})
+
 const engineOptions = ENGINE_CAPACITIES.map((e) => ({ value: e, label: e }))
 
 export default function MotorStep1() {
@@ -86,6 +92,27 @@ export default function MotorStep1() {
         </AnimatePresence>
       </div>
 
+      <div className="grid md:grid-cols-2 gap-5">
+        <Select
+          label="Year of Manufacture"
+          required
+          options={years}
+          value={motorData.yearOfManufacture ? String(motorData.yearOfManufacture) : undefined}
+          onChange={(v) => updateMotor({ yearOfManufacture: Number(v) })}
+          placeholder="Select year"
+          productColor="var(--motor-600)"
+        />
+        <Select
+          label="Engine Capacity"
+          required
+          options={engineOptions}
+          value={motorData.engineCapacity}
+          onChange={(v) => updateMotor({ engineCapacity: v })}
+          placeholder="Select engine capacity"
+          productColor="var(--motor-600)"
+        />
+      </div>
+
       <div className="flex flex-col gap-1.5">
         <label className="font-sans font-semibold text-xs text-[var(--text-secondary)]">
           Vehicle Make & Model <span className="text-[var(--error)]">*</span>
@@ -104,16 +131,6 @@ export default function MotorStep1() {
           productColor="var(--motor-600)"
         />
       </div>
-
-      <Select
-        label="Engine Capacity"
-        required
-        options={engineOptions}
-        value={motorData.engineCapacity}
-        onChange={(v) => updateMotor({ engineCapacity: v })}
-        placeholder="Select engine capacity"
-        productColor="var(--motor-600)"
-      />
 
       {/* Colour picker */}
       <div>

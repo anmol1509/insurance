@@ -1,192 +1,651 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
-import Select from '@/components/ui/Select'
-import RadioCard from '@/components/ui/RadioCard'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Info, X } from 'lucide-react'
 import { calculateMotorPremium } from '@/lib/premiumCalculator'
 import { NIGERIAN_STATES, VEHICLE_TYPES } from '@/lib/constants'
+import { ArrowLeft, Search, Loader2, X, Phone, Info, ChevronDown } from 'lucide-react'
+import Logo from '@/components/ui/Logo'
+import Link from 'next/link'
 
-const currentYear = new Date().getFullYear()
-const years = Array.from({ length: currentYear - 1989 }, (_, i) => {
-  const y = currentYear - i
-  return { value: String(y), label: String(y) }
-})
+interface Props {
+  onComplete: () => void
+}
 
-const stateOptions = NIGERIAN_STATES.map((s) => ({ value: s, label: s }))
-const vehicleTypeOptions = VEHICLE_TYPES.map((v) => ({ value: v, label: v }))
-
-const coverTypes = [
+const coverOptions = [
   {
     id: 'comprehensive' as const,
+    icon: '🛡️',
     label: 'Comprehensive',
-    priceHint: 'From ₦65,000/yr',
-    tooltip: 'Covers damage to your own vehicle (accident, fire, theft, flood) AND third-party liability. Best protection — recommended for vehicles under 10 years old.',
-  },
-  {
-    id: 'tpo' as const,
-    label: 'Third Party Only',
-    priceHint: 'From ₦15,000/yr',
-    tooltip: 'The legal minimum in Nigeria. Covers injury or damage you cause to others — does NOT cover any damage to your own vehicle. Mandatory under Nigerian law.',
+    price: 'From ₦65,000/yr',
+    desc: 'Full protection — covers your car and third party. Best for vehicles under 10 years.',
+    recommended: true,
   },
   {
     id: 'tpft' as const,
-    label: 'Third Party Fire & Theft',
-    priceHint: 'From ₦35,000/yr',
-    tooltip: 'Third party cover PLUS protection if your own vehicle is stolen or damaged by fire. A middle-ground option for older vehicles.',
+    icon: '🔥',
+    label: 'Third Party, Fire & Theft',
+    price: 'From ₦35,000/yr',
+    desc: 'Third party liability + protection if your vehicle is stolen or catches fire.',
+  },
+  {
+    id: 'tpo' as const,
+    icon: '⚖️',
+    label: 'Third Party Only',
+    price: 'From ₦15,000/yr',
+    desc: 'The legal minimum in Nigeria. Covers damages you cause to others only.',
   },
 ]
 
-const useTypes = [
-  { id: 'private' as const, label: 'Private' },
-  { id: 'commercial' as const, label: 'Commercial' },
-  { id: 'own_goods' as const, label: 'Own Goods' },
-  { id: 'hired' as const, label: 'Hired' },
+const useOptions = [
+  { id: 'private' as const, icon: '🏠', label: 'Private', desc: 'Personal / family use' },
+  { id: 'commercial' as const, icon: '🚕', label: 'Commercial', desc: 'Taxi, Uber, Bolt etc.' },
+  { id: 'own_goods' as const, icon: '📦', label: 'Own Goods', desc: 'Transporting your cargo' },
+  { id: 'hired' as const, icon: '🔑', label: 'Hired', desc: 'Rented to third parties' },
 ]
 
-export default function MotorQuickQuote() {
+const QUICK_VALUES = [
+  { label: '₦1.5M', value: '1500000' },
+  { label: '₦3M', value: '3000000' },
+  { label: '₦5M', value: '5000000' },
+  { label: '₦8M', value: '8000000' },
+  { label: '₦12M', value: '12000000' },
+  { label: '₦20M', value: '20000000' },
+]
+
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: currentYear - 1989 }, (_, i) => currentYear - i)
+
+const slideVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? 48 : -48, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? -48 : 48, opacity: 0 }),
+}
+
+export default function MotorQuickQuote({ onComplete }: Props) {
   const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
-  const [coverTooltip, setCoverTooltip] = useState<string | null>(null)
+  const [screen, setScreen] = useState(0)
+  const [dir, setDir] = useState(1)
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [lookupDone, setLookupDone] = useState(false)
+  const [stateSearch, setStateSearch] = useState('')
+  const [showIdle, setShowIdle] = useState(false)
+  const [showYearDrop, setShowYearDrop] = useState(false)
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     const { total, breakdown } = calculateMotorPremium(motorData)
     setCalculatedPremium(total, breakdown)
   }, [motorData.coverType, motorData.marketValueRange, motorData.useType])
 
+  const resetIdle = useCallback(() => {
+    if (idleTimer.current) clearTimeout(idleTimer.current)
+    idleTimer.current = setTimeout(() => setShowIdle(true), 35000)
+  }, [])
+
+  useEffect(() => {
+    resetIdle()
+    return () => { if (idleTimer.current) clearTimeout(idleTimer.current) }
+  }, [resetIdle])
+
+  function go(target: number, direction = 1) {
+    setDir(direction)
+    setScreen(target)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function next() { go(screen + 1, 1) }
+  function back() {
+    if (screen === 0) return
+    if (screen === 2 && !lookupDone) { go(0, -1); return }
+    go(screen - 1, -1)
+  }
+
+  async function handleLookup() {
+    if (!motorData.registrationNumber) return
+    setLookupLoading(true)
+    await new Promise(r => setTimeout(r, 1400))
+    updateMotor({ vehicleMakeModel: 'Toyota Camry', yearOfManufacture: 2020, vehicleType: 'Saloon' })
+    setLookupLoading(false)
+    setLookupDone(true)
+    setTimeout(() => go(1, 1), 400)
+  }
+
+  const filteredStates = NIGERIAN_STATES.filter(s =>
+    s.toLowerCase().includes(stateSearch.toLowerCase())
+  )
+
+  const totalScreens = lookupDone ? 6 : 5
+  const progressIndex = lookupDone ? screen : (screen === 0 ? 0 : screen - 1)
+
   return (
-    <div className="space-y-7">
-      <div
-        className="flex items-start gap-3 px-4 py-3.5 rounded-2xl border"
-        style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-100)' }}
-      >
-        <span className="text-lg">⚡</span>
-        <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-          Answer 6 quick questions and we'll show you personalised quotes from multiple NAICOM-licensed insurers in seconds.
-        </p>
-      </div>
-
-      {/* Cover type */}
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          What type of cover do you need? <span className="text-[var(--error)]">*</span>
-        </p>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {coverTypes.map((ct) => (
-            <div key={ct.id} className="relative">
-              <RadioCard
-                label={ct.label}
-                priceHint={ct.priceHint}
-                selected={motorData.coverType === ct.id}
-                onClick={() => updateMotor({ coverType: ct.id })}
-                productColor="var(--motor-600)"
-                productColorBg="var(--motor-50)"
-              />
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); setCoverTooltip(coverTooltip === ct.id ? null : ct.id) }}
-                className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--motor-50)]"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                <Info className="w-3.5 h-3.5" />
-              </button>
-              <AnimatePresence>
-                {coverTooltip === ct.id && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-                    className="absolute top-full left-0 right-0 mt-2 z-20 bg-white rounded-xl border shadow-lg p-3"
-                    style={{ borderColor: 'var(--motor-600)' }}
-                  >
-                    <button type="button" onClick={() => setCoverTooltip(null)} className="float-right ml-1 text-[var(--text-muted)]">
-                      <X className="w-3 h-3" />
-                    </button>
-                    <p className="font-sans text-[12px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      {ct.tooltip}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: 'var(--page-bg)' }}
+      onMouseMove={resetIdle}
+      onTouchStart={resetIdle}
+      onClick={resetIdle}
+    >
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-40 bg-white border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+        <div className="max-w-[640px] mx-auto px-5 h-14 flex items-center gap-3">
+          <button
+            type="button"
+            onClick={back}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-raised)]"
+            style={{ color: 'var(--text-muted)', visibility: screen > 0 ? 'visible' : 'hidden' }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1 flex justify-center">
+            <Logo size={26} href="/" />
+          </div>
+          <Link
+            href="/"
+            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <X className="w-4 h-4" />
+          </Link>
         </div>
-      </div>
-
-      {/* Market value */}
-      <div>
-        <label className="font-sans font-semibold text-xs text-[var(--text-secondary)] block mb-1.5">
-          Current Market Value of Vehicle (₦) <span className="text-[var(--error)]">*</span>
-        </label>
-        <div className="relative">
-          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-sans font-semibold text-[14px]" style={{ color: 'var(--text-muted)' }}>₦</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={motorData.marketValueRange ? Number(motorData.marketValueRange.replace(/,/g, '')).toLocaleString('en-NG') : ''}
-            onChange={(e) => {
-              const raw = e.target.value.replace(/,/g, '').replace(/\D/g, '')
-              updateMotor({ marketValueRange: raw })
-            }}
-            placeholder="e.g. 4,500,000"
-            className="w-full h-12 pl-8 pr-4 rounded-[var(--radius-md)] border-[1.5px] font-sans text-[14px] outline-none transition-all"
-            style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px color-mix(in srgb, var(--motor-600) 12%, transparent)' }}
-            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+        {/* Progress bar */}
+        <div className="h-1 bg-[var(--border-subtle)]">
+          <motion.div
+            className="h-full"
+            style={{ backgroundColor: 'var(--motor-600)' }}
+            animate={{ width: `${((progressIndex + 1) / totalScreens) * 100}%` }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
           />
         </div>
-        <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
-          This is your vehicle's current resale value — it determines your Insured Declared Value (IDV).
-        </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <Select
-          label="Year of Manufacture"
-          required
-          options={years}
-          value={motorData.yearOfManufacture ? String(motorData.yearOfManufacture) : undefined}
-          onChange={(v) => updateMotor({ yearOfManufacture: Number(v) })}
-          placeholder="Select year"
-          productColor="var(--motor-600)"
-        />
-        <Select
-          label="Vehicle Type"
-          required
-          options={vehicleTypeOptions}
-          value={motorData.vehicleType}
-          onChange={(v) => updateMotor({ vehicleType: v })}
-          placeholder="Select vehicle type"
-          productColor="var(--motor-600)"
-        />
-      </div>
+      {/* ── Wizard body ── */}
+      <div className="flex-1 flex flex-col items-center px-5 pt-10 pb-24">
+        <div className="w-full max-w-[520px]">
 
-      {/* Use type */}
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          How will the vehicle be used? <span className="text-[var(--error)]">*</span>
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {useTypes.map((ut) => (
-            <RadioCard
-              key={ut.id}
-              label={ut.label}
-              selected={motorData.useType === ut.id}
-              onClick={() => updateMotor({ useType: ut.id })}
-              productColor="var(--motor-600)"
-              productColorBg="var(--motor-50)"
-            />
-          ))}
+          {/* Step dots */}
+          <div className="flex justify-center items-center gap-1.5 mb-10">
+            {Array.from({ length: totalScreens }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="rounded-full"
+                animate={{
+                  width: i === progressIndex ? 22 : 6,
+                  height: 6,
+                  backgroundColor: i <= progressIndex ? 'var(--motor-600)' : 'var(--border-medium)',
+                }}
+                transition={{ duration: 0.3 }}
+              />
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div
+              key={screen}
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.26, ease: [0.4, 0, 0.2, 1] }}
+            >
+
+              {/* ══ SCREEN 0: Registration ══ */}
+              {screen === 0 && (
+                <div className="space-y-8 text-center">
+                  <div>
+                    <div className="text-5xl mb-5">🚗</div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-3" style={{ color: 'var(--text-primary)' }}>
+                      Enter your vehicle<br />plate number
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      We'll auto-fill your details from FRSC records
+                    </p>
+                  </div>
+
+                  {/* Nigerian license plate UI */}
+                  <div className="flex justify-center">
+                    <div
+                      className="w-full max-w-[320px] rounded-2xl p-3 shadow-lg"
+                      style={{ backgroundColor: '#FFD600' }}
+                    >
+                      <div className="flex items-center justify-between px-2 mb-1.5">
+                        <span className="font-sans font-black text-[9px] tracking-widest uppercase" style={{ color: '#1a1a1a', opacity: 0.6 }}>NIGERIA</span>
+                        <span className="text-xs">🇳🇬</span>
+                      </div>
+                      <div
+                        className="rounded-xl px-4 py-2.5"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.25)' }}
+                      >
+                        <input
+                          type="text"
+                          value={motorData.registrationNumber}
+                          onChange={e => {
+                            updateMotor({ registrationNumber: e.target.value.toUpperCase().replace(/[^A-Z0-9\-]/g, '') })
+                            setLookupDone(false)
+                          }}
+                          placeholder="LAG-123-AA"
+                          className="w-full bg-transparent text-center font-display font-extrabold text-[32px] tracking-[0.25em] outline-none placeholder:opacity-40"
+                          style={{ color: '#1a1a1a' }}
+                          onKeyDown={e => e.key === 'Enter' && motorData.registrationNumber && handleLookup()}
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={handleLookup}
+                      disabled={lookupLoading || !motorData.registrationNumber}
+                      className="w-full max-w-[320px] h-14 rounded-2xl font-display font-semibold text-[16px] text-white flex items-center justify-center gap-2.5 disabled:opacity-50 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                      style={{ backgroundColor: 'var(--motor-600)' }}
+                    >
+                      {lookupLoading
+                        ? <><Loader2 className="w-5 h-5 animate-spin" /> Searching FRSC…</>
+                        : <><Search className="w-5 h-5" /> Find my car</>
+                      }
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => go(2, 1)}
+                      className="font-sans text-[13px] hover:underline underline-offset-2 transition-all"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      Don't have plate number? Skip →
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ══ SCREEN 1: Confirm vehicle ══ */}
+              {screen === 1 && (
+                <div className="space-y-7">
+                  <div className="text-center">
+                    <motion.div
+                      initial={{ scale: 0.5 }} animate={{ scale: 1 }}
+                      transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+                      className="text-5xl mb-5"
+                    >
+                      ✅
+                    </motion.div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+                      Is this your vehicle?
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      Details pre-filled from FRSC/NIID records
+                    </p>
+                  </div>
+
+                  <div className="bg-white rounded-3xl border p-6 shadow-sm" style={{ borderColor: 'var(--border-default)' }}>
+                    <div className="flex items-center justify-between mb-5 pb-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ backgroundColor: 'var(--motor-50)' }}>
+                          🚗
+                        </div>
+                        <div>
+                          <p className="font-display font-bold text-[17px]" style={{ color: 'var(--text-primary)' }}>
+                            {motorData.vehicleMakeModel || 'Toyota Camry'}
+                          </p>
+                          <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                            {motorData.registrationNumber}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => go(0, -1)}
+                        className="h-8 px-3 rounded-xl font-sans font-medium text-[12px] border transition-all hover:bg-[var(--motor-50)]"
+                        style={{ borderColor: 'var(--motor-100)', color: 'var(--motor-600)' }}
+                      >
+                        ✏️ Edit
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Year — editable */}
+                      <div className="relative">
+                        <p className="font-sans text-[11px] uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Year</p>
+                        <button
+                          type="button"
+                          onClick={() => setShowYearDrop(v => !v)}
+                          className="w-full h-10 px-3 rounded-xl border flex items-center justify-between font-sans font-semibold text-[14px] transition-colors"
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'var(--surface-raised)' }}
+                        >
+                          {motorData.yearOfManufacture ?? 'Select'}
+                          <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                        </button>
+                        <AnimatePresence>
+                          {showYearDrop && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                              className="absolute top-full left-0 right-0 mt-1 z-20 bg-white rounded-2xl border shadow-xl overflow-hidden"
+                              style={{ borderColor: 'var(--border-default)' }}
+                            >
+                              <div className="max-h-48 overflow-y-auto">
+                                {years.map(y => (
+                                  <button
+                                    key={y}
+                                    type="button"
+                                    onClick={() => { updateMotor({ yearOfManufacture: y }); setShowYearDrop(false) }}
+                                    className="w-full text-left px-4 py-2.5 font-sans text-[14px] hover:bg-[var(--surface-raised)] transition-colors"
+                                    style={{ color: motorData.yearOfManufacture === y ? 'var(--motor-600)' : 'var(--text-primary)', fontWeight: motorData.yearOfManufacture === y ? 700 : 400 }}
+                                  >
+                                    {y}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Vehicle type */}
+                      <div>
+                        <p className="font-sans text-[11px] uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>Type</p>
+                        <div className="h-10 px-3 rounded-xl flex items-center font-sans font-semibold text-[14px]" style={{ backgroundColor: 'var(--surface-raised)', color: 'var(--text-primary)' }}>
+                          {motorData.vehicleType || 'Saloon'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={next}
+                    className="w-full h-14 rounded-2xl font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                    style={{ backgroundColor: 'var(--motor-600)' }}
+                  >
+                    Yes, that's my car →
+                  </button>
+
+                  <button type="button" onClick={() => go(0, -1)} className="w-full text-center font-sans text-[13px] hover:underline" style={{ color: 'var(--text-muted)' }}>
+                    This doesn't look right — search again
+                  </button>
+                </div>
+              )}
+
+              {/* ══ SCREEN 2: Cover type ══ */}
+              {screen === 2 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-5xl mb-5">🛡️</div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+                      What cover do you need?
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      Tap to select — this determines your premium range
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    {coverOptions.map((opt) => {
+                      const sel = motorData.coverType === opt.id
+                      return (
+                        <motion.button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => { updateMotor({ coverType: opt.id }); setTimeout(next, 280) }}
+                          whileHover={{ y: -2 }}
+                          whileTap={{ scale: 0.99 }}
+                          className="w-full text-left p-5 rounded-3xl border-[2px] transition-all"
+                          style={sel
+                            ? { borderColor: 'var(--motor-600)', backgroundColor: 'var(--motor-50)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--motor-600) 10%, transparent)' }
+                            : { borderColor: 'var(--border-default)', backgroundColor: 'white' }
+                          }
+                        >
+                          <div className="flex items-start gap-4">
+                            <span className="text-2xl mt-0.5 shrink-0">{opt.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap mb-1">
+                                <span className="font-display font-bold text-[15px]" style={{ color: sel ? 'var(--motor-700)' : 'var(--text-primary)' }}>
+                                  {opt.label}
+                                </span>
+                                {opt.recommended && (
+                                  <span className="font-sans font-semibold text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--motor-100)', color: 'var(--motor-700)' }}>
+                                    Recommended
+                                  </span>
+                                )}
+                              </div>
+                              <p className="font-sans text-[12px] mb-2" style={{ color: 'var(--text-muted)' }}>{opt.desc}</p>
+                              <span className="font-sans font-bold text-[13px]" style={{ color: 'var(--motor-600)' }}>{opt.price}</span>
+                            </div>
+                          </div>
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ══ SCREEN 3: Vehicle value ══ */}
+              {screen === 3 && (
+                <div className="space-y-7">
+                  <div className="text-center">
+                    <div className="text-5xl mb-5">💰</div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+                      What's your vehicle worth?
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      Enter its current market resale value — this sets your Insured Declared Value
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="relative">
+                      <span
+                        className="absolute left-5 top-1/2 -translate-y-1/2 font-display font-extrabold text-[22px]"
+                        style={{ color: 'var(--text-muted)' }}
+                      >₦</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={motorData.marketValueRange ? Number(motorData.marketValueRange.replace(/,/g, '')).toLocaleString('en-NG') : ''}
+                        onChange={e => {
+                          const raw = e.target.value.replace(/,/g, '').replace(/\D/g, '')
+                          updateMotor({ marketValueRange: raw })
+                        }}
+                        placeholder="0"
+                        className="w-full h-[76px] pl-14 pr-5 rounded-3xl border-[2px] font-display font-extrabold text-[30px] outline-none transition-all bg-white"
+                        style={{
+                          borderColor: motorData.marketValueRange ? 'var(--motor-600)' : 'var(--border-medium)',
+                          color: 'var(--text-primary)',
+                        }}
+                        onFocus={e => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 4px color-mix(in srgb, var(--motor-600) 10%, transparent)' }}
+                        onBlur={e => { e.currentTarget.style.boxShadow = 'none' }}
+                        onKeyDown={e => e.key === 'Enter' && Number(motorData.marketValueRange) > 0 && next()}
+                        autoFocus
+                      />
+                    </div>
+                    {/* Quick-pick chips */}
+                    <p className="font-sans text-[11px] mt-3 mb-2" style={{ color: 'var(--text-muted)' }}>Quick select:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {QUICK_VALUES.map(qv => (
+                        <button
+                          key={qv.value}
+                          type="button"
+                          onClick={() => updateMotor({ marketValueRange: qv.value })}
+                          className="h-8 px-3.5 rounded-full font-sans font-semibold text-[12px] border-[1.5px] transition-all"
+                          style={motorData.marketValueRange === qv.value
+                            ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+                            : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)', backgroundColor: 'white' }
+                          }
+                        >
+                          {qv.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={next}
+                    disabled={!motorData.marketValueRange || Number(motorData.marketValueRange) <= 0}
+                    className="w-full h-14 rounded-2xl font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
+                    style={{ backgroundColor: 'var(--motor-600)' }}
+                  >
+                    Continue →
+                  </button>
+                </div>
+              )}
+
+              {/* ══ SCREEN 4: Use type ══ */}
+              {screen === 4 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-5xl mb-5">🛣️</div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+                      How do you use<br />your vehicle?
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      Tap to select — commercial use affects your premium
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {useOptions.map(opt => {
+                      const sel = motorData.useType === opt.id
+                      return (
+                        <motion.button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => { updateMotor({ useType: opt.id }); setTimeout(next, 280) }}
+                          whileHover={{ y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="p-5 rounded-3xl border-[2px] text-left transition-all"
+                          style={sel
+                            ? { borderColor: 'var(--motor-600)', backgroundColor: 'var(--motor-50)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--motor-600) 10%, transparent)' }
+                            : { borderColor: 'var(--border-default)', backgroundColor: 'white' }
+                          }
+                        >
+                          <span className="text-3xl block mb-2.5">{opt.icon}</span>
+                          <p className="font-display font-bold text-[15px] mb-1" style={{ color: sel ? 'var(--motor-700)' : 'var(--text-primary)' }}>{opt.label}</p>
+                          <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>{opt.desc}</p>
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* ══ SCREEN 5: State ══ */}
+              {screen === 5 && (
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-5xl mb-5">📍</div>
+                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+                      Where is your vehicle<br />registered?
+                    </h1>
+                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+                      State of registration can affect your insurance rate
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                    <input
+                      type="text"
+                      value={stateSearch}
+                      onChange={e => setStateSearch(e.target.value)}
+                      placeholder="Search state…"
+                      className="w-full h-12 pl-11 pr-4 rounded-2xl border-[1.5px] font-sans text-[14px] outline-none bg-white transition-all"
+                      style={{ borderColor: 'var(--border-medium)' }}
+                      onFocus={e => { e.currentTarget.style.borderColor = 'var(--motor-600)' }}
+                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
+                      autoFocus
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 max-h-72 overflow-y-auto pb-1">
+                    {filteredStates.length === 0 && (
+                      <p className="font-sans text-[13px] w-full text-center py-4" style={{ color: 'var(--text-muted)' }}>No states found</p>
+                    )}
+                    {filteredStates.map(state => (
+                      <motion.button
+                        key={state}
+                        type="button"
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { updateMotor({ geographicalState: state }); setTimeout(onComplete, 350) }}
+                        className="h-9 px-4 rounded-full font-sans font-medium text-[13px] border-[1.5px] transition-all"
+                        style={motorData.geographicalState === state
+                          ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+                          : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)', backgroundColor: 'white' }
+                        }
+                      >
+                        {state}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </motion.div>
+          </AnimatePresence>
+
+          <p className="text-center font-sans text-[11px] mt-10" style={{ color: 'var(--text-subtle)' }}>
+            🔒 SSL encrypted · NAICOM licensed · NDPR compliant
+          </p>
         </div>
       </div>
 
-      <Select
-        label="State of Registration / Use"
-        required
-        options={stateOptions}
-        value={motorData.geographicalState}
-        onChange={(v) => updateMotor({ geographicalState: v })}
-        placeholder="Select state"
-        productColor="var(--motor-600)"
-      />
+      {/* ── Idle popup ── */}
+      <AnimatePresence>
+        {showIdle && (
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+            onClick={() => setShowIdle(false)}
+          >
+            <motion.div
+              className="absolute inset-0 bg-black/50"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            />
+            <motion.div
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 60, opacity: 0 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 300 }}
+              className="relative bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-[380px] p-8 text-center shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Drag handle */}
+              <div className="sm:hidden absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full" style={{ backgroundColor: 'var(--border-medium)' }} />
+
+              <button
+                type="button"
+                onClick={() => setShowIdle(false)}
+                className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="text-5xl mb-4">🤔</div>
+              <h3 className="font-display font-bold text-xl mb-2" style={{ color: 'var(--text-primary)' }}>
+                Need a hand?
+              </h3>
+              <p className="font-sans text-[14px] mb-6 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Our insurance experts can help you find the right cover and buy your policy in under 5 minutes.
+              </p>
+              <div className="space-y-3">
+                <a
+                  href="tel:+2349012345678"
+                  className="flex items-center justify-center gap-2.5 w-full h-12 rounded-2xl font-sans font-semibold text-[14px] text-white transition-all hover:opacity-90"
+                  style={{ backgroundColor: 'var(--motor-600)' }}
+                >
+                  <Phone className="w-4 h-4" /> Call an expert now
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowIdle(false)}
+                  className="w-full h-12 rounded-2xl font-sans font-medium text-[14px] border transition-colors hover:bg-[var(--surface-raised)]"
+                  style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+                >
+                  Continue on my own
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
