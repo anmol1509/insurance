@@ -1,11 +1,10 @@
 'use client'
 import { use, useEffect } from 'react'
-import { notFound, useRouter } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
 
-import MotorQuickQuote from '@/components/quote/steps/motor/MotorQuickQuote'
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
 import MotorStep3 from '@/components/quote/steps/motor/MotorStep3'
@@ -31,12 +30,8 @@ import BusinessReview from '@/components/quote/steps/business/BusinessReview'
 const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
-// Motor: step 1 is the full-screen wizard (MotorQuickQuote), not in this array.
-// New post-plan order: 2=Documents, 3=Your details, 4=Driver, 5=Vehicle info, 6=Review
-// Steps 2-6 map to indices 0-4 here.
-const MOTOR_STEPS: React.ComponentType[] = [MotorStep4, MotorStep3, MotorStep2, MotorStep1, MotorReview]
-
-const STEP_COMPONENTS: Record<Exclude<Product, 'motor'>, React.ComponentType[]> = {
+const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
+  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorStep4,    MotorReview],
   medical:  [MedicalStep1,  MedicalStep2,  MedicalStep3,  MedicalReview],
   travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
   business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
@@ -44,38 +39,21 @@ const STEP_COMPONENTS: Record<Exclude<Product, 'motor'>, React.ComponentType[]> 
 
 export default function QuotePage({ params }: { params: Promise<{ product: string }> }) {
   const { product } = use(params)
-  const router = useRouter()
 
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
   const { steps, setActiveProduct, setStep } = useQuoteStore()
   const currentStep = steps[typedProduct]
+  const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
+  const totalSteps = PRODUCT_STEPS[typedProduct].length
+  const StepComponent = STEP_COMPONENTS[typedProduct][currentStep - 1]
 
   useEffect(() => {
     setActiveProduct(typedProduct)
   }, [typedProduct, setActiveProduct])
 
-  // Motor step 1 = full-screen wizard with its own layout
-  if (typedProduct === 'motor' && currentStep === 1) {
-    return (
-      <MotorQuickQuote onComplete={() => router.push('/quote/result')} />
-    )
-  }
-
-  // Determine step component for non-wizard steps
-  const StepComponent = typedProduct === 'motor'
-    ? MOTOR_STEPS[currentStep - 2]  // step 2 → index 0, step 3 → index 1, etc.
-    : STEP_COMPONENTS[typedProduct as Exclude<Product, 'motor'>][currentStep - 1]
-
-  const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
-  const totalSteps = PRODUCT_STEPS[typedProduct].length
-
   function goNext() {
-    if (currentStep === totalSteps) {
-      router.push(typedProduct === 'motor' ? '/quote/checkout' : '/quote/result')
-      return
-    }
     setStep(typedProduct, currentStep + 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }

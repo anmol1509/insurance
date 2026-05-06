@@ -4,10 +4,26 @@ import Input from '@/components/ui/Input'
 import RadioCard from '@/components/ui/RadioCard'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { AnimatePresence, motion } from 'framer-motion'
-import { DRIVING_EXPERIENCE_OPTIONS } from '@/lib/constants'
+import { DRIVING_EXPERIENCE_OPTIONS, SECURITY_FEATURES } from '@/lib/constants'
 
 export default function MotorStep2() {
   const { motorData, updateMotor } = useQuoteStore()
+
+  const toggleSecurity = (feat: string) => {
+    const current = motorData.securityFeatures
+    const isNone = feat === 'None of the above'
+
+    if (isNone) {
+      updateMotor({ securityFeatures: current.includes(feat) ? [] : [feat] })
+      return
+    }
+    const without = current.filter((x) => x !== 'None of the above')
+    updateMotor({
+      securityFeatures: without.includes(feat)
+        ? without.filter((x) => x !== feat)
+        : [...without, feat],
+    })
+  }
 
   return (
     <div className="space-y-7">
@@ -48,6 +64,7 @@ export default function MotorStep2() {
         </div>
       </div>
 
+      {/* Claims history */}
       <div
         className="flex justify-between items-center p-5 rounded-2xl border"
         style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
@@ -90,6 +107,36 @@ export default function MotorStep2() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Security features — underwriting requirement, not premium factor */}
+      <div>
+        <p className="font-sans font-semibold text-[13px] mb-1" style={{ color: 'var(--text-secondary)' }}>
+          Security features installed on the vehicle <span className="text-[var(--error)]">*</span>
+        </p>
+        <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          Required for underwriting assessment. Select all that apply.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {SECURITY_FEATURES.map((feat) => {
+            const selected = motorData.securityFeatures.includes(feat)
+            return (
+              <button
+                key={feat}
+                type="button"
+                onClick={() => toggleSecurity(feat)}
+                className="border-[1.5px] rounded-full px-4 py-2 font-sans font-medium text-[13px] transition-all duration-200"
+                style={
+                  selected
+                    ? { backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-600)', color: 'var(--motor-600)' }
+                    : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }
+                }
+              >
+                {feat}
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }

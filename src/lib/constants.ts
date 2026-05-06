@@ -72,12 +72,11 @@ export const OCCUPATIONS = [
 
 export const PRODUCT_STEPS = {
   motor: [
-    { id: 1, label: 'Quick quote',    title: 'Get an instant quote',            sub: 'Answer a few questions to see the best plans for your vehicle.' },
-    { id: 2, label: 'Documents',      title: 'Upload your documents',           sub: "Upload your documents — we'll auto-fill your details from them." },
-    { id: 3, label: 'Your details',   title: 'Your personal information',       sub: 'Fields pre-filled from your documents. Review and edit as needed.' },
-    { id: 4, label: 'Driver details', title: 'Driver & risk details',           sub: 'Helps us assess the risk profile of the primary driver.' },
-    { id: 5, label: 'Vehicle info',   title: 'Complete vehicle details',        sub: 'A few more details to finalise your policy.' },
-    { id: 6, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before proceeding to checkout.' },
+    { id: 1, label: 'Vehicle info',   title: 'Tell us about your vehicle',     sub: "We'll use this to prepare an accurate quote." },
+    { id: 2, label: 'Driver details', title: 'Driver & risk details',           sub: 'Helps us assess the risk profile of the primary driver.' },
+    { id: 3, label: 'Your details',   title: 'Your personal information',       sub: 'Required for KYC verification under NAICOM regulations.' },
+    { id: 4, label: 'Documents',      title: 'Upload your documents',           sub: 'Required documentation per NAICOM/NSIA guidelines.' },
+    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
   ],
   medical: [
     { id: 1, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },
