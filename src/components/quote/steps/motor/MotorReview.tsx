@@ -66,7 +66,7 @@ export default function MotorReview() {
       </motion.div>
 
       <section>
-        <SectionHeader title="Vehicle Details" step={1} onEdit={handleEdit} />
+        <SectionHeader title="Vehicle Details" step={2} onEdit={handleEdit} />
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="Registration No." value={motorData.registrationNumber} />
           <Row label="Make & Model" value={motorData.vehicleMakeModel} />
@@ -82,7 +82,7 @@ export default function MotorReview() {
       </section>
 
       <section>
-        <SectionHeader title="Driver Details" step={2} onEdit={handleEdit} />
+        <SectionHeader title="Driver Details" step={3} onEdit={handleEdit} />
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="License No." value={motorData.licenseNumber} />
           <Row label="Driver Age" value={motorData.driverAge ? `${motorData.driverAge} years` : null} />
@@ -93,7 +93,7 @@ export default function MotorReview() {
       </section>
 
       <section>
-        <SectionHeader title="Policyholder Details" step={3} onEdit={handleEdit} />
+        <SectionHeader title="Policyholder Details" step={4} onEdit={handleEdit} />
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="Full Name" value={motorData.fullName} />
           <Row label="Date of Birth" value={motorData.dateOfBirth} />

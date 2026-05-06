@@ -236,7 +236,7 @@ const PRODUCT_COLORS: Record<string, { main: string; light: string; text: string
   business: { main: 'var(--business-600)', light: 'var(--business-50)', text: 'var(--business-700)' },
 }
 
-function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleCompare, canCompare }: {
+function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleCompare, canCompare, onChoose }: {
   plan: Plan
   basePrice: number
   color: { main: string; light: string; text: string }
@@ -244,8 +244,8 @@ function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleComp
   compareSelected: boolean
   onToggleCompare: (id: string) => void
   canCompare: boolean
+  onChoose: () => void
 }) {
-  const router = useRouter()
   const [expanded, setExpanded] = useState(false)
   const price = Math.round(basePrice * plan.multiplier)
 
@@ -351,7 +351,7 @@ function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleComp
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push('/quote/checkout')}
+            onClick={onChoose}
             className="flex-1 h-11 rounded-2xl font-sans font-semibold text-sm text-white transition-all hover:-translate-y-px hover:shadow-md"
             style={{ backgroundColor: color.main }}
           >
@@ -371,13 +371,13 @@ function PlanCard({ plan, basePrice, color, index, compareSelected, onToggleComp
   )
 }
 
-function CompareModal({ plans, basePrice, color, onClose }: {
+function CompareModal({ plans, basePrice, color, onClose, onChoosePlan }: {
   plans: Plan[]
   basePrice: number
   color: { main: string; light: string; text: string }
   onClose: () => void
+  onChoosePlan: (planId: string) => void
 }) {
-  const router = useRouter()
   // Collect all unique feature strings across the selected plans
   const allFeatures = Array.from(new Set(plans.flatMap(p => p.features)))
   const hasNetwork = plans.some(p => p.networkSize)
@@ -424,7 +424,7 @@ function CompareModal({ plans, basePrice, color, onClose }: {
                       <div className="flex flex-col items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => router.push('/quote/checkout')}
+                          onClick={() => onChoosePlan(plan.id)}
                           className="w-full h-9 rounded-xl font-sans font-semibold text-[13px] text-white transition-all hover:-translate-y-px hover:shadow-md"
                           style={{ backgroundColor: color.main }}
                         >
@@ -585,7 +585,8 @@ type PremiumFilter = 'all' | 'under30' | '30to80' | 'over80'
 type RatingFilter = 'all' | '4.5' | '4.7'
 
 export default function QuoteResultPage() {
-  const { calculatedPremium, activeProduct } = useQuoteStore()
+  const { calculatedPremium, activeProduct, updateMotor, setStep } = useQuoteStore()
+  const router = useRouter()
   const [sortBy, setSortBy] = useState<SortKey>('popular')
   const [premiumFilter, setPremiumFilter] = useState<PremiumFilter>('all')
   const [ratingFilter, setRatingFilter] = useState<RatingFilter>('all')
@@ -599,6 +600,16 @@ export default function QuoteResultPage() {
       if (prev.length < 3) return [...prev, id]
       return prev
     })
+  }
+
+  function handleChoosePlan(planId: string) {
+    if (activeProduct === 'motor') {
+      updateMotor({ selectedUnderwriter: planId })
+      setStep('motor', 2)
+      router.push('/quote/motor')
+    } else {
+      router.push('/quote/checkout')
+    }
   }
 
   const product = (activeProduct ?? 'motor') as string
@@ -726,6 +737,7 @@ export default function QuoteResultPage() {
               compareSelected={compareIds.includes(plan.id)}
               onToggleCompare={toggleCompare}
               canCompare={compareIds.length < 3 || compareIds.includes(plan.id)}
+              onChoose={() => handleChoosePlan(plan.id)}
             />
           ))}
         </div>
@@ -821,6 +833,7 @@ export default function QuoteResultPage() {
             basePrice={basePrice}
             color={color}
             onClose={() => setShowCompare(false)}
+            onChoosePlan={handleChoosePlan}
           />
         )}
       </AnimatePresence>

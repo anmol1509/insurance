@@ -1,12 +1,9 @@
 import type { MotorData, MedicalData, TravelData, BusinessData } from '@/store/quoteStore'
-import { MARKET_VALUE_RANGES } from './constants'
-
-const valueMidpoints = Object.fromEntries(MARKET_VALUE_RANGES.map(r => [r.value, r.midpoint]))
 
 export function calculateMotorPremium(data: MotorData): { total: number; breakdown: Record<string, number> } {
   if (!data.marketValueRange || !data.coverType) return { total: 0, breakdown: {} }
 
-  const vehicleValue = valueMidpoints[data.marketValueRange] ?? 0
+  const vehicleValue = Number(data.marketValueRange) || 0
   if (!vehicleValue) return { total: 0, breakdown: {} }
 
   const rates: Record<string, number> = { comprehensive: 0.05, tpft: 0.025, tpo: 0.012 }

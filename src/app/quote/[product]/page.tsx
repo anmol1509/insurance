@@ -1,10 +1,11 @@
 'use client'
 import { use, useEffect } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
 
+import MotorQuickQuote from '@/components/quote/steps/motor/MotorQuickQuote'
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
 import MotorStep3 from '@/components/quote/steps/motor/MotorStep3'
@@ -31,14 +32,15 @@ const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
 const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
-  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorStep4,    MotorReview],
-  medical:  [MedicalStep1,  MedicalStep2,  MedicalStep3,  MedicalReview],
-  travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
-  business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
+  motor:    [MotorQuickQuote, MotorStep1,    MotorStep2,    MotorStep3,    MotorStep4,    MotorReview],
+  medical:  [MedicalStep1,   MedicalStep2,   MedicalStep3,  MedicalReview],
+  travel:   [TravelStep1,    TravelStep2,    TravelStep3,   TravelReview],
+  business: [BusinessStep1,  BusinessStep2,  BusinessStep3, BusinessStep4, BusinessReview],
 }
 
 export default function QuotePage({ params }: { params: Promise<{ product: string }> }) {
   const { product } = use(params)
+  const router = useRouter()
 
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
@@ -54,6 +56,16 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   }, [typedProduct, setActiveProduct])
 
   function goNext() {
+    // Motor step 1 (quick quote) → go to results page to see plans
+    if (typedProduct === 'motor' && currentStep === 1) {
+      router.push('/quote/result')
+      return
+    }
+    // Final step → motor goes to checkout (plan already selected), others go to results
+    if (currentStep === totalSteps) {
+      router.push(typedProduct === 'motor' ? '/quote/checkout' : '/quote/result')
+      return
+    }
     setStep(typedProduct, currentStep + 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -62,6 +74,11 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     setStep(typedProduct, currentStep - 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  const nextLabel =
+    typedProduct === 'motor' && currentStep === 1
+      ? 'See my quotes →'
+      : undefined
 
   return (
     <QuoteLayout
@@ -73,6 +90,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       onBack={currentStep > 1 ? goBack : undefined}
       onNext={goNext}
       isFinalStep={currentStep === totalSteps}
+      nextLabel={nextLabel}
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>
