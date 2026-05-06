@@ -1,12 +1,13 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useQuoteStore } from '@/store/quoteStore'
+import { useQuoteStore, type MotorData } from '@/store/quoteStore'
 import { calculateMotorPremium } from '@/lib/premiumCalculator'
-import { NIGERIAN_STATES, VEHICLE_TYPES } from '@/lib/constants'
-import { ArrowLeft, Search, Loader2, X, Phone, Info, ChevronDown } from 'lucide-react'
+import { NIGERIAN_STATES } from '@/lib/constants'
+import { ArrowLeft, Search, Loader2, X, Phone, ChevronDown } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import Link from 'next/link'
+import { formatNaira } from '@/lib/formatters'
 
 interface Props {
   onComplete: () => void
@@ -18,30 +19,23 @@ const coverOptions = [
     icon: '🛡️',
     label: 'Comprehensive',
     price: 'From ₦65,000/yr',
-    desc: 'Full protection — covers your car and third party. Best for vehicles under 10 years.',
+    desc: 'Full protection for your vehicle + third party. Best for cars under 10 years.',
     recommended: true,
-  },
-  {
-    id: 'tpft' as const,
-    icon: '🔥',
-    label: 'Third Party, Fire & Theft',
-    price: 'From ₦35,000/yr',
-    desc: 'Third party liability + protection if your vehicle is stolen or catches fire.',
   },
   {
     id: 'tpo' as const,
     icon: '⚖️',
     label: 'Third Party Only',
     price: 'From ₦15,000/yr',
-    desc: 'The legal minimum in Nigeria. Covers damages you cause to others only.',
+    desc: 'Legal minimum in Nigeria. Covers damage you cause to others only.',
   },
 ]
 
 const useOptions = [
-  { id: 'private' as const, icon: '🏠', label: 'Private', desc: 'Personal / family use' },
-  { id: 'commercial' as const, icon: '🚕', label: 'Commercial', desc: 'Taxi, Uber, Bolt etc.' },
-  { id: 'own_goods' as const, icon: '📦', label: 'Own Goods', desc: 'Transporting your cargo' },
-  { id: 'hired' as const, icon: '🔑', label: 'Hired', desc: 'Rented to third parties' },
+  { id: 'private' as const, icon: '🏠', label: 'Private' },
+  { id: 'commercial' as const, icon: '🚕', label: 'Commercial' },
+  { id: 'own_goods' as const, icon: '📦', label: 'Own Goods' },
+  { id: 'hired' as const, icon: '🔑', label: 'Hired' },
 ]
 
 const QUICK_VALUES = [
@@ -71,6 +65,8 @@ export default function MotorQuickQuote({ onComplete }: Props) {
   const [stateSearch, setStateSearch] = useState('')
   const [showIdle, setShowIdle] = useState(false)
   const [showYearDrop, setShowYearDrop] = useState(false)
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiEstimate, setAiEstimate] = useState<number | null>(null)
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -95,10 +91,16 @@ export default function MotorQuickQuote({ onComplete }: Props) {
   }
 
   function next() { go(screen + 1, 1) }
+
   function back() {
     if (screen === 0) return
-    if (screen === 2 && !lookupDone) { go(0, -1); return }
-    go(screen - 1, -1)
+    if (screen === 1) { go(0, -1); return }
+    if (screen === 2) {
+      if (lookupDone) { go(1, -1); return }
+      go(0, -1); return
+    }
+    if (screen === 3) { go(2, -1); return }
+    if (screen === 4) { go(3, -1); return }
   }
 
   async function handleLookup() {
@@ -111,12 +113,31 @@ export default function MotorQuickQuote({ onComplete }: Props) {
     setTimeout(() => go(1, 1), 400)
   }
 
+  async function handleAiEstimate() {
+    setAiLoading(true)
+    await new Promise(r => setTimeout(r, 2000))
+    const year = motorData.yearOfManufacture
+    let estimate: number
+    if (year) {
+      const age = currentYear - year
+      estimate = Math.round(6000000 * Math.pow(0.85, age))
+    } else {
+      estimate = 4500000
+    }
+    setAiEstimate(estimate)
+    updateMotor({ marketValueRange: String(estimate) })
+    setAiLoading(false)
+  }
+
   const filteredStates = NIGERIAN_STATES.filter(s =>
     s.toLowerCase().includes(stateSearch.toLowerCase())
   )
 
-  const totalScreens = lookupDone ? 6 : 5
-  const progressIndex = lookupDone ? screen : (screen === 0 ? 0 : screen - 1)
+  // Screen 1 is only shown after auto-lookup. Progress counting:
+  // If lookupDone: screens 0,1,2,3,4 = 5 total
+  // If skip: screens 0,2,3,4 but we skip 1, so effectively 4 real steps
+  const totalScreens = 5
+  const progressIndex = screen
 
   return (
     <div
@@ -259,7 +280,7 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                 </div>
               )}
 
-              {/* ══ SCREEN 1: Confirm vehicle ══ */}
+              {/* ══ SCREEN 1: Confirm vehicle + use type + state ══ */}
               {screen === 1 && (
                 <div className="space-y-7">
                   <div className="text-center">
@@ -278,8 +299,9 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                     </p>
                   </div>
 
-                  <div className="bg-white rounded-3xl border p-6 shadow-sm" style={{ borderColor: 'var(--border-default)' }}>
-                    <div className="flex items-center justify-between mb-5 pb-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                  {/* Vehicle confirmation card */}
+                  <div className="bg-white rounded-3xl border p-5 shadow-sm" style={{ borderColor: 'var(--border-default)' }}>
+                    <div className="flex items-center justify-between mb-4 pb-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style={{ backgroundColor: 'var(--motor-50)' }}>
                           🚗
@@ -351,17 +373,77 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                     </div>
                   </div>
 
+                  {/* How will you use it? */}
+                  <div>
+                    <p className="font-sans font-semibold text-[14px] mb-3" style={{ color: 'var(--text-primary)' }}>How will you use it?</p>
+                    <div className="flex gap-2 flex-wrap">
+                      {useOptions.map(opt => {
+                        const sel = motorData.useType === opt.id
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => updateMotor({ useType: opt.id })}
+                            className="h-9 px-3.5 rounded-full font-sans font-medium text-[13px] border-[1.5px] transition-all flex items-center gap-1.5"
+                            style={sel
+                              ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+                              : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)', backgroundColor: 'white' }
+                            }
+                          >
+                            <span>{opt.icon}</span>
+                            <span>{opt.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Which state is it registered in? */}
+                  <div>
+                    <p className="font-sans font-semibold text-[14px] mb-3" style={{ color: 'var(--text-primary)' }}>Which state is it registered in?</p>
+                    <div className="relative mb-3">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
+                      <input
+                        type="text"
+                        value={stateSearch}
+                        onChange={e => setStateSearch(e.target.value)}
+                        placeholder="Search state…"
+                        className="w-full h-11 pl-11 pr-4 rounded-2xl border-[1.5px] font-sans text-[14px] outline-none bg-white transition-all"
+                        style={{ borderColor: 'var(--border-medium)' }}
+                        onFocus={e => { e.currentTarget.style.borderColor = 'var(--motor-600)' }}
+                        onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pb-1">
+                      {filteredStates.length === 0 && (
+                        <p className="font-sans text-[13px] w-full text-center py-4" style={{ color: 'var(--text-muted)' }}>No states found</p>
+                      )}
+                      {filteredStates.map(state => (
+                        <motion.button
+                          key={state}
+                          type="button"
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => updateMotor({ geographicalState: state })}
+                          className="h-8 px-3.5 rounded-full font-sans font-medium text-[13px] border-[1.5px] transition-all"
+                          style={motorData.geographicalState === state
+                            ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+                            : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)', backgroundColor: 'white' }
+                          }
+                        >
+                          {state}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+
                   <button
                     type="button"
                     onClick={next}
-                    className="w-full h-14 rounded-2xl font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+                    disabled={!motorData.useType || !motorData.geographicalState}
+                    className="w-full h-14 rounded-2xl font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
                     style={{ backgroundColor: 'var(--motor-600)' }}
                   >
-                    Yes, that's my car →
-                  </button>
-
-                  <button type="button" onClick={() => go(0, -1)} className="w-full text-center font-sans text-[13px] hover:underline" style={{ color: 'var(--text-muted)' }}>
-                    This doesn't look right — search again
+                    Continue →
                   </button>
                 </div>
               )}
@@ -385,7 +467,7 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                         <motion.button
                           key={opt.id}
                           type="button"
-                          onClick={() => { updateMotor({ coverType: opt.id }); setTimeout(next, 280) }}
+                          onClick={() => { updateMotor({ coverType: opt.id }); setTimeout(next, 300) }}
                           whileHover={{ y: -2 }}
                           whileTap={{ scale: 0.99 }}
                           className="w-full text-left p-5 rounded-3xl border-[2px] transition-all"
@@ -418,7 +500,7 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                 </div>
               )}
 
-              {/* ══ SCREEN 3: Vehicle value ══ */}
+              {/* ══ SCREEN 3: Market value ══ */}
               {screen === 3 && (
                 <div className="space-y-7">
                   <div className="text-center">
@@ -444,6 +526,7 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                         onChange={e => {
                           const raw = e.target.value.replace(/,/g, '').replace(/\D/g, '')
                           updateMotor({ marketValueRange: raw })
+                          setAiEstimate(null)
                         }}
                         placeholder="0"
                         className="w-full h-[76px] pl-14 pr-5 rounded-3xl border-[2px] font-display font-extrabold text-[30px] outline-none transition-all bg-white"
@@ -464,7 +547,7 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                         <button
                           key={qv.value}
                           type="button"
-                          onClick={() => updateMotor({ marketValueRange: qv.value })}
+                          onClick={() => { updateMotor({ marketValueRange: qv.value }); setAiEstimate(null) }}
                           className="h-8 px-3.5 rounded-full font-sans font-semibold text-[12px] border-[1.5px] transition-all"
                           style={motorData.marketValueRange === qv.value
                             ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
@@ -474,6 +557,40 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                           {qv.label}
                         </button>
                       ))}
+                    </div>
+
+                    {/* AI estimate button */}
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={handleAiEstimate}
+                        disabled={aiLoading}
+                        className="w-full h-12 rounded-2xl font-sans font-semibold text-[14px] border-[1.5px] border-dashed flex items-center justify-center gap-2 transition-all hover:bg-[#F0FDF4] disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{ borderColor: 'var(--green-600)', color: 'var(--green-700)', backgroundColor: 'white' }}
+                      >
+                        {aiLoading
+                          ? <><Loader2 className="w-4 h-4 animate-spin" /> Estimating value…</>
+                          : <>✨ Use AI to estimate value</>
+                        }
+                      </button>
+                      <AnimatePresence>
+                        {aiEstimate !== null && !aiLoading && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            className="mt-2 px-4 py-2.5 rounded-xl flex items-center gap-2"
+                            style={{ backgroundColor: '#F0FDF4', border: '1px solid var(--green-100)' }}
+                          >
+                            <span className="text-base">✓</span>
+                            <span className="font-sans text-[13px]" style={{ color: 'var(--green-700)' }}>
+                              AI estimated: {formatNaira(aiEstimate)} — based on your{' '}
+                              {motorData.vehicleMakeModel ? motorData.vehicleMakeModel.split(' ')[0] : 'vehicle'}{' '}
+                              {motorData.yearOfManufacture ?? ''}
+                            </span>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
 
@@ -489,93 +606,9 @@ export default function MotorQuickQuote({ onComplete }: Props) {
                 </div>
               )}
 
-              {/* ══ SCREEN 4: Use type ══ */}
+              {/* ══ SCREEN 4: Summary/Review ══ */}
               {screen === 4 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="text-5xl mb-5">🛣️</div>
-                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-                      How do you use<br />your vehicle?
-                    </h1>
-                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
-                      Tap to select — commercial use affects your premium
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {useOptions.map(opt => {
-                      const sel = motorData.useType === opt.id
-                      return (
-                        <motion.button
-                          key={opt.id}
-                          type="button"
-                          onClick={() => { updateMotor({ useType: opt.id }); setTimeout(next, 280) }}
-                          whileHover={{ y: -2 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="p-5 rounded-3xl border-[2px] text-left transition-all"
-                          style={sel
-                            ? { borderColor: 'var(--motor-600)', backgroundColor: 'var(--motor-50)', boxShadow: '0 0 0 4px color-mix(in srgb, var(--motor-600) 10%, transparent)' }
-                            : { borderColor: 'var(--border-default)', backgroundColor: 'white' }
-                          }
-                        >
-                          <span className="text-3xl block mb-2.5">{opt.icon}</span>
-                          <p className="font-display font-bold text-[15px] mb-1" style={{ color: sel ? 'var(--motor-700)' : 'var(--text-primary)' }}>{opt.label}</p>
-                          <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>{opt.desc}</p>
-                        </motion.button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* ══ SCREEN 5: State ══ */}
-              {screen === 5 && (
-                <div className="space-y-6">
-                  <div className="text-center">
-                    <div className="text-5xl mb-5">📍</div>
-                    <h1 className="font-display font-extrabold text-[30px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
-                      Where is your vehicle<br />registered?
-                    </h1>
-                    <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
-                      State of registration can affect your insurance rate
-                    </p>
-                  </div>
-
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: 'var(--text-muted)' }} />
-                    <input
-                      type="text"
-                      value={stateSearch}
-                      onChange={e => setStateSearch(e.target.value)}
-                      placeholder="Search state…"
-                      className="w-full h-12 pl-11 pr-4 rounded-2xl border-[1.5px] font-sans text-[14px] outline-none bg-white transition-all"
-                      style={{ borderColor: 'var(--border-medium)' }}
-                      onFocus={e => { e.currentTarget.style.borderColor = 'var(--motor-600)' }}
-                      onBlur={e => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
-                      autoFocus
-                    />
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 max-h-72 overflow-y-auto pb-1">
-                    {filteredStates.length === 0 && (
-                      <p className="font-sans text-[13px] w-full text-center py-4" style={{ color: 'var(--text-muted)' }}>No states found</p>
-                    )}
-                    {filteredStates.map(state => (
-                      <motion.button
-                        key={state}
-                        type="button"
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => { updateMotor({ geographicalState: state }); setTimeout(onComplete, 350) }}
-                        className="h-9 px-4 rounded-full font-sans font-medium text-[13px] border-[1.5px] transition-all"
-                        style={motorData.geographicalState === state
-                          ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
-                          : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)', backgroundColor: 'white' }
-                        }
-                      >
-                        {state}
-                      </motion.button>
-                    ))}
-                  </div>
-                </div>
+                <SummaryScreen motorData={motorData} onComplete={onComplete} />
               )}
 
             </motion.div>
@@ -646,6 +679,88 @@ export default function MotorQuickQuote({ onComplete }: Props) {
           </div>
         )}
       </AnimatePresence>
+    </div>
+  )
+}
+
+// ── Summary screen sub-component ──────────────────────────────────────────────
+function SummaryScreen({ motorData, onComplete }: {
+  motorData: MotorData
+  onComplete: () => void
+}) {
+  const { calculatedPremium } = useQuoteStore()
+
+  const premiumLow = calculatedPremium && calculatedPremium > 0
+    ? Math.round(calculatedPremium * 0.85)
+    : 15000
+  const premiumHigh = calculatedPremium && calculatedPremium > 0
+    ? Math.round(calculatedPremium * 1.15)
+    : 85000
+
+  const planCount = motorData.coverType === 'comprehensive' ? 5 : 4
+
+  const rows = [
+    { label: 'Vehicle', value: [motorData.vehicleMakeModel, motorData.yearOfManufacture].filter(Boolean).join(' ') || 'N/A' },
+    { label: 'Registration', value: motorData.registrationNumber || 'N/A' },
+    { label: 'Cover type', value: motorData.coverType === 'comprehensive' ? 'Comprehensive' : motorData.coverType === 'tpo' ? 'Third Party Only' : 'N/A' },
+    { label: 'Market value', value: motorData.marketValueRange ? formatNaira(Number(motorData.marketValueRange)) : 'N/A' },
+    { label: 'Use type', value: motorData.useType ? motorData.useType.replace('_', ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : 'N/A' },
+    { label: 'State', value: motorData.geographicalState || 'N/A' },
+  ]
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <div className="text-5xl mb-4">🎉</div>
+        <h1 className="font-display font-extrabold text-[28px] tracking-tight leading-tight mb-2" style={{ color: 'var(--text-primary)' }}>
+          Your quote is ready!
+        </h1>
+        <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>
+          Here's a summary of your cover
+        </p>
+      </div>
+
+      {/* Summary card */}
+      <div className="bg-white rounded-3xl border shadow-sm overflow-hidden" style={{ borderColor: 'var(--border-default)' }}>
+        <div className="h-1.5" style={{ backgroundColor: 'var(--motor-600)' }} />
+        <div className="p-5 space-y-0">
+          {rows.map((row, i) => (
+            <div
+              key={row.label}
+              className="flex items-center justify-between py-3"
+              style={{ borderBottom: i < rows.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
+            >
+              <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{row.label}</span>
+              <span className="font-sans font-semibold text-[14px]" style={{ color: 'var(--text-primary)' }}>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Estimated premium */}
+      <div
+        className="rounded-3xl p-5 text-center"
+        style={{ backgroundColor: 'var(--motor-50)', border: '1px solid var(--motor-100)' }}
+      >
+        <p className="font-sans text-[12px] uppercase tracking-wide mb-1" style={{ color: 'var(--motor-600)' }}>Estimated premium range</p>
+        <p className="font-display font-extrabold text-[28px] leading-tight" style={{ color: 'var(--motor-700)' }}>
+          {formatNaira(premiumLow)} – {formatNaira(premiumHigh)}
+          <span className="font-sans font-normal text-[15px] ml-1" style={{ color: 'var(--motor-600)' }}>/yr</span>
+        </p>
+        <p className="font-sans text-[11px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
+          Final premium depends on selected insurer and add-ons
+        </p>
+      </div>
+
+      {/* CTA button */}
+      <button
+        type="button"
+        onClick={onComplete}
+        className="w-full h-14 rounded-2xl font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
+        style={{ backgroundColor: 'var(--motor-600)' }}
+      >
+        See {planCount} plans for you →
+      </button>
     </div>
   )
 }

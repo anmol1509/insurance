@@ -17,9 +17,21 @@ const maritalOptions = MARITAL_STATUSES.map((m) => ({ value: m, label: m }))
 
 export default function MotorStep3() {
   const { motorData, updateMotor } = useQuoteStore()
+  const hasDocuments = Object.keys(motorData.uploadedDocs ?? {}).length > 0
 
   return (
     <div className="space-y-7">
+      {hasDocuments && (
+        <div
+          className="flex items-start gap-3 px-4 py-3.5 rounded-2xl border"
+          style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-100)' }}
+        >
+          <span className="text-lg shrink-0">✨</span>
+          <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+            Fields have been pre-filled from your uploaded documents. Review each field and edit anything that needs correcting.
+          </p>
+        </div>
+      )}
       <div className="grid md:grid-cols-2 gap-5">
         <Input
           label="Full Name"

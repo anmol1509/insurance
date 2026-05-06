@@ -32,8 +32,9 @@ const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
 // Motor: step 1 is the full-screen wizard (MotorQuickQuote), not in this array.
+// New post-plan order: 2=Documents, 3=Your details, 4=Driver, 5=Vehicle info, 6=Review
 // Steps 2-6 map to indices 0-4 here.
-const MOTOR_STEPS: React.ComponentType[] = [MotorStep1, MotorStep2, MotorStep3, MotorStep4, MotorReview]
+const MOTOR_STEPS: React.ComponentType[] = [MotorStep4, MotorStep3, MotorStep2, MotorStep1, MotorReview]
 
 const STEP_COMPONENTS: Record<Exclude<Product, 'motor'>, React.ComponentType[]> = {
   medical:  [MedicalStep1,  MedicalStep2,  MedicalStep3,  MedicalReview],
