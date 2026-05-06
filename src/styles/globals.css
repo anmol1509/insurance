@@ -1,9 +1,9 @@
 :root {
   /* ── Page & Surface ────────────────────────── */
-  --page-bg:          #F5F6F4;
+  --page-bg:          #F2F7F4;
   --surface:          #FFFFFF;
-  --surface-raised:   #F9FAFB;
-  --surface-sunken:   #F3F4F6;
+  --surface-raised:   #F4F9F6;
+  --surface-sunken:   #EAF2ED;
 
   /* ── Brand Green ───────────────────────────── */
   --green-900:        #052E16;
@@ -15,11 +15,11 @@
   --green-100:        #DCFCE7;
   --green-50:         #E6F4ED;
 
-  /* ── Accent Orange ─────────────────────────── */
-  --orange-600:       #E55A28;
-  --orange-500:       #FF6B35;
-  --orange-100:       #FFEDD5;
-  --orange-50:        #FFF7F0;
+  /* ── Accent Green (primary CTA) ───────────── */
+  --orange-600:       #15803D;
+  --orange-500:       #16A34A;
+  --orange-100:       #DCFCE7;
+  --orange-50:        #F0FDF4;
 
   /* ── Typography ────────────────────────────── */
   --text-primary:     #111827;

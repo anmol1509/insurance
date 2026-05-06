@@ -421,8 +421,16 @@ function CompareModal({ plans, basePrice, color, onClose }: {
                   const price = Math.round(basePrice * plan.multiplier)
                   return (
                     <th key={plan.id} className="pb-3 px-2 text-center" style={{ minWidth: '140px' }}>
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-2xl">{plan.logo}</span>
+                      <div className="flex flex-col items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => router.push('/quote/checkout')}
+                          className="w-full h-9 rounded-xl font-sans font-semibold text-[13px] text-white transition-all hover:-translate-y-px hover:shadow-md"
+                          style={{ backgroundColor: color.main }}
+                        >
+                          Choose plan →
+                        </button>
+                        <span className="text-2xl mt-1">{plan.logo}</span>
                         <span className="font-display font-bold text-[13px] leading-tight" style={{ color: 'var(--text-primary)' }}>
                           {plan.insurer}
                         </span>
@@ -496,25 +504,6 @@ function CompareModal({ plans, basePrice, color, onClose }: {
           </table>
         </div>
 
-        {/* Choose plan buttons */}
-        <div
-          className="flex gap-3 px-5 py-4 border-t border-[var(--border-subtle)] shrink-0 overflow-x-auto"
-          style={{ minWidth: 0 }}
-        >
-          <div className="w-[120px] shrink-0" />
-          {plans.map(plan => (
-            <div key={plan.id} className="shrink-0" style={{ minWidth: '140px' }}>
-              <button
-                type="button"
-                onClick={() => router.push('/quote/checkout')}
-                className="w-full h-10 rounded-2xl font-sans font-semibold text-sm text-white transition-all hover:-translate-y-px hover:shadow-md"
-                style={{ backgroundColor: color.main }}
-              >
-                Choose plan →
-              </button>
-            </div>
-          ))}
-        </div>
       </motion.div>
     </div>
   )
