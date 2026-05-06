@@ -3,11 +3,9 @@ import { useQuoteStore } from '@/store/quoteStore'
 import DocumentUploadZone from '@/components/ui/DocumentUploadZone'
 
 const DOC_SLOTS = [
-  { key: 'vehicle_license',     label: 'Vehicle License (Reg. Certificate)', required: true },
-  { key: 'proof_of_ownership',  label: 'Proof of Ownership (Particulars)', required: true },
-  { key: 'drivers_license',     label: "Driver's License Copy", required: true },
-  { key: 'proof_of_address',    label: 'Proof of Address (Utility bill / bank statement)', required: false },
-  { key: 'vehicle_photos',      label: 'Vehicle Photographs (front, rear, sides)', required: false },
+  { key: 'vehicle_license',    label: 'Vehicle License (Reg. Certificate)', required: true },
+  { key: 'proof_of_ownership', label: 'Proof of Ownership (Particulars)',   required: true },
+  { key: 'drivers_license',    label: "Driver's License Copy",              required: true },
 ]
 
 export default function MotorStep4() {

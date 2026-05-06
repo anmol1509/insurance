@@ -172,14 +172,6 @@ export default function MotorStep1() {
         productColor="var(--motor-600)"
       />
 
-      <Input
-        label="Accessories / Special Features"
-        value={motorData.accessories}
-        onChange={(e) => updateMotor({ accessories: e.target.value })}
-        placeholder="e.g. Tinted windows, bull bars, roof rack"
-        hint="Optional. Describe any aftermarket additions."
-        productColor="var(--motor-600)"
-      />
     </div>
   )
 }
