@@ -176,13 +176,11 @@ function PlanCard({
       className="bg-white rounded-2xl border overflow-hidden"
       style={{ borderColor: plan.popular ? color.main : 'var(--border-default)', borderWidth: plan.popular ? '1.5px' : '1px' }}
     >
-      {/* Top bar for popular */}
       {plan.popular && (
         <div className="h-1 w-full" style={{ backgroundColor: color.main }} />
       )}
 
       <div className="p-5">
-        {/* Row 1: badges + price */}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span
@@ -205,7 +203,6 @@ function PlanCard({
           </div>
         </div>
 
-        {/* Row 2: name + insurer */}
         <div className="mb-4">
           <h3 className="font-display font-bold text-[17px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -217,7 +214,6 @@ function PlanCard({
           </div>
         </div>
 
-        {/* Stats row */}
         <div className="grid grid-cols-4 gap-2 py-3 border-y border-[var(--border-subtle)] mb-4">
           {[
             { label: 'CLAIM SETTLEMENT', value: plan.claimSettlement },
@@ -232,7 +228,6 @@ function PlanCard({
           ))}
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-5 border-b border-[var(--border-subtle)] mb-3">
           {(['highlights', 'exclusions'] as const).map((tab) => (
             <button
@@ -250,17 +245,16 @@ function PlanCard({
           ))}
         </div>
 
-        {/* Features / Exclusions */}
         <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 mb-3">
           {(activeTab === 'highlights' ? displayFeatures : plan.exclusions).map((item) => (
             <div key={item} className="flex items-start gap-2">
               <div
                 className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-                style={{ backgroundColor: activeTab === 'highlights' ? color.light : 'var(--error-50, #fef2f2)' }}
+                style={{ backgroundColor: activeTab === 'highlights' ? color.light : '#fef2f2' }}
               >
                 {activeTab === 'highlights'
                   ? <Check className="w-2.5 h-2.5" style={{ color: color.main }} strokeWidth={3} />
-                  : <X className="w-2.5 h-2.5 text-[var(--error,#ef4444)]" strokeWidth={3} />}
+                  : <X className="w-2.5 h-2.5" style={{ color: '#ef4444' }} strokeWidth={3} />}
               </div>
               <span className="font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>{item}</span>
             </div>
@@ -278,9 +272,7 @@ function PlanCard({
           </button>
         )}
 
-        {/* Action bar */}
         <div className="flex items-center gap-2 pt-3 border-t border-[var(--border-subtle)] flex-wrap">
-          {/* Add to compare */}
           <button
             type="button"
             disabled={!canCompare}
@@ -352,7 +344,7 @@ function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestP
           <>
             <h3 className="font-display font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>Save your quote</h3>
             <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
-              We'll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
+              We’ll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
             </p>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -377,80 +369,151 @@ function CompareModal({ plans, basePrice, color, onClose, onSelect }: {
   plans: Plan[]; basePrice: number; color: { main: string; light: string; text: string }; onClose: () => void; onSelect: (p: Plan) => void
 }) {
   const allFeatures = Array.from(new Set(plans.flatMap(p => p.features)))
+  const allExclusions = Array.from(new Set(plans.flatMap(p => p.exclusions)))
+  const colW = 180
+  const labelW = 150
+
+  const KEY_METRICS: { label: string; getValue: (p: Plan) => string }[] = [
+    { label: 'Annual Premium', getValue: p => formatNaira(Math.round(basePrice * p.multiplier)) + '/yr' },
+    { label: 'Claim Settlement', getValue: p => p.claimSettlement },
+    { label: 'Response Time', getValue: p => p.responseTime },
+    { label: 'Rating', getValue: p => `${p.rating} ★  (${p.reviews.toLocaleString()} reviews)` },
+    { label: 'Cover Type', getValue: p => COVER_TYPE_LABELS[p.coverType] },
+    { label: 'NAICOM Licensed', getValue: () => 'Yes' },
+  ]
+
+  function SectionLabel({ label }: { label: string }) {
+    return (
+      <div className="flex items-center gap-3 py-2.5 mt-1" style={{ minWidth: `${labelW + colW * plans.length}px` }}>
+        <span className="font-sans font-bold text-[10px] uppercase tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>{label}</span>
+        <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+      </div>
+    )
+  }
+
+  function Row({ label, children, shade }: { label: string; children: React.ReactNode; shade?: boolean }) {
+    return (
+      <div
+        className="flex items-center gap-0 rounded-lg"
+        style={{ minWidth: `${labelW + colW * plans.length}px`, backgroundColor: shade ? 'var(--surface-raised)' : 'transparent' }}
+      >
+        <div style={{ width: labelW, minWidth: labelW }} className="py-2.5 pr-4 shrink-0">
+          <span className="font-sans text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+        </div>
+        {children}
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50" />
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 260 }}
-        className="relative mt-auto bg-white rounded-t-3xl shadow-2xl flex flex-col max-h-[90vh]"
+        className="relative mt-auto bg-white rounded-t-3xl shadow-2xl flex flex-col max-h-[92vh]"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full bg-[var(--border-medium)]" />
         </div>
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-subtle)] shrink-0">
+
+        <div className="flex items-center justify-between px-5 py-2.5 border-b border-[var(--border-subtle)] shrink-0">
           <div className="flex items-center gap-2">
             <GitCompare className="w-4 h-4" style={{ color: color.main }} />
             <h2 className="font-display font-bold text-base" style={{ color: 'var(--text-primary)' }}>Compare Plans</h2>
           </div>
           <button type="button" onClick={onClose} style={{ color: 'var(--text-muted)' }}><X className="w-5 h-5" /></button>
         </div>
-        <div className="overflow-auto flex-1 px-4 py-4">
-          <table className="w-full border-collapse" style={{ minWidth: `${plans.length * 160 + 140}px` }}>
-            <thead>
-              <tr>
-                <th className="text-left font-sans text-[11px] uppercase tracking-wide pb-3 pr-4 w-[140px]" style={{ color: 'var(--text-muted)' }}>Feature</th>
-                {plans.map(p => (
-                  <th key={p.id} className="pb-3 px-2 text-center" style={{ minWidth: '150px' }}>
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="font-display font-bold text-[13px]" style={{ color: 'var(--text-primary)' }}>{p.name}</span>
-                      <span className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>{p.insurer}</span>
-                      <span className="font-display font-extrabold text-[15px]" style={{ color: color.main }}>{formatNaira(Math.round(basePrice * p.multiplier))}</span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { label: 'Claim Settlement', getValue: (p: Plan) => p.claimSettlement },
-                { label: 'Response Time', getValue: (p: Plan) => p.responseTime },
-                { label: 'Rating', getValue: (p: Plan) => `${p.rating} ★` },
-              ].map(({ label, getValue }) => (
-                <tr key={label} className="border-t border-[var(--border-subtle)]">
-                  <td className="py-2.5 pr-4 font-sans text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</td>
-                  {plans.map(p => (
-                    <td key={p.id} className="py-2.5 px-2 text-center font-sans text-[13px]" style={{ color: 'var(--text-primary)' }}>{getValue(p)}</td>
-                  ))}
-                </tr>
-              ))}
-              {allFeatures.map(f => (
-                <tr key={f} className="border-t border-[var(--border-subtle)]">
-                  <td className="py-2.5 pr-4 font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>{f}</td>
-                  {plans.map(p => (
-                    <td key={p.id} className="py-2.5 px-2 text-center">
-                      {p.features.includes(f)
-                        ? <Check className="w-4 h-4 mx-auto" style={{ color: color.main }} />
-                        : <span className="font-sans text-[14px]" style={{ color: 'var(--text-muted)' }}>—</span>}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+        <div className="shrink-0 bg-white border-b border-[var(--border-default)] px-5 py-4 overflow-x-auto">
+          <div className="flex gap-0" style={{ minWidth: `${labelW + colW * plans.length}px` }}>
+            <div style={{ width: labelW, minWidth: labelW }} className="shrink-0" />
+            {plans.map((p, i) => {
+              const price = Math.round(basePrice * p.multiplier)
+              const isFirst = i === 0
+              return (
+                <div
+                  key={p.id}
+                  className="flex flex-col gap-1.5 px-4 py-3 rounded-2xl"
+                  style={{
+                    width: colW, minWidth: colW,
+                    backgroundColor: isFirst ? color.light : 'var(--surface-raised)',
+                  }}
+                >
+                  {p.badge && (
+                    <span
+                      className="font-sans font-semibold text-[10px] px-2 py-0.5 rounded-full w-fit"
+                      style={{ backgroundColor: isFirst ? color.main : 'var(--border-medium)', color: 'white' }}
+                    >
+                      {p.badge}
+                    </span>
+                  )}
+                  <div>
+                    <p className="font-display font-bold text-[13px] leading-tight" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
+                    <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.insurer}</p>
+                  </div>
+                  <p className="font-display font-extrabold text-[18px] leading-none" style={{ color: color.main }}>
+                    {formatNaira(price)}
+                  </p>
+                  <p className="font-sans text-[10px] -mt-1" style={{ color: 'var(--text-muted)' }}>/yr · excl. taxes</p>
+                  <button
+                    type="button"
+                    onClick={() => onSelect(p)}
+                    className="mt-1 h-9 w-full rounded-xl font-sans font-semibold text-[12px] text-white transition-all hover:opacity-90"
+                    style={{ backgroundColor: color.main }}
+                  >
+                    Select Plan →
+                  </button>
+                </div>
+              )
+            })}
+          </div>
         </div>
-        <div className="flex gap-3 px-5 py-4 border-t border-[var(--border-subtle)] shrink-0 overflow-x-auto">
-          <div className="w-[140px] shrink-0" />
-          {plans.map(p => (
-            <div key={p.id} className="shrink-0" style={{ minWidth: '150px' }}>
-              <button type="button" onClick={() => onSelect(p)}
-                className="w-full h-10 rounded-xl font-sans font-semibold text-sm text-white"
-                style={{ backgroundColor: color.main }}>
-                Select Plan →
-              </button>
-            </div>
+
+        <div className="overflow-auto flex-1 px-5 py-3">
+          <SectionLabel label="Key Metrics" />
+          {KEY_METRICS.map((m, idx) => (
+            <Row key={m.label} label={m.label} shade={idx % 2 === 0}>
+              {plans.map(p => (
+                <div key={p.id} style={{ width: colW, minWidth: colW }} className="py-2.5 px-4 text-center">
+                  <span className="font-sans text-[12px] font-medium" style={{ color: 'var(--text-primary)' }}>{m.getValue(p)}</span>
+                </div>
+              ))}
+            </Row>
           ))}
+
+          <SectionLabel label="Features Included" />
+          {allFeatures.map((f, idx) => (
+            <Row key={f} label={f} shade={idx % 2 === 0}>
+              {plans.map(p => (
+                <div key={p.id} style={{ width: colW, minWidth: colW }} className="py-2.5 px-4 flex justify-center">
+                  {p.features.includes(f)
+                    ? <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: color.light }}>
+                        <Check className="w-3 h-3" style={{ color: color.main }} strokeWidth={3} />
+                      </div>
+                    : <span className="font-sans text-[15px]" style={{ color: 'var(--border-medium)' }}>—</span>}
+                </div>
+              ))}
+            </Row>
+          ))}
+
+          <SectionLabel label="Not Covered" />
+          {allExclusions.map((e, idx) => (
+            <Row key={e} label={e} shade={idx % 2 === 0}>
+              {plans.map(p => (
+                <div key={p.id} style={{ width: colW, minWidth: colW }} className="py-2.5 px-4 flex justify-center">
+                  {p.exclusions.includes(e)
+                    ? <div className="w-5 h-5 rounded-full flex items-center justify-center bg-red-50">
+                        <X className="w-3 h-3 text-red-400" strokeWidth={3} />
+                      </div>
+                    : <span className="font-sans text-[15px]" style={{ color: 'var(--border-medium)' }}>—</span>}
+                </div>
+              ))}
+            </Row>
+          ))}
+
+          <div className="h-6" />
         </div>
       </motion.div>
     </div>
@@ -468,7 +531,7 @@ export default function QuoteResultPage() {
   const [showCompare, setShowCompare] = useState(false)
 
   const product = (activeProduct ?? 'motor') as string
-  const basePrice = calculatedPremium ?? 50000
+  const basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
   const state = motorData.geographicalState || 'Nigeria'
 
@@ -498,13 +561,12 @@ export default function QuoteResultPage() {
 
   const lowestPrice = Math.round(basePrice * Math.min(...MOTOR_PLANS.map(p => p.multiplier)))
 
-  function handleSelect(plan: Plan) {
+  function handleSelect(_plan: Plan) {
     router.push('/quote/checkout')
   }
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--page-bg)' }}>
-      {/* Header */}
       <div className="bg-white border-b border-[var(--border-default)] py-5 px-5 lg:px-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div>
@@ -529,59 +591,30 @@ export default function QuoteResultPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-5 lg:px-10 py-7 flex gap-7 items-start">
-        {/* Sidebar */}
         <aside className="w-60 shrink-0 hidden lg:block">
           <div className="bg-white rounded-2xl border border-[var(--border-default)] p-5 sticky top-6">
-            {/* Sort by */}
             <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>
-                Sort By
-              </p>
+              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Sort By</p>
               {([['popular', 'Most Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
                 <SidebarRadio key={key} label={label} checked={sortBy === key} onChange={() => setSortBy(key)} color={color.main} />
               ))}
             </div>
-
             <div className="border-t border-[var(--border-subtle)] mb-5" />
-
-            {/* Cover type */}
             <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>
-                Cover Type
-              </p>
+              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Cover Type</p>
               {(['comprehensive', 'tpo', 'tpft'] as const).map(key => (
-                <SidebarCheckbox
-                  key={key}
-                  label={COVER_TYPE_LABELS[key]}
-                  checked={coverFilters.includes(key)}
-                  onChange={() => toggleCoverFilter(key)}
-                  color={color.main}
-                />
+                <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key]} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
               ))}
             </div>
-
             <div className="border-t border-[var(--border-subtle)] mb-5" />
-
-            {/* Features */}
             <div>
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>
-                Features
-              </p>
+              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Features</p>
               {FEATURE_FILTER_OPTIONS.map(f => (
-                <SidebarCheckbox
-                  key={f}
-                  label={f}
-                  checked={featureFilters.includes(f)}
-                  onChange={() => toggleFeatureFilter(f)}
-                  color={color.main}
-                />
+                <SidebarCheckbox key={f} label={f} checked={featureFilters.includes(f)} onChange={() => toggleFeatureFilter(f)} color={color.main} />
               ))}
             </div>
-
             {(coverFilters.length > 0 || featureFilters.length > 0) && (
-              <button
-                type="button"
-                onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
+              <button type="button" onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
                 className="mt-4 w-full h-8 rounded-lg border font-sans text-[12px] font-medium transition-colors hover:bg-[var(--surface-raised)]"
                 style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
               >
@@ -591,14 +624,10 @@ export default function QuoteResultPage() {
           </div>
         </aside>
 
-        {/* Main */}
         <div className="flex-1 min-w-0">
-          {/* Location + count badge */}
           <div className="flex items-center gap-3 mb-4 flex-wrap">
-            <span
-              className="font-sans font-semibold text-[12px] px-3 py-1 rounded-full border"
-              style={{ backgroundColor: color.light, borderColor: color.main, color: color.text }}
-            >
+            <span className="font-sans font-semibold text-[12px] px-3 py-1 rounded-full border"
+              style={{ backgroundColor: color.light, borderColor: color.main, color: color.text }}>
               Plans for {state}
             </span>
             <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
@@ -618,11 +647,7 @@ export default function QuoteResultPage() {
             <div className="flex flex-col gap-4">
               {plans.map((plan, i) => (
                 <PlanCard
-                  key={plan.id}
-                  plan={plan}
-                  basePrice={basePrice}
-                  color={color}
-                  index={i}
+                  key={plan.id} plan={plan} basePrice={basePrice} color={color} index={i}
                   compareSelected={compareIds.includes(plan.id)}
                   onToggleCompare={toggleCompare}
                   canCompare={compareIds.length < 3 || compareIds.includes(plan.id)}
@@ -632,7 +657,6 @@ export default function QuoteResultPage() {
             </div>
           )}
 
-          {/* Save quote + trust strip */}
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
             className="mt-5 flex items-center justify-between gap-4 flex-wrap bg-white rounded-2xl border border-[var(--border-default)] px-5 py-4"
@@ -650,9 +674,7 @@ export default function QuoteResultPage() {
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setShowEmailModal(true)}
+            <button type="button" onClick={() => setShowEmailModal(true)}
               className="flex items-center gap-2 h-9 px-4 rounded-xl border font-sans font-medium text-[12px] hover:bg-[var(--surface-raised)] transition-colors shrink-0"
               style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
             >
@@ -662,7 +684,6 @@ export default function QuoteResultPage() {
         </div>
       </div>
 
-      {/* Floating compare bar */}
       <AnimatePresence>
         {compareIds.length >= 2 && (
           <motion.div
@@ -674,8 +695,7 @@ export default function QuoteResultPage() {
               <span className="font-sans text-[13px] font-medium" style={{ color: 'var(--text-secondary)' }}>
                 {compareIds.length} plans selected
               </span>
-              <button
-                type="button" onClick={() => setShowCompare(true)}
+              <button type="button" onClick={() => setShowCompare(true)}
                 className="flex items-center gap-1.5 h-9 px-4 rounded-xl font-sans font-semibold text-sm text-white"
                 style={{ backgroundColor: color.main }}
               >
@@ -699,8 +719,7 @@ export default function QuoteResultPage() {
         {showCompare && (
           <CompareModal
             plans={MOTOR_PLANS.filter(p => compareIds.includes(p.id))}
-            basePrice={basePrice}
-            color={color}
+            basePrice={basePrice} color={color}
             onClose={() => setShowCompare(false)}
             onSelect={handleSelect}
           />
