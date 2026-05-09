@@ -1,6 +1,6 @@
 'use client'
 import { use, useEffect } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
@@ -39,6 +39,7 @@ const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
 
 export default function QuotePage({ params }: { params: Promise<{ product: string }> }) {
   const { product } = use(params)
+  const router = useRouter()
 
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
@@ -54,6 +55,10 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   }, [typedProduct, setActiveProduct])
 
   function goNext() {
+    if (currentStep === totalSteps) {
+      router.push('/quote/result')
+      return
+    }
     setStep(typedProduct, currentStep + 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
