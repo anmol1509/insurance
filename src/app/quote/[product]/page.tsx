@@ -44,7 +44,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
-  const { steps, setActiveProduct, setStep } = useQuoteStore()
+  const { steps, setActiveProduct, setStep, motorData } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const totalSteps = PRODUCT_STEPS[typedProduct].length
@@ -54,8 +54,12 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     setActiveProduct(typedProduct)
   }, [typedProduct, setActiveProduct])
 
+  const nextDisabled =
+    typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed
+
   function goNext() {
     if (currentStep === totalSteps) {
+      if (nextDisabled) return
       router.push('/quote/result')
       return
     }
@@ -78,6 +82,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       onBack={currentStep > 1 ? goBack : undefined}
       onNext={goNext}
       isFinalStep={currentStep === totalSteps}
+      nextDisabled={nextDisabled}
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>

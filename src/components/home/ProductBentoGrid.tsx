@@ -92,7 +92,7 @@ const products = [
     title: 'Car insurance',
     valueProp: 'Simple prices. Super fast claims.',
     sub: "That's our promise.",
-    priceLabel: 'Starting at ₦65,000/yr',
+    featureLabel: 'NAICOM Approved',
     color: 'var(--motor-600)', colorBg: 'var(--motor-50)', colorCheck: 'var(--motor-100)',
     href: '/motor',
     illustration: <CarIllustration />,
@@ -103,7 +103,7 @@ const products = [
     title: 'Health insurance',
     valueProp: '100% hospital bill payments',
     sub: 'from syringes to surgeries. No surprises.',
-    priceLabel: 'Starting at ₦45,000/yr',
+    featureLabel: '700+ Hospitals',
     color: 'var(--medical-600)', colorBg: 'var(--medical-50)', colorCheck: 'var(--medical-100)',
     href: '/medical',
     illustration: <MedicalIllustration />,
@@ -114,7 +114,7 @@ const products = [
     title: 'Travel insurance',
     valueProp: 'With visa certificate included',
     sub: '',
-    priceLabel: 'Starting at ₦8,000/trip',
+    featureLabel: 'Worldwide Coverage',
     color: 'var(--travel-600)', colorBg: 'var(--travel-50)', colorCheck: 'var(--travel-100)',
     href: '/travel',
     illustration: <PlaneIllustration />,
@@ -125,7 +125,7 @@ const products = [
     title: 'Business insurance',
     valueProp: 'Protect your premises & staff',
     sub: '',
-    priceLabel: 'Starting at ₦50,000/yr',
+    featureLabel: 'Flexible Cover',
     color: 'var(--business-600)', colorBg: 'var(--business-50)', colorCheck: 'var(--business-100)',
     href: '/business',
     illustration: <BuildingIllustration />,
@@ -187,7 +187,7 @@ export default function ProductBentoGrid() {
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M3 7 L6 10 L11 4" stroke={p.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span className="font-sans font-medium text-xs" style={{ color: p.color }}>{p.priceLabel}</span>
+                    <span className="font-sans font-medium text-xs" style={{ color: p.color }}>{p.featureLabel}</span>
                   </div>
 
                   {/* Bottom row: arrow left, illustration right — no overlap */}
@@ -224,7 +224,7 @@ export default function ProductBentoGrid() {
                         <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
                           <path d="M3 7 L6 10 L11 4" stroke={p.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        <span className="font-sans font-medium text-[11px]" style={{ color: p.color }}>{p.priceLabel}</span>
+                        <span className="font-sans font-medium text-[11px]" style={{ color: p.color }}>{p.featureLabel}</span>
                       </div>
                     </div>
                   </div>

@@ -4,7 +4,6 @@ import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import RadioCard from '@/components/ui/RadioCard'
 import NINField from '@/components/ui/NINField'
-import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   NIGERIAN_STATES, GENDERS, MARITAL_STATUSES, OCCUPATIONS, ID_TYPES,
@@ -158,24 +157,30 @@ export default function MotorStep3() {
         />
       </div>
 
-      {/* Business policy toggle */}
-      <div
-        className="flex justify-between items-center p-5 rounded-2xl border"
-        style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-default)' }}
-      >
-        <div>
-          <p className="font-sans font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-            Is this a business / corporate policy?
-          </p>
-          <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            For vehicles owned by a registered company
-          </p>
+      {/* Policy type: Individual or Corporate */}
+      <div>
+        <p className="font-sans font-semibold text-[13px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+          Policy Type <span className="text-[var(--error)]">*</span>
+        </p>
+        <p className="font-sans text-[12px] mb-3" style={{ color: 'var(--text-muted)' }}>
+          Select whether this policy is for an individual or a registered company.
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          <RadioCard
+            label="Individual"
+            selected={!motorData.isBusinessPolicy}
+            onClick={() => updateMotor({ isBusinessPolicy: false })}
+            productColor="var(--motor-600)"
+            productColorBg="var(--motor-50)"
+          />
+          <RadioCard
+            label="Corporate"
+            selected={motorData.isBusinessPolicy}
+            onClick={() => updateMotor({ isBusinessPolicy: true })}
+            productColor="var(--motor-600)"
+            productColorBg="var(--motor-50)"
+          />
         </div>
-        <ToggleSwitch
-          checked={motorData.isBusinessPolicy}
-          onChange={(v) => updateMotor({ isBusinessPolicy: v })}
-          productColor="var(--motor-600)"
-        />
       </div>
 
       <AnimatePresence>

@@ -16,7 +16,7 @@ function Row({ label, value }: { label: string; value?: string | number | null }
 }
 
 export default function MotorReview() {
-  const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
+  const { motorData, updateMotor, setCalculatedPremium, setStep } = useQuoteStore()
   const { total, breakdown } = calculateMotorPremium(motorData)
 
   useEffect(() => {
@@ -35,7 +35,10 @@ export default function MotorReview() {
       </div>
 
       <section>
-        <h3 className="font-display font-bold text-base mb-3" style={{ color: 'var(--motor-700)' }}>Vehicle Details</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display font-bold text-base" style={{ color: 'var(--motor-700)' }}>Vehicle Details</h3>
+          <button type="button" onClick={() => setStep('motor', 1)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
+        </div>
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="Registration No." value={motorData.registrationNumber} />
           <Row label="Make & Model" value={motorData.vehicleMakeModel} />
@@ -51,7 +54,10 @@ export default function MotorReview() {
       </section>
 
       <section>
-        <h3 className="font-display font-bold text-base mb-3" style={{ color: 'var(--motor-700)' }}>Driver Details</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display font-bold text-base" style={{ color: 'var(--motor-700)' }}>Driver Details</h3>
+          <button type="button" onClick={() => setStep('motor', 2)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
+        </div>
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="License No." value={motorData.licenseNumber} />
           <Row label="Driver Age" value={motorData.driverAge ? `${motorData.driverAge} years` : null} />
@@ -62,7 +68,10 @@ export default function MotorReview() {
       </section>
 
       <section>
-        <h3 className="font-display font-bold text-base mb-3" style={{ color: 'var(--motor-700)' }}>Policyholder Details</h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display font-bold text-base" style={{ color: 'var(--motor-700)' }}>Policyholder Details</h3>
+          <button type="button" onClick={() => setStep('motor', 3)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
+        </div>
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="Full Name" value={motorData.fullName} />
           <Row label="Date of Birth" value={motorData.dateOfBirth} />

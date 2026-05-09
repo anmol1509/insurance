@@ -6,6 +6,7 @@ import { formatNaira } from '@/lib/formatters'
 import { Shield, Star, ArrowLeft, Check, GitCompare, X, FileText, Mail, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Logo from '@/components/ui/Logo'
 
 type SortKey = 'popular' | 'price' | 'rating'
 
@@ -567,25 +568,28 @@ export default function QuoteResultPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--page-bg)' }}>
-      <div className="bg-white border-b border-[var(--border-default)] py-5 px-5 lg:px-10">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <Link href={`/quote/${product}`}
-              className="flex items-center gap-1.5 font-sans text-[13px] mb-2 hover:underline"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to form
-            </Link>
-            <h1 className="font-display font-extrabold text-2xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
+      <div className="sticky top-0 z-50 bg-white border-b border-[var(--border-default)] py-3.5 px-5 lg:px-10">
+        <div className="max-w-6xl mx-auto flex items-center gap-4">
+          <Logo size={28} href="/" />
+          <div className="flex-1 min-w-0">
+            <h1 className="font-display font-extrabold text-xl tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>
               {plans.length} plans available
             </h1>
-            <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
               Compare and select the right plan for you
             </p>
           </div>
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border" style={{ backgroundColor: 'var(--green-50)', borderColor: 'var(--green-100)' }}>
-            <Shield className="w-4 h-4" style={{ color: 'var(--green-700)' }} />
-            <span className="font-sans font-medium text-[12px]" style={{ color: 'var(--green-700)' }}>All plans NAICOM licensed</span>
+          <div className="flex items-center gap-3 shrink-0 flex-wrap justify-end">
+            <Link href={`/quote/${product}`}
+              className="flex items-center gap-1.5 font-sans text-[13px] hover:underline hidden sm:flex"
+              style={{ color: 'var(--text-muted)' }}
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Edit details
+            </Link>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border" style={{ backgroundColor: 'var(--green-50)', borderColor: 'var(--green-100)' }}>
+              <Shield className="w-3.5 h-3.5" style={{ color: 'var(--green-700)' }} />
+              <span className="font-sans font-medium text-[11px]" style={{ color: 'var(--green-700)' }}>NAICOM licensed</span>
+            </div>
           </div>
         </div>
       </div>

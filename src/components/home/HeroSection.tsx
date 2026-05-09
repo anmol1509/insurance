@@ -221,12 +221,12 @@ export default function HeroSection() {
                     </div>
                   )}
 
-                  {/* From-price hint */}
+                  {/* Tab hint */}
                   <p className="font-sans text-[11px] mt-2.5 text-center" style={{ color: 'var(--text-subtle)' }}>
-                    {activeTab === 'motor'    && 'Motor cover from ₦15,000/yr · Compare 5+ insurers instantly'}
-                    {activeTab === 'medical'  && 'Health plans from ₦45,000/yr · 700+ accredited hospitals'}
-                    {activeTab === 'travel'   && 'Travel cover from ₦8,000 · Schengen certificate in 60 seconds'}
-                    {activeTab === 'business' && 'Business cover from ₦50,000/yr · Tax deductible under CITA'}
+                    {activeTab === 'motor'    && 'Compare 5+ NAICOM-licensed motor insurers instantly'}
+                    {activeTab === 'medical'  && '700+ accredited hospitals · personalised health plans'}
+                    {activeTab === 'travel'   && 'Schengen certificate in 60 seconds · worldwide coverage'}
+                    {activeTab === 'business' && 'Covers premises & staff · tax deductible under CITA'}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -252,8 +252,8 @@ export default function HeroSection() {
             <div className="grid grid-cols-2 gap-3 max-w-[420px]">
               {TABS.map((card, i) => {
                 const Icon = card.icon
-                const fromPrices: Record<TabKey, string> = { motor: '₦15K', medical: '₦45K', travel: '₦8K', business: '₦50K' }
-                const periods: Record<TabKey, string> = { motor: 'from / year', medical: 'from / year', travel: 'from / trip', business: 'from / year' }
+                const planCounts: Record<TabKey, string> = { motor: '5+ Plans', medical: '8+ Plans', travel: '6+ Plans', business: '4+ Plans' }
+                const subLabels: Record<TabKey, string> = { motor: 'NAICOM licensed', medical: 'accredited hospitals', travel: 'worldwide cover', business: 'flexible cover' }
                 return (
                   <motion.div
                     key={card.key}
@@ -280,10 +280,10 @@ export default function HeroSection() {
                         {card.label} Insurance
                       </p>
                       <p className="font-display font-bold text-2xl leading-none" style={{ color: card.color }}>
-                        {fromPrices[card.key as TabKey]}
+                        {planCounts[card.key as TabKey]}
                       </p>
                       <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {periods[card.key as TabKey]}
+                        {subLabels[card.key as TabKey]}
                       </p>
                     </Link>
                   </motion.div>

@@ -19,6 +19,7 @@ interface QuoteLayoutProps {
   onNext: () => void
   isFinalStep: boolean
   nextLabel?: string
+  nextDisabled?: boolean
   children: React.ReactNode
 }
 
@@ -39,6 +40,7 @@ export default function QuoteLayout({
   onNext,
   isFinalStep,
   nextLabel,
+  nextDisabled,
   children,
 }: QuoteLayoutProps) {
   const router = useRouter()
@@ -240,7 +242,8 @@ export default function QuoteLayout({
                 <button
                   type="button"
                   onClick={onNext}
-                  className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md"
+                  disabled={nextDisabled}
+                  className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
                   style={{ backgroundColor: config.color }}
                 >
                   {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
@@ -265,7 +268,8 @@ export default function QuoteLayout({
           <button
             type="button"
             onClick={onNext}
-            className="flex-1 h-12 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white"
+            disabled={nextDisabled}
+            className="flex-1 h-12 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white disabled:opacity-40 disabled:cursor-not-allowed"
             style={{ backgroundColor: config.color }}
           >
             {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
