@@ -2,7 +2,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Lock, Zap, X } from 'lucide-react'
+import { Shield, Lock, Zap, X, Car, Heart, Plane, Building2 } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import StepCircle from '@/components/ui/StepCircle'
 import { PRODUCT_STEPS } from '@/lib/constants'
@@ -23,11 +23,18 @@ interface QuoteLayoutProps {
   children: React.ReactNode
 }
 
+const PRODUCT_ICON = {
+  motor:    Car,
+  medical:  Heart,
+  travel:   Plane,
+  business: Building2,
+}
+
 const PRODUCT_CONFIG = {
-  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'Motor Insurance',    icon: '🚗' },
-  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'Medical Insurance',  icon: '❤️' },
-  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'Travel Insurance',   icon: '✈️' },
-  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'Business Insurance', icon: '🏢' },
+  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'Motor Insurance'    },
+  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'Medical Insurance'  },
+  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'Travel Insurance'   },
+  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'Business Insurance' },
 }
 
 export default function QuoteLayout({
@@ -55,7 +62,7 @@ export default function QuoteLayout({
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
           <Logo size={28} href="/" />
           <div className="flex-1 flex items-center justify-center gap-2">
-            <span className="text-base">{config.icon}</span>
+            {(() => { const Icon = PRODUCT_ICON[product]; return <Icon className="w-4 h-4" style={{ color: config.color }} /> })()}
             <span className="font-sans text-[13px] hidden sm:inline" style={{ color: 'var(--text-muted)' }}>
               {config.label}
             </span>
@@ -89,14 +96,14 @@ export default function QuoteLayout({
         <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            <div className="sticky top-[4.5rem] bg-white rounded-4xl border border-[var(--border-default)] p-7">
+            <div className="sticky top-[4.5rem] bg-white rounded-2xl border border-[var(--border-default)] p-7">
               {/* Product header */}
               <div className="flex items-center gap-3.5 pb-5 border-b border-[var(--border-subtle)]">
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center"
                   style={{ backgroundColor: config.colorBg }}
                 >
-                  {config.icon}
+                  {(() => { const Icon = PRODUCT_ICON[product]; return <Icon className="w-5 h-5" style={{ color: config.color }} /> })()}
                 </div>
                 <div>
                   <p className="font-display font-bold text-[18px]" style={{ color: 'var(--text-primary)' }}>
@@ -171,7 +178,7 @@ export default function QuoteLayout({
 
           {/* Main content */}
           <main>
-            <div className="bg-white rounded-4xl border border-[var(--border-default)] p-8 lg:p-10">
+            <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
               {/* Top bar */}
               <div className="flex items-center gap-4 mb-8">
                 <span

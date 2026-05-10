@@ -1,4 +1,4 @@
-import { Smartphone, Zap, Shield, Bell } from 'lucide-react'
+import { Smartphone, Zap, Shield, Bell, CheckCircle } from 'lucide-react'
 
 const FEATURES = [
   { icon: Zap,     text: 'Get quotes & buy cover in under 3 minutes' },
@@ -65,20 +65,9 @@ export default function AppDownloadSection() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {['A', 'B', 'C', 'D'].map((l, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full border-2 border-[var(--green-900)] flex items-center justify-center font-display font-bold text-[10px] text-white"
-                    style={{ backgroundColor: ['#1D4ED8','#059669','#D97706','#7C3AED'][i] }}
-                  >
-                    {l}
-                  </div>
-                ))}
-              </div>
-              <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                <span className="font-bold text-white">50,000+</span> active users · 4.8 ★ rated
+            <div className="mt-6">
+              <p className="font-sans text-[13px]" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                <span className="font-bold text-white">50,000+</span> active policyholders · rated 4.8/5
               </p>
             </div>
           </div>
@@ -105,7 +94,7 @@ export default function AppDownloadSection() {
                   <div className="w-6 h-6 rounded-lg" style={{ backgroundColor: 'var(--green-600)' }} />
                   <span className="font-display font-bold text-[12px] text-white">ShopInsurance</span>
                 </div>
-                <p className="font-sans text-[10px] text-white/50">Good morning, Emeka 👋</p>
+                <p className="font-sans text-[10px] text-white/50">Good morning, Emeka</p>
                 <p className="font-display font-bold text-[16px] text-white mt-0.5">3 Active Policies</p>
               </div>
 
@@ -148,7 +137,7 @@ export default function AppDownloadSection() {
               className="absolute top-12 -left-4 md:left-4 rounded-2xl px-4 py-3 shadow-xl max-w-[150px]"
               style={{ backgroundColor: 'white' }}
             >
-              <p className="font-sans font-bold text-[10px]" style={{ color: 'var(--text-primary)' }}>✅ Claim Approved</p>
+              <p className="font-sans font-bold text-[10px] flex items-center gap-1" style={{ color: 'var(--text-primary)' }}><CheckCircle className="w-3 h-3 text-green-600" /> Claim Approved</p>
               <p className="font-sans text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>₦320,000 — Motor claim settled</p>
             </div>
 
@@ -157,7 +146,7 @@ export default function AppDownloadSection() {
               className="absolute bottom-20 -right-2 md:-right-4 rounded-2xl px-4 py-3 shadow-xl"
               style={{ backgroundColor: 'white' }}
             >
-              <p className="font-sans font-bold text-[10px]" style={{ color: 'var(--text-primary)' }}>🔔 Renew in 14 days</p>
+              <p className="font-sans font-bold text-[10px] flex items-center gap-1" style={{ color: 'var(--text-primary)' }}><Bell className="w-3 h-3 text-amber-500" /> Renew in 14 days</p>
               <p className="font-sans text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Motor · Leadway Assurance</p>
             </div>
           </div>
