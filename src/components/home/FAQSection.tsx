@@ -14,7 +14,7 @@ const FAQS = [
   },
   {
     q: 'Can I compare quotes from multiple insurers at once?',
-    a: 'Absolutely — that\'s the core of ShopInsurance. After you complete the quote form, we display plans from all our partner insurers side-by-side, ranked by popularity, price, or star rating. You can also use our comparison tool to put up to 3 plans head-to-head on a single screen.',
+    a: "Absolutely — that's the core of ShopInsurance. After you complete the quote form, we display plans from all our partner insurers side-by-side, ranked by popularity, price, or star rating. You can also use our comparison tool to put up to 3 plans head-to-head on a single screen.",
   },
   {
     q: 'What payment methods do you accept?',
@@ -26,11 +26,11 @@ const FAQS = [
   },
   {
     q: 'Is my personal data safe?',
-    a: 'Your data is protected under Nigeria\'s NDPR (Nigeria Data Protection Regulation). We use bank-grade AES-256 encryption for stored data, TLS 1.3 for data in transit, and never sell or share your information with third parties without your explicit consent. Our privacy policy is available at shopinsurance.com.ng/privacy.',
+    a: "Your data is protected under Nigeria's NDPR (Nigeria Data Protection Regulation). We use bank-grade AES-256 encryption for stored data, TLS 1.3 for data in transit, and never sell or share your information with third parties without your explicit consent. Our privacy policy is available at shopinsurance.com.ng/privacy.",
   },
   {
     q: 'Can I buy insurance for someone else (gift a policy)?',
-    a: 'Yes. During the quote flow, you can specify a different named insured (e.g., insuring your parent\'s car or buying travel cover for a family member). The certificate will be issued in their name. Corporate accounts can bulk-purchase policies for employees.',
+    a: "Yes. During the quote flow, you can specify a different named insured (e.g., insuring your parent's car or buying travel cover for a family member). The certificate will be issued in their name. Corporate accounts can bulk-purchase policies for employees.",
   },
   {
     q: 'What happens if I need to cancel my policy?',
@@ -111,7 +111,7 @@ export default function FAQSection() {
           {/* Support CTA */}
           <div
             className="mt-10 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-            style={{ backgroundColor: 'var(--green-900)' }}
+            style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 100%)' }}
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>

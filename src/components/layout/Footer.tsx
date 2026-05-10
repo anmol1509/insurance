@@ -81,9 +81,9 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer style={{ backgroundColor: '#000000', color: 'white' }} className="pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+    <footer style={{ backgroundColor: '#011a14', color: 'white' }} className="pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0">
       {/* NAICOM regulatory bar */}
-      <div className="border-b" style={{ borderColor: '#1F2937', backgroundColor: '#0A0A0A' }}>
+      <div className="border-b" style={{ borderColor: '#1a3329', backgroundColor: '#010f0c' }}>
         <div className="max-w-[1280px] mx-auto px-5 lg:px-20 py-3 flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
@@ -91,11 +91,11 @@ export default function Footer() {
               NAICOM Licensed · Licence No. LIC/INS/NIA/2024/0042
             </span>
           </div>
-          <div className="h-3 w-px hidden md:block" style={{ backgroundColor: '#374151' }} />
+          <div className="h-3 w-px hidden md:block" style={{ backgroundColor: '#1e3d2e' }} />
           <span className="font-sans text-[12px]" style={{ color: '#6B7280' }}>
             RC 1234567 · All underwriters on this platform are NAICOM-regulated
           </span>
-          <div className="h-3 w-px hidden md:block" style={{ backgroundColor: '#374151' }} />
+          <div className="h-3 w-px hidden md:block" style={{ backgroundColor: '#1e3d2e' }} />
           <span className="font-sans text-[12px]" style={{ color: '#6B7280' }}>NDPR Compliant</span>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   className="w-10 h-10 rounded-full flex items-center justify-center border transition-all duration-200 hover:border-white/40 hover:bg-white/10"
-                  style={{ borderColor: '#374151', color: '#9CA3AF' }}
+                  style={{ borderColor: '#1e3d2e', color: '#9CA3AF' }}
                 >
                   {icon}
                 </a>
@@ -144,7 +144,7 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div style={{ borderTop: '1px solid #1F2937' }} />
+        <div style={{ borderTop: '1px solid #1a3329' }} />
 
         {/* Links grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-10">
@@ -172,7 +172,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div
           className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-8 mt-10"
-          style={{ borderTop: '1px solid #1F2937' }}
+          style={{ borderTop: '1px solid #1a3329' }}
         >
           <p className="font-sans text-xs" style={{ color: '#4B5563' }}>
             © {new Date().getFullYear()} ShopInsurance Nigeria Ltd. NAICOM Licensed · RC 1234567
@@ -183,7 +183,7 @@ export default function Footer() {
               <span
                 key={p}
                 className="font-sans font-medium text-[11px] px-2.5 py-1 rounded-lg"
-                style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid #374151', color: '#9CA3AF' }}
+                style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid #1e3d2e', color: '#9CA3AF' }}
               >
                 {p}
               </span>
