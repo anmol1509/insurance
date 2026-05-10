@@ -124,7 +124,7 @@ export default function HowItWorksSection() {
             className="font-sans text-[17px] max-w-[520px] mx-auto leading-relaxed"
             style={{ color: 'var(--text-muted)' }}
           >
-            We find you the best cover at the best price. No jargon. No pressure.
+            Transparent pricing. Zero hidden fees. Cover issued in minutes.
           </p>
         </div>
 
@@ -197,7 +197,8 @@ export default function HowItWorksSection() {
         <div className="text-center mt-16">
           <a
             href="/quote/motor"
-            className="inline-flex items-center h-[54px] px-9 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-sans font-semibold text-base transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
+            className="inline-flex items-center h-[54px] px-9 text-white rounded-full font-sans font-semibold text-base transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
+            style={{ backgroundColor: 'var(--green-700)' }}
           >
             Get Your Free Quote →
           </a>

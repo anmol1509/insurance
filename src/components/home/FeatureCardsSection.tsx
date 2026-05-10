@@ -8,7 +8,7 @@ function RenewalPhoneContent() {
       {/* Amber renewal banner */}
       <div className="rounded-xl p-3 mb-3" style={{ backgroundColor: '#FFFBEB', border: '1px solid #FDE68A' }}>
         <p className="font-sans font-semibold text-[11px]" style={{ color: '#92400E' }}>
-          ⚠️ Policy expires in 14 days
+          Policy expires in 14 days
         </p>
         <p className="font-sans text-[10px] mt-0.5" style={{ color: '#B45309' }}>
           Renew now to stay protected
@@ -32,7 +32,7 @@ function RenewalPhoneContent() {
       <button
         type="button"
         className="w-full py-2.5 rounded-xl font-sans font-semibold text-[12px]"
-        style={{ backgroundColor: 'var(--orange-500)', color: 'white' }}
+        style={{ backgroundColor: 'var(--green-700)', color: 'white' }}
       >
         Renew policy →
       </button>
@@ -113,7 +113,7 @@ export default function FeatureCardsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-60px' }}
             transition={{ delay: i * 0.1 }}
-            className="overflow-hidden rounded-4xl border border-[var(--border-default)] grid md:grid-cols-[55fr_45fr] min-h-[260px]"
+            className="overflow-hidden rounded-2xl border border-[var(--border-default)] grid md:grid-cols-[55fr_45fr] min-h-[260px]"
             style={{ backgroundColor: 'var(--surface-raised)' }}
           >
             {/* Left */}

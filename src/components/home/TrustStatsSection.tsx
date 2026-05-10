@@ -1,12 +1,11 @@
 'use client'
 import { motion } from 'framer-motion'
 import PhoneFrame from '@/components/ui/PhoneFrame'
-import CountUpNumber from '@/components/ui/CountUpNumber'
 
 const stats = [
-  { value: '< 3 mins', label: 'Fastest quote to certificate', isText: true },
-  { value: 98.6, label: 'Claims settled in 1 week', suffix: '%', isText: false },
-  { value: '24×7', label: 'Instant claims support', isText: true },
+  { value: '< 3 min', label: 'Quote to certificate' },
+  { value: '98.6%', label: 'Claims settled in 1 week' },
+  { value: '24 × 7', label: 'Claims support' },
 ]
 
 function ClaimsPhoneContent() {
@@ -34,10 +33,8 @@ function ClaimsPhoneContent() {
         </div>
       </div>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* File claim button */}
       <button
         type="button"
         className="w-full py-3 rounded-xl font-sans font-semibold text-[13px] text-white"
@@ -88,28 +85,20 @@ export default function TrustStatsSection() {
 
         {/* Stats */}
         <div className="flex flex-col md:flex-row justify-center mb-16 border border-[var(--border-default)] rounded-3xl overflow-hidden bg-white divide-y md:divide-y-0 md:divide-x divide-[var(--border-default)]">
-          {stats.map(({ value, label, suffix, isText }, i) => (
+          {stats.map(({ value, label }, i) => (
             <motion.div
               key={label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="flex-1 py-10 px-16 text-center"
+              className="flex-1 py-10 px-10 text-center"
             >
               <p
                 className="font-display font-bold leading-none"
-                style={{ fontSize: '68px', color: 'var(--stat-purple)' }}
+                style={{ fontSize: '56px', color: 'var(--green-700)' }}
               >
-                {isText ? (
-                  value
-                ) : (
-                  <CountUpNumber
-                    target={Number(value)}
-                    suffix={suffix}
-                    format={(n) => n.toFixed(1)}
-                  />
-                )}
+                {value}
               </p>
               <p className="font-sans text-base mt-2" style={{ color: 'var(--text-muted)' }}>
                 {label}
@@ -126,13 +115,13 @@ export default function TrustStatsSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-4xl border border-[var(--border-default)] p-9 overflow-hidden"
+            className="bg-white rounded-2xl border border-[var(--border-default)] p-9 overflow-hidden"
           >
             <h3
               className="font-display font-bold text-2xl mb-6"
               style={{ color: 'var(--text-primary)' }}
             >
-              Claims shouldn&apos;t be hard.
+              Fast, hassle-free claims settlement.
             </h3>
             <div className="flex justify-center mb-6">
               <PhoneFrame>
@@ -154,13 +143,13 @@ export default function TrustStatsSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-4xl border border-[var(--border-default)] p-9"
+            className="bg-white rounded-2xl border border-[var(--border-default)] p-9"
           >
             <h3
               className="font-display font-bold text-2xl mb-6"
               style={{ color: 'var(--text-primary)' }}
             >
-              Promises made. Promises kept.
+              Verified by our customers.
             </h3>
             <div className="flex justify-center gap-1 mb-4">
               {[...Array(5)].map((_, i) => (
