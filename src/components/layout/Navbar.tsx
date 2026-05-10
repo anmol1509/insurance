@@ -120,7 +120,7 @@ export default function Navbar() {
     <>
       <div
         className="sticky top-0 z-50 px-4 pt-2 md:pt-3 pb-0 transition-all"
-        style={{ backgroundColor: 'var(--page-bg)', paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
+        style={{ backgroundColor: pathname === '/' ? 'transparent' : 'var(--page-bg)', paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
       >
         <div className="max-w-[1280px] mx-auto">
           <nav className={cn(
