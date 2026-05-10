@@ -3,8 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase } from 'lucide-react'
-import WavyUnderline from '@/components/ui/WavyUnderline'
+import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy, Star } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -47,12 +46,12 @@ export default function HeroSection() {
               <motion.span custom={0} variants={fadeUp}
                 className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
-                🏆 Nigeria&apos;s #1 Insurance Platform
+                <Trophy className="w-3 h-3" /> Nigeria&apos;s #1 Insurance Platform
               </motion.span>
               <motion.span custom={1} variants={fadeUp}
                 className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
-                ✦ Best Insurtech 2025
+                <Star className="w-3 h-3" /> Best Insurtech 2025
               </motion.span>
             </motion.div>
 
@@ -62,10 +61,7 @@ export default function HeroSection() {
                 style={{ fontSize: 'clamp(36px, 4.8vw, 54px)', color: 'white' }}>
                 Have Nigeria&apos;s smartest
                 <br />insurer by your{' '}
-                <span className="relative inline-block">
-                  <em className="not-italic font-serif italic" style={{ fontSize: 'clamp(40px, 5.3vw, 60px)' }}>side</em>
-                  <span className="absolute -bottom-3 left-0 w-full"><WavyUnderline width={100} color="rgba(255,255,255,0.6)" /></span>
-                </span>
+                <em className="not-italic font-serif italic" style={{ fontSize: 'clamp(40px, 5.3vw, 60px)', borderBottom: '2px solid rgba(255,255,255,0.45)', paddingBottom: '2px' }}>side</em>
               </h1>
             </motion.div>
 
@@ -266,7 +262,7 @@ export default function HeroSection() {
                   >
                     <Link
                       href={card.href}
-                      className="block relative overflow-hidden rounded-4xl border border-[var(--border-default)] p-5 cursor-pointer"
+                      className="block relative overflow-hidden rounded-2xl border border-[var(--border-default)] p-5 cursor-pointer"
                       style={{ backgroundColor: card.bg }}
                     >
                       <div className="flex items-center justify-between mb-3">
