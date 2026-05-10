@@ -32,7 +32,7 @@ export default function ToggleSwitch({
         type="button"
         onClick={() => onChange(!checked)}
         className="relative w-11 h-6 rounded-full transition-colors duration-200 focus-visible:outline-none flex-shrink-0"
-        style={{ backgroundColor: checked ? productColor : 'var(--border-medium)' }}
+        style={{ backgroundColor: checked ? '#22c55e' : '#ef4444' }}
         aria-checked={checked}
         role="switch"
       >

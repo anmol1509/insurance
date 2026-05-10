@@ -36,7 +36,7 @@ export default function HeroSection() {
   const tab = TABS.find((t) => t.key === activeTab)!
 
   return (
-    <section className="pt-16 pb-10 md:pt-20 md:pb-14" style={{ backgroundColor: 'var(--page-bg)' }}>
+    <section className="pt-16 pb-10 md:pt-20 md:pb-14" style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 55%, #065f46 100%)' }}>
       <div className="max-w-[1280px] mx-auto px-5 lg:px-20">
         <div className="grid lg:grid-cols-[55fr_45fr] gap-10 lg:gap-16 items-center">
 
@@ -45,12 +45,13 @@ export default function HeroSection() {
             {/* Award badges */}
             <motion.div className="flex flex-wrap gap-2.5 mb-5" initial="hidden" animate="visible">
               <motion.span custom={0} variants={fadeUp}
-                className="inline-flex items-center gap-1.5 bg-white border border-[var(--border-default)] text-[var(--text-secondary)] font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full">
+                className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
                 🏆 Nigeria&apos;s #1 Insurance Platform
               </motion.span>
               <motion.span custom={1} variants={fadeUp}
-                className="inline-flex items-center gap-1.5 border font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
-                style={{ backgroundColor: 'var(--green-50)', borderColor: 'var(--green-100)', color: 'var(--green-700)' }}>
+                className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
+                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
                 ✦ Best Insurtech 2025
               </motion.span>
             </motion.div>
@@ -58,19 +59,19 @@ export default function HeroSection() {
             {/* H1 */}
             <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mb-4">
               <h1 className="font-display font-extrabold leading-[1.08] tracking-tight"
-                style={{ fontSize: 'clamp(36px, 4.8vw, 54px)', color: 'var(--text-primary)' }}>
+                style={{ fontSize: 'clamp(36px, 4.8vw, 54px)', color: 'white' }}>
                 Have Nigeria&apos;s smartest
                 <br />insurer by your{' '}
                 <span className="relative inline-block">
                   <em className="not-italic font-serif italic" style={{ fontSize: 'clamp(40px, 5.3vw, 60px)' }}>side</em>
-                  <span className="absolute -bottom-3 left-0 w-full"><WavyUnderline width={100} /></span>
+                  <span className="absolute -bottom-3 left-0 w-full"><WavyUnderline width={100} color="rgba(255,255,255,0.6)" /></span>
                 </span>
               </h1>
             </motion.div>
 
             <motion.p custom={3} variants={fadeUp} initial="hidden" animate="visible"
               className="font-sans text-[16px] leading-relaxed mb-7 max-w-[460px]"
-              style={{ color: 'var(--text-muted)' }}>
+              style={{ color: 'rgba(255,255,255,0.72)' }}>
               Instant quotes from 10+ NAICOM-licensed insurers.
               Digital certificate in under 3 minutes.
             </motion.p>
@@ -221,12 +222,12 @@ export default function HeroSection() {
                     </div>
                   )}
 
-                  {/* From-price hint */}
+                  {/* Tab hint */}
                   <p className="font-sans text-[11px] mt-2.5 text-center" style={{ color: 'var(--text-subtle)' }}>
-                    {activeTab === 'motor'    && 'Motor cover from ₦15,000/yr · Compare 5+ insurers instantly'}
-                    {activeTab === 'medical'  && 'Health plans from ₦45,000/yr · 700+ accredited hospitals'}
-                    {activeTab === 'travel'   && 'Travel cover from ₦8,000 · Schengen certificate in 60 seconds'}
-                    {activeTab === 'business' && 'Business cover from ₦50,000/yr · Tax deductible under CITA'}
+                    {activeTab === 'motor'    && 'Compare 5+ NAICOM-licensed motor insurers instantly'}
+                    {activeTab === 'medical'  && '700+ accredited hospitals · personalised health plans'}
+                    {activeTab === 'travel'   && 'Schengen certificate in 60 seconds · worldwide coverage'}
+                    {activeTab === 'business' && 'Covers premises & staff · tax deductible under CITA'}
                   </p>
                 </motion.div>
               </AnimatePresence>
@@ -236,12 +237,12 @@ export default function HeroSection() {
             <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-wrap gap-5">
               {['Instant NIID certificate', 'Claims in 24 hours', 'NAICOM regulated'].map((pill) => (
                 <div key={pill} className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5 L4 7 L8 3" stroke="var(--green-700)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M2 5 L4 7 L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>
-                  <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{pill}</span>
+                  <span className="font-sans text-[13px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{pill}</span>
                 </div>
               ))}
             </motion.div>
@@ -252,8 +253,8 @@ export default function HeroSection() {
             <div className="grid grid-cols-2 gap-3 max-w-[420px]">
               {TABS.map((card, i) => {
                 const Icon = card.icon
-                const fromPrices: Record<TabKey, string> = { motor: '₦15K', medical: '₦45K', travel: '₦8K', business: '₦50K' }
-                const periods: Record<TabKey, string> = { motor: 'from / year', medical: 'from / year', travel: 'from / trip', business: 'from / year' }
+                const planCounts: Record<TabKey, string> = { motor: '5+ Plans', medical: '8+ Plans', travel: '6+ Plans', business: '4+ Plans' }
+                const subLabels: Record<TabKey, string> = { motor: 'NAICOM licensed', medical: 'accredited hospitals', travel: 'worldwide cover', business: 'flexible cover' }
                 return (
                   <motion.div
                     key={card.key}
@@ -280,10 +281,10 @@ export default function HeroSection() {
                         {card.label} Insurance
                       </p>
                       <p className="font-display font-bold text-2xl leading-none" style={{ color: card.color }}>
-                        {fromPrices[card.key as TabKey]}
+                        {planCounts[card.key as TabKey]}
                       </p>
                       <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                        {periods[card.key as TabKey]}
+                        {subLabels[card.key as TabKey]}
                       </p>
                     </Link>
                   </motion.div>
