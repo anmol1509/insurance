@@ -8,7 +8,7 @@ const FEATURES = [
 
 export default function AppDownloadSection() {
   return (
-    <section className="py-16 md:py-24 overflow-hidden" style={{ backgroundColor: 'var(--green-900)' }}>
+    <section className="py-16 md:py-24 overflow-hidden" style={{ background: 'linear-gradient(160deg, #022c22 0%, #052e16 50%, #063d24 100%)' }}>
       <div className="max-w-[1280px] mx-auto px-5 lg:px-20">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left */}
@@ -76,7 +76,7 @@ export default function AppDownloadSection() {
           <div className="relative flex justify-center md:justify-end">
             <div
               className="w-[220px] h-[440px] rounded-[40px] border-4 shadow-2xl relative overflow-hidden"
-              style={{ borderColor: 'rgba(255,255,255,0.15)', backgroundColor: '#0A1628' }}
+              style={{ borderColor: 'rgba(255,255,255,0.15)', backgroundColor: '#022c22' }}
             >
               {/* Status bar */}
               <div className="h-8 flex items-center justify-between px-5 pt-1">
@@ -123,7 +123,7 @@ export default function AppDownloadSection() {
               </div>
 
               {/* Bottom tab bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-14 flex items-center justify-around px-2" style={{ backgroundColor: '#0f1f38', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="absolute bottom-0 left-0 right-0 h-14 flex items-center justify-around px-2" style={{ backgroundColor: '#011a14', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 {[Smartphone, Shield, Zap, Bell].map((Icon, i) => (
                   <div key={i} className={`w-8 h-8 rounded-xl flex items-center justify-center ${i === 0 ? 'bg-[var(--green-700)]' : ''}`}>
                     <Icon className="w-3.5 h-3.5" style={{ color: i === 0 ? 'white' : 'rgba(255,255,255,0.4)' }} />

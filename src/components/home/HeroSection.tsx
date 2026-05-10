@@ -258,28 +258,28 @@ export default function HeroSection() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
-                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
                   >
                     <Link
                       href={card.href}
-                      className="block relative overflow-hidden rounded-2xl border border-[var(--border-default)] p-5 cursor-pointer"
-                      style={{ backgroundColor: card.bg }}
+                      className="block relative overflow-hidden rounded-2xl p-5 cursor-pointer"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)' }}
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'white' }}>
-                          <Icon className="w-4.5 h-4.5" style={{ color: card.color }} />
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
+                          <Icon className="w-4 h-4" style={{ color: card.color }} />
                         </div>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center border" style={{ borderColor: card.color }}>
-                          <ArrowRight className="w-3.5 h-3.5" style={{ color: card.color }} />
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.25)' }}>
+                          <ArrowRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
                         </div>
                       </div>
-                      <p className="font-sans font-semibold text-xs uppercase tracking-wider mb-1" style={{ color: card.color }}>
+                      <p className="font-sans font-semibold text-xs uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
                         {card.label} Insurance
                       </p>
-                      <p className="font-display font-bold text-2xl leading-none" style={{ color: card.color }}>
+                      <p className="font-display font-bold text-2xl leading-none" style={{ color: 'white' }}>
                         {planCounts[card.key as TabKey]}
                       </p>
-                      <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                      <p className="font-sans text-xs mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
                         {subLabels[card.key as TabKey]}
                       </p>
                     </Link>

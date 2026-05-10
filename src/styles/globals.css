@@ -1,9 +1,9 @@
 :root {
   /* ── Page & Surface ────────────────────────── */
-  --page-bg:          #F2F7F4;
+  --page-bg:          #F5F8F6;
   --surface:          #FFFFFF;
-  --surface-raised:   #F4F9F6;
-  --surface-sunken:   #EAF2ED;
+  --surface-raised:   #EFF4F1;
+  --surface-sunken:   #E6EDE9;
 
   /* ── Brand Green ───────────────────────────── */
   --green-900:        #052E16;

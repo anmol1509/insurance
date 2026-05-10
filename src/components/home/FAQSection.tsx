@@ -111,7 +111,7 @@ export default function FAQSection() {
           {/* Support CTA */}
           <div
             className="mt-10 rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-            style={{ backgroundColor: 'var(--green-900)' }}
+            style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 100%)' }}
           >
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>

@@ -1,6 +1,5 @@
 'use client'
 import { motion } from 'framer-motion'
-import WavyUnderline from '@/components/ui/WavyUnderline'
 
 const stats = [
   { value: '50,000+', label: 'Policies issued' },
@@ -12,7 +11,7 @@ export default function TrustBannerSection() {
   return (
     <section
       className="py-20 px-5 lg:px-20 overflow-hidden relative"
-      style={{ backgroundColor: 'var(--green-700)' }}
+      style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 55%, #065f46 100%)' }}
     >
       <div className="max-w-[1280px] mx-auto grid md:grid-cols-[40fr_60fr] gap-20 items-center">
         {/* Left: image placeholder */}
@@ -23,28 +22,28 @@ export default function TrustBannerSection() {
           transition={{ duration: 0.5 }}
           className="relative"
         >
-          <div className="rounded-3xl overflow-hidden bg-[var(--green-800)] h-[400px] flex items-center justify-center">
-            {/* Abstract placeholder with pattern */}
+          <div
+            className="rounded-3xl overflow-hidden h-[400px] flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
+          >
             <svg
               viewBox="0 0 380 400"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
               className="w-full h-full"
             >
-              <rect width="380" height="400" fill="var(--green-800)" />
-              <circle cx="190" cy="200" r="160" fill="var(--green-700)" opacity="0.5" />
-              <circle cx="190" cy="200" r="100" fill="var(--green-600)" opacity="0.4" />
-              {/* Stylized person silhouette */}
-              <circle cx="190" cy="140" r="45" fill="var(--green-500)" opacity="0.6" />
+              <rect width="380" height="400" fill="transparent" />
+              <circle cx="190" cy="200" r="160" fill="rgba(255,255,255,0.03)" />
+              <circle cx="190" cy="200" r="100" fill="rgba(255,255,255,0.05)" />
+              <circle cx="190" cy="140" r="45" fill="rgba(255,255,255,0.09)" />
               <path
                 d="M110 280 Q110 230 190 230 Q270 230 270 280 L270 340 Q270 360 190 360 Q110 360 110 340 Z"
-                fill="var(--green-500)"
-                opacity="0.6"
+                fill="rgba(255,255,255,0.09)"
               />
             </svg>
           </div>
 
-          {/* Orange decorative SVG */}
+          {/* Decorative SVG */}
           <svg
             className="absolute -top-6 -right-6"
             width="120"
@@ -54,7 +53,7 @@ export default function TrustBannerSection() {
           >
             <motion.path
               d="M10 60 C30 10, 90 10, 110 60 S90 110, 10 60"
-              stroke="var(--orange-500)"
+              stroke="rgba(255,255,255,0.25)"
               strokeWidth="3"
               strokeLinecap="round"
               fill="none"
@@ -78,12 +77,7 @@ export default function TrustBannerSection() {
             style={{ color: 'white' }}
           >
             A{' '}
-            <span className="relative inline-block">
-              <em className="not-italic font-serif italic">trusted</em>
-              <span className="absolute -bottom-2 left-0 w-full">
-                <WavyUnderline color="rgba(255,255,255,0.7)" width={120} />
-              </span>
-            </span>{' '}
+            <em className="not-italic font-serif italic" style={{ borderBottom: '2px solid rgba(255,255,255,0.4)', paddingBottom: '2px' }}>trusted</em>{' '}
             name in
             <br />
             Nigerian insurance.
@@ -91,7 +85,7 @@ export default function TrustBannerSection() {
 
           <p
             className="font-sans text-base leading-relaxed max-w-[460px] mb-10"
-            style={{ color: 'rgba(255,255,255,0.8)' }}
+            style={{ color: 'rgba(255,255,255,0.75)' }}
           >
             ShopInsurance provides instant quotes backed by NAICOM-licensed underwriters, helping
             you get covered fast so you can get on with life.
@@ -102,7 +96,7 @@ export default function TrustBannerSection() {
             {stats.map(({ value, label }) => (
               <div key={label}>
                 <p className="font-display font-bold text-[42px] text-white leading-none">{value}</p>
-                <p className="font-sans text-sm mt-1" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                <p className="font-sans text-sm mt-1" style={{ color: 'rgba(255,255,255,0.65)' }}>
                   {label}
                 </p>
               </div>
