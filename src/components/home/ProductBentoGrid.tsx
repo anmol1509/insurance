@@ -40,18 +40,12 @@ const MedicalIllustration = () => (
 
 const PlaneIllustration = () => (
   <svg viewBox="0 0 130 80" width="120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Fuselage */}
     <ellipse cx="62" cy="44" rx="52" ry="10" fill="#FCD34D" transform="rotate(-18 62 44)"/>
-    {/* Nose */}
     <ellipse cx="106" cy="32" rx="12" ry="7" fill="#FDE68A" transform="rotate(-18 106 32)"/>
-    {/* Main wing */}
     <path d="M50 42 L20 68 L72 52 Z" fill="#FCD34D"/>
     <path d="M50 42 L20 68 L72 52 Z" fill="#F59E0B" opacity="0.5"/>
-    {/* Tail wing */}
     <path d="M24 38 L8 24 L38 34 Z" fill="#FDE68A"/>
-    {/* Engine */}
     <ellipse cx="56" cy="54" rx="8" ry="4" fill="#F59E0B" transform="rotate(-18 56 54)"/>
-    {/* Clouds */}
     <circle cx="22" cy="18" r="8" fill="white" opacity="0.7"/>
     <circle cx="32" cy="14" r="10" fill="white" opacity="0.7"/>
     <circle cx="44" cy="17" r="7" fill="white" opacity="0.7"/>
@@ -62,26 +56,20 @@ const PlaneIllustration = () => (
 
 const BuildingIllustration = () => (
   <svg viewBox="0 0 140 100" width="130" fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Background building left */}
     <rect x="6" y="40" width="30" height="58" rx="4" fill="#DDD6FE"/>
     {[0,1,2].map(r => [0,1].map(c => (
       <rect key={`bl${r}${c}`} x={11+c*14} y={46+r*16} width="9" height="10" rx="2" fill="#A78BFA" opacity="0.6"/>
     )))}
-    {/* Main tall building */}
     <rect x="44" y="10" width="52" height="88" rx="6" fill="#C4B5FD"/>
-    {/* Glass facade lines */}
     {[0,1,2,3,4,5].map(r => (
       <rect key={`mw${r}`} x="48" y={16+r*13} width="44" height="9" rx="2" fill="#A78BFA" opacity="0.55"/>
     ))}
-    {/* Rooftop detail */}
     <rect x="58" y="4" width="24" height="8" rx="3" fill="#A78BFA"/>
     <rect x="67" y="0" width="6" height="6" rx="1" fill="#7C3AED"/>
-    {/* Background building right */}
     <rect x="104" y="32" width="30" height="66" rx="4" fill="#EDE9FE"/>
     {[0,1,2].map(r => [0,1].map(c => (
       <rect key={`br${r}${c}`} x={109+c*13} y={38+r*16} width="9" height="10" rx="2" fill="#C4B5FD" opacity="0.7"/>
     )))}
-    {/* Ground */}
     <rect x="0" y="96" width="140" height="4" rx="2" fill="#C4B5FD" opacity="0.4"/>
   </svg>
 )
@@ -170,7 +158,6 @@ export default function ProductBentoGrid() {
               style={{ backgroundColor: p.colorBg }}
             >
               {p.large ? (
-                /* Large card — vertical layout */
                 <div className="flex flex-col h-full p-7">
                   <Tag variant={p.tag}>{p.tagLabel}</Tag>
                   <h3 className="font-display font-bold text-2xl mt-3" style={{ color: 'var(--text-primary)' }}>
@@ -189,8 +176,6 @@ export default function ProductBentoGrid() {
                     </svg>
                     <span className="font-sans font-medium text-xs" style={{ color: p.color }}>{p.featureLabel}</span>
                   </div>
-
-                  {/* Bottom row: arrow left, illustration right — no overlap */}
                   <div className="flex items-end justify-between mt-auto pt-5">
                     <div
                       className="w-11 h-11 rounded-full border-[1.5px] flex items-center justify-center shrink-0 transition-all duration-200 hover:bg-[var(--green-700)] hover:border-[var(--green-700)] group"
@@ -202,7 +187,6 @@ export default function ProductBentoGrid() {
                   </div>
                 </div>
               ) : (
-                /* Small card — horizontal layout: content left, illustration right */
                 <div className="flex items-center h-full px-7 py-6 gap-4">
                   <div className="flex-1 min-w-0">
                     <Tag variant={p.tag}>{p.tagLabel}</Tag>
@@ -228,7 +212,6 @@ export default function ProductBentoGrid() {
                       </div>
                     </div>
                   </div>
-                  {/* Illustration on right — contained, no overflow */}
                   <div className="shrink-0 flex items-center justify-center">{p.illustration}</div>
                 </div>
               )}
