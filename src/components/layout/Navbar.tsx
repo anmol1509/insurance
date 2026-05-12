@@ -99,7 +99,6 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user } = useAuthStore()
-  const isHero = pathname === '/' && !scrolled
 
   function requireAuth(dest: string) {
     if (!user) {
@@ -121,14 +120,12 @@ export default function Navbar() {
     <>
       <div
         className="sticky top-0 z-50 px-4 pt-2 md:pt-3 pb-0 transition-all"
-        style={{ backgroundColor: pathname === '/' ? 'transparent' : 'var(--page-bg)', paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
+        style={{ backgroundColor: 'var(--page-bg)', paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
       >
         <div className="max-w-[1280px] mx-auto">
           <nav className={cn(
-            'rounded-full px-5 h-[52px] md:h-[58px] flex items-center justify-between transition-all duration-200',
-            pathname === '/' && !scrolled
-              ? 'bg-transparent border border-white/20 shadow-none'
-              : 'bg-white border border-[var(--border-default)] ' + (scrolled ? 'shadow-[0_4px_24px_rgba(0,0,0,0.10)]' : 'shadow-[0_1px_6px_rgba(0,0,0,0.06)]')
+            'bg-white rounded-full border border-[var(--border-default)] px-5 h-[52px] md:h-[58px] flex items-center justify-between transition-shadow duration-200',
+            scrolled ? 'shadow-[0_4px_24px_rgba(0,0,0,0.10)]' : 'shadow-[0_1px_6px_rgba(0,0,0,0.06)]'
           )}>
             <Logo size={34} />
 
@@ -138,7 +135,7 @@ export default function Navbar() {
               <div className="relative" onMouseEnter={() => setOpenMenu('products')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
                   className="flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors"
-                  style={{ color: isHero ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   Products <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', openMenu === 'products' && 'rotate-180')} />
                 </button>
@@ -165,7 +162,7 @@ export default function Navbar() {
                 <button type="button"
                   onClick={() => requireAuth('/renewals')}
                   className="flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors"
-                  style={{ color: isHero ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   Renewals <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', openMenu === 'renewals' && 'rotate-180')} />
                 </button>
@@ -179,7 +176,7 @@ export default function Navbar() {
                 <button type="button"
                   onClick={() => requireAuth('/claims/new')}
                   className="flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors"
-                  style={{ color: isHero ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   Claims <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', openMenu === 'claims' && 'rotate-180')} />
                 </button>
@@ -189,8 +186,8 @@ export default function Navbar() {
               </div>
 
               <Link href="/contact"
-                className="px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors"
-                style={{ color: isHero ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}
+                className="px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors hover:text-[var(--text-primary)] hover:bg-[var(--surface-raised)]"
+                style={{ color: 'var(--text-muted)' }}
               >
                 Contact
               </Link>
@@ -202,7 +199,7 @@ export default function Navbar() {
               <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('lang')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
                   className="flex items-center gap-1.5 h-9 px-3 rounded-full font-sans font-medium text-[13px] transition-colors"
-                  style={{ color: isHero ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)' }}
+                  style={{ color: 'var(--text-muted)' }}
                 >
                   <Globe className="w-3.5 h-3.5" />
                   {selectedLang}
@@ -234,12 +231,7 @@ export default function Navbar() {
               </div>
 
               <Link href="/login"
-                className={cn(
-                  'hidden md:flex h-9 px-4 items-center rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md',
-                  isHero
-                    ? 'bg-white/15 hover:bg-white/25 text-white border border-white/30'
-                    : 'bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white'
-                )}
+                className="hidden md:flex h-9 px-4 items-center rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white"
               >
                 Login
               </Link>
@@ -247,12 +239,7 @@ export default function Navbar() {
               {/* Get a Quote → dropdown (desktop only — mobile uses bottom nav) */}
               <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('quote')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
-                  className={cn(
-                    'h-9 px-4 flex items-center gap-1.5 rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md',
-                    isHero
-                      ? 'bg-white text-[var(--green-800)] hover:bg-white/90'
-                      : 'bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white'
-                  )}
+                  className="h-9 px-4 flex items-center gap-1.5 rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white"
                 >
                   Get a Quote
                   <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', openMenu === 'quote' && 'rotate-180')} />
