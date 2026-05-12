@@ -1,45 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
-  <!-- Pale sage-green background -->
-  <rect width="200" height="200" rx="40" fill="#bdddb8"/>
-
-  <!-- Shield outer — dark green, shoulder-notch shape -->
-  <path d="
-    M 30 62
-    Q 28 28 62 26
-    L 80 26
-    Q 90 26 94 44
-    Q 97 56 100 44
-    Q 103 56 106 44
-    Q 110 26 120 26
-    L 138 26
-    Q 172 28 170 62
-    L 170 112
-    Q 158 162 100 184
-    Q 42 162 30 112
-    Z
-  " fill="#1b4a27"/>
-
-  <!-- Shield inner — same pale green -->
-  <path d="
-    M 44 68
-    Q 44 42 66 40
-    L 80 40
-    Q 88 40 91 54
-    Q 95 65 100 55
-    Q 105 65 109 54
-    Q 112 40 120 40
-    L 134 40
-    Q 156 42 156 68
-    L 156 114
-    Q 146 154 100 170
-    Q 54 154 44 114
-    Z
-  " fill="#bdddb8"/>
-
-  <!-- S lettermark -->
-  <path d="M 82 80 C 82 80 122 74 122 96 C 122 118 82 118 82 140 C 82 162 122 157 122 157"
-        stroke="#1b4a27" stroke-width="13.5" stroke-linecap="round" fill="none"/>
-
-  <!-- White circle dot -->
-  <circle cx="105" cy="90" r="13" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#0A5C36"/>
+  <path d="M16 6.5 L23.5 9.5 L23.5 17.5 C23.5 21.8 20.2 25.3 16 26.5 C11.8 25.3 8.5 21.8 8.5 17.5 L8.5 9.5 Z" fill="white"/>
+  <polyline points="12.5,16.5 15,19 20,13.5" fill="none" stroke="#0A5C36" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

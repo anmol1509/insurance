@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send } from 'lucide-react'
+import { X, Send, ChevronUp } from 'lucide-react'
 
 interface Message { id: number; from: 'bot' | 'user'; text: string }
 
@@ -37,12 +37,19 @@ export default function LiveChat() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const nextId = useRef(100)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, typing])
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const send = () => {
     const text = input.trim()
@@ -137,6 +144,27 @@ export default function LiveChat() {
               </button>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scroll to top */}
+      <AnimatePresence>
+        {scrolled && (
+          <motion.button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            className="fixed bottom-[calc(18rem+env(safe-area-inset-bottom,0px))] md:bottom-[9.5rem] right-4 md:right-6 z-[55] w-10 h-10 rounded-full shadow-lg flex items-center justify-center"
+            style={{ backgroundColor: 'var(--green-700)', color: 'white' }}
+          >
+            <ChevronUp className="w-5 h-5" />
+          </motion.button>
         )}
       </AnimatePresence>
 
