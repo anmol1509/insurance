@@ -14,7 +14,7 @@ export default function TrustBannerSection() {
       style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 55%, #065f46 100%)' }}
     >
       <div className="max-w-[1280px] mx-auto grid md:grid-cols-[40fr_60fr] gap-20 items-center">
-        {/* Left: image placeholder */}
+        {/* Left: logo card */}
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -26,7 +26,7 @@ export default function TrustBannerSection() {
             className="rounded-3xl overflow-hidden h-[400px] flex items-center justify-center relative"
             style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            {/* Decorative ring */}
+            {/* Decorative rings */}
             <div
               className="absolute w-[320px] h-[320px] rounded-full"
               style={{ border: '1px solid rgba(255,255,255,0.08)' }}

@@ -54,7 +54,7 @@ export const mockPolicies: Policy[] = [
     ref: 'SI-2025-042983',
     productType: 'motor',
     name: 'Toyota Camry 2020',
-    insurer: 'Leadway Assurance',
+    insurer: 'AIICO Insurance',
     coverType: 'Comprehensive',
     sumInsured: 3_500_000,
     premium: 87_500,
@@ -107,7 +107,7 @@ export const mockClaims: Claim[] = [
     description: 'Front bumper and bonnet damage from collision at Lekki toll gate.',
     timeline: [
       { date: '2025-03-10', event: 'Claim submitted', done: true },
-      { date: '2025-03-11', event: 'Acknowledged by Leadway Assurance', done: true },
+      { date: '2025-03-11', event: 'Acknowledged by AIICO Insurance', done: true },
       { date: '2025-03-14', event: 'Loss adjuster inspection completed', done: true },
       { date: '2025-03-18', event: 'Claim approved — ₦320,000', done: true },
       { date: '2025-03-22', event: 'Payment settled to repair workshop', done: true },

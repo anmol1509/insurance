@@ -14,6 +14,7 @@ interface Plan {
   id: string
   name: string
   insurer: string
+  logo?: string
   coverType: 'comprehensive' | 'tpo' | 'tpft'
   rating: number
   reviews: number
@@ -28,9 +29,10 @@ interface Plan {
 
 const MOTOR_PLANS: Plan[] = [
   {
-    id: 'leadway-motor',
-    name: 'Leadway Comprehensive',
-    insurer: 'Leadway Assurance',
+    id: 'aiico-motor',
+    name: 'AIICO Comprehensive',
+    insurer: 'AIICO Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-14_nfoe7t.jpg',
     coverType: 'comprehensive',
     rating: 4.8,
     reviews: 2341,
@@ -43,9 +45,10 @@ const MOTOR_PLANS: Plan[] = [
     popular: true,
   },
   {
-    id: 'aiico-motor',
-    name: 'AIICO Comprehensive',
-    insurer: 'AIICO Insurance',
+    id: 'fgi-motor',
+    name: 'FGI Comprehensive',
+    insurer: 'FGI Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-12_ovaz7m.jpg',
     coverType: 'comprehensive',
     rating: 4.7,
     reviews: 1892,
@@ -57,9 +60,10 @@ const MOTOR_PLANS: Plan[] = [
     responseTime: '48 hours',
   },
   {
-    id: 'axa-motor',
-    name: 'AXA Mansard Comprehensive',
-    insurer: 'AXA Mansard',
+    id: 'nsia-motor',
+    name: 'NSIA Comprehensive',
+    insurer: 'NSIA Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-13_ew0ijl.jpg',
     coverType: 'comprehensive',
     rating: 4.6,
     reviews: 1534,
@@ -70,9 +74,10 @@ const MOTOR_PLANS: Plan[] = [
     responseTime: '24 hours',
   },
   {
-    id: 'nsia-motor',
-    name: 'NSIA Third Party Only',
-    insurer: 'NSIA Insurance',
+    id: 'sunu-motor',
+    name: 'SUNU Third Party Only',
+    insurer: 'SUNU Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-53-36_h3rmxo.jpg',
     coverType: 'tpo',
     rating: 4.5,
     reviews: 987,
@@ -83,9 +88,10 @@ const MOTOR_PLANS: Plan[] = [
     responseTime: '48 hours',
   },
   {
-    id: 'zenith-motor',
-    name: 'Zenith Third Party Fire & Theft',
-    insurer: 'Zenith General Insurance',
+    id: 'tangerine-motor',
+    name: 'Tangerine Third Party Fire & Theft',
+    insurer: 'Tangerine Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-22-00-57_j7kn4g.jpg',
     coverType: 'tpft',
     rating: 4.4,
     reviews: 743,
@@ -204,14 +210,23 @@ function PlanCard({
           </div>
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-display font-bold text-[17px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</span>
-            <span className="w-1 h-1 rounded-full bg-[var(--border-medium)]" />
-            <Star className="w-3 h-3 fill-current" style={{ color: '#F59E0B' }} />
-            <span className="font-sans text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
-            <span className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>({plan.reviews.toLocaleString()})</span>
+        <div className="mb-4 flex items-start gap-3">
+          <div className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 overflow-hidden bg-white" style={{ borderColor: 'var(--border-subtle)' }}>
+            {plan.logo
+              // eslint-disable-next-line @next/next/no-img-element
+              ? <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-cover" />
+              : <span className="font-display font-bold text-[13px]" style={{ color: color.main }}>{plan.insurer.slice(0, 2).toUpperCase()}</span>
+            }
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display font-bold text-[17px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</span>
+              <span className="w-1 h-1 rounded-full bg-[var(--border-medium)]" />
+              <Star className="w-3 h-3 fill-current" style={{ color: '#F59E0B' }} />
+              <span className="font-sans text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
+              <span className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>({plan.reviews.toLocaleString()})</span>
+            </div>
           </div>
         </div>
 
@@ -450,9 +465,18 @@ function CompareModal({ plans, basePrice, color, onClose, onSelect }: {
                       {p.badge}
                     </span>
                   )}
-                  <div>
-                    <p className="font-display font-bold text-[13px] leading-tight" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
-                    <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.insurer}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-white" style={{ borderColor: 'var(--border-subtle)' }}>
+                      {p.logo
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={p.logo} alt={p.insurer} className="w-full h-full object-cover" />
+                        : <span className="font-display font-bold text-[10px]" style={{ color: color.main }}>{p.insurer.slice(0, 2).toUpperCase()}</span>
+                      }
+                    </div>
+                    <div>
+                      <p className="font-display font-bold text-[13px] leading-tight" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
+                      <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.insurer}</p>
+                    </div>
                   </div>
                   <p className="font-display font-extrabold text-[18px] leading-none" style={{ color: color.main }}>
                     {formatNaira(price)}
