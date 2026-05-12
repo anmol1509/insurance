@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Send, MessageCircle } from 'lucide-react'
+import { X, Send } from 'lucide-react'
 
 interface Message { id: number; from: 'bot' | 'user'; text: string }
 
@@ -72,7 +72,8 @@ export default function LiveChat() {
             {/* Header */}
             <div className="px-5 py-4 flex items-center justify-between shrink-0" style={{ backgroundColor: 'var(--green-700)' }}>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">🛡</div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://res.cloudinary.com/degunlqed/image/upload/v1778555938/Screenshot_2026-05-12_at_8.48.47_AM_ghpcye.png" alt="ShopBot" className="w-9 h-9 rounded-full object-cover" />
                 <div>
                   <p className="font-sans font-semibold text-[14px] text-white">ShopBot</p>
                   <p className="font-sans text-[11px] text-white/70 flex items-center gap-1">
@@ -149,13 +150,16 @@ export default function LiveChat() {
         transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 2 }}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom,0px))] md:bottom-[5rem] right-4 md:right-6 z-[55] w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white"
-        style={{ backgroundColor: 'var(--green-700)' }}
+        className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom,0px))] md:bottom-[5rem] right-4 md:right-6 z-[55] w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white overflow-hidden"
+        style={{ backgroundColor: open ? 'var(--green-700)' : 'transparent' }}
       >
         <AnimatePresence mode="wait">
           {open
             ? <motion.span key="x" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}><X className="w-5 h-5" /></motion.span>
-            : <motion.span key="chat" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}><MessageCircle className="w-5 h-5" /></motion.span>
+            : <motion.span key="chat" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://res.cloudinary.com/degunlqed/image/upload/v1778555938/Screenshot_2026-05-12_at_8.48.47_AM_ghpcye.png" alt="ShopBot" className="w-10 h-10 rounded-full object-cover" />
+              </motion.span>
           }
         </AnimatePresence>
       </motion.button>
