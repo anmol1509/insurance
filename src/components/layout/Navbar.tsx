@@ -16,7 +16,7 @@ const LANGUAGES = [
 ]
 
 const products = [
-  { name: 'Motor',    href: '/motor',    quoteHref: '/quote/motor',    color: '#1D4ED8', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
+  { name: 'Motor',    href: '/motor',    quoteHref: '/quote/motor',    color: '#25D366', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
   { name: 'Medical',  href: '/medical',  quoteHref: '/quote/medical',  color: '#059669', icon: Heart,     from: '₦45,000/yr', desc: 'HMO & health plans' },
   { name: 'Travel',   href: '/travel',   quoteHref: '/quote/travel',   color: '#D97706', icon: Plane,     from: '₦12,000/yr', desc: 'Single & multi-trip' },
   { name: 'Business', href: '/business', quoteHref: '/quote/business', color: '#7C3AED', icon: Building2, from: '₦60,000/yr', desc: 'Property & liability' },
@@ -239,7 +239,7 @@ export default function Navbar() {
               {/* Get a Quote → dropdown (desktop only — mobile uses bottom nav) */}
               <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('quote')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
-                  className="h-9 px-4 flex items-center gap-1.5 rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white"
+                  className="h-9 px-4 flex items-center gap-1.5 rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md bg-white border-[1.5px] border-[var(--green-700)] text-[var(--green-700)] hover:bg-[var(--green-50)]"
                 >
                   Get a Quote
                   <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', openMenu === 'quote' && 'rotate-180')} />

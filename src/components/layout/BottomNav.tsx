@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 const HIDDEN_PREFIXES = ['/quote/', '/dashboard', '/admin', '/login', '/register']
 
 const products = [
-  { name: 'Motor',    href: '/quote/motor',    color: '#0A5C36', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
+  { name: 'Motor',    href: '/quote/motor',    color: '#25D366', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
   { name: 'Medical',  href: '/quote/medical',  color: '#059669', icon: Heart,     from: '₦45,000/yr', desc: 'HMO & health plans' },
   { name: 'Travel',   href: '/quote/travel',   color: '#D97706', icon: Plane,     from: '₦12,000/yr', desc: 'Single & multi-trip' },
   { name: 'Business', href: '/quote/business', color: '#7C3AED', icon: Building2, from: '₦60,000/yr', desc: 'Property & liability' },
@@ -26,7 +26,6 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* Bottom sheet overlay */}
       <AnimatePresence>
         {sheetOpen && (
           <>
@@ -46,7 +45,6 @@ export default function BottomNav() {
               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-[71] md:hidden overflow-hidden"
               style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom, 16px))' }}
             >
-              {/* Drag handle */}
               <div className="w-10 h-1 bg-[var(--border-medium)] rounded-full mx-auto mt-3 mb-4" />
 
               <div className="px-5 pb-2">
@@ -97,7 +95,6 @@ export default function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Bottom tab bar */}
       <div
         className="fixed bottom-0 left-0 right-0 md:hidden z-50 bg-white border-t"
         style={{
@@ -106,7 +103,6 @@ export default function BottomNav() {
         }}
       >
         <div className="flex items-stretch h-16">
-          {/* Home */}
           <Link
             href="/"
             className={cn(
@@ -118,7 +114,6 @@ export default function BottomNav() {
             <span className="font-sans text-[10px] font-medium">Home</span>
           </Link>
 
-          {/* Renew */}
           <Link
             href="/renewals"
             className={cn(
@@ -130,7 +125,6 @@ export default function BottomNav() {
             <span className="font-sans text-[10px] font-medium">Renew</span>
           </Link>
 
-          {/* Center quote button */}
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <button
               type="button"
@@ -144,7 +138,6 @@ export default function BottomNav() {
             <span className="font-sans text-[10px] font-medium text-[var(--text-subtle)] mt-0.5">Quote</span>
           </div>
 
-          {/* Claims */}
           <Link
             href="/claims/new"
             className={cn(
@@ -156,7 +149,6 @@ export default function BottomNav() {
             <span className="font-sans text-[10px] font-medium">Claims</span>
           </Link>
 
-          {/* Account */}
           <Link
             href="/login"
             className={cn(
