@@ -266,8 +266,8 @@ export default function HeroSection() {
                       style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)' }}
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
-                          <Icon className="w-4 h-4" style={{ color: card.color }} />
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
+                          <Icon className="w-4 h-4" style={{ color: 'white' }} />
                         </div>
                         <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.25)' }}>
                           <ArrowRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
