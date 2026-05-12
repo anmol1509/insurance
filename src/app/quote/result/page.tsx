@@ -360,7 +360,7 @@ function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestP
           <>
             <h3 className="font-display font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>Save your quote</h3>
             <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
-              We'll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
+              We’ll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
             </p>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
