@@ -101,7 +101,7 @@ export default function AppDownloadSection() {
               {/* Policy cards */}
               <div className="px-3 space-y-2">
                 {[
-                  { label: 'Motor Insurance', val: '₦45K/yr', color: '#1D4ED8', status: 'Active' },
+                  { label: 'Motor Insurance', val: '₦45K/yr', color: '#0A5C36', status: 'Active' },
                   { label: 'Medical Plan',    val: '₦72K/yr', color: '#059669', status: 'Active' },
                   { label: 'Travel Cover',    val: '₦12K',    color: '#D97706', status: 'Expiring' },
                 ].map(({ label, val, color, status }) => (

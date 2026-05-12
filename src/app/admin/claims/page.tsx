@@ -60,7 +60,7 @@ function AssignDropdown({ claim, onAssign }: { claim: Claim; onAssign: (dept: st
     <div className="relative">
       <button type="button" onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 h-8 px-3 rounded-lg border font-sans text-[12px] font-medium transition-colors hover:bg-[var(--surface-raised)]"
-        style={{ borderColor: claim.assignedTo ? '#2563EB' : 'var(--border-default)', color: claim.assignedTo ? '#2563EB' : 'var(--text-muted)', backgroundColor: claim.assignedTo ? '#EFF6FF' : 'white' }}>
+        style={{ borderColor: claim.assignedTo ? 'var(--green-700)' : 'var(--border-default)', color: claim.assignedTo ? 'var(--green-700)' : 'var(--text-muted)', backgroundColor: claim.assignedTo ? 'var(--green-50)' : 'white' }}>
         <span className="max-w-[100px] truncate">{claim.assignedTo ?? 'Assign to…'}</span>
         <ChevronDown className="w-3 h-3 shrink-0" />
       </button>
@@ -84,7 +84,7 @@ function AssignDropdown({ claim, onAssign }: { claim: Claim; onAssign: (dept: st
               {DEPARTMENTS.map((dept) => (
                 <button key={dept} type="button" onClick={() => { onAssign(dept); setOpen(false) }}
                   className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left font-sans text-[13px] hover:bg-[var(--surface-raised)] transition-colors"
-                  style={{ color: claim.assignedTo === dept ? '#2563EB' : 'var(--text-primary)' }}>
+                  style={{ color: claim.assignedTo === dept ? 'var(--green-700)' : 'var(--text-primary)' }}>
                   <span>{dept}</span>
                   {claim.assignedTo === dept && <Check className="w-3.5 h-3.5 shrink-0" />}
                 </button>

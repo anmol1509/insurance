@@ -128,7 +128,7 @@ export default function HeroSection() {
                           onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,78,216,0.1)' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(10,92,54,0.1)' }}
                           onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
                         />
                       </div>

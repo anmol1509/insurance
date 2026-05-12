@@ -16,7 +16,7 @@ const LANGUAGES = [
 ]
 
 const products = [
-  { name: 'Motor',    href: '/motor',    quoteHref: '/quote/motor',    color: '#1D4ED8', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
+  { name: 'Motor',    href: '/motor',    quoteHref: '/quote/motor',    color: '#0A5C36', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
   { name: 'Medical',  href: '/medical',  quoteHref: '/quote/medical',  color: '#059669', icon: Heart,     from: '₦45,000/yr', desc: 'HMO & health plans' },
   { name: 'Travel',   href: '/travel',   quoteHref: '/quote/travel',   color: '#D97706', icon: Plane,     from: '₦12,000/yr', desc: 'Single & multi-trip' },
   { name: 'Business', href: '/business', quoteHref: '/quote/business', color: '#7C3AED', icon: Building2, from: '₦60,000/yr', desc: 'Property & liability' },
