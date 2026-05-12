@@ -15,7 +15,7 @@ interface Plan {
   name: string
   insurer: string
   logo?: string
-  coverType: 'comprehensive' | 'tpo' | 'tpft'
+  coverType: 'comprehensive' | 'tpo'
   rating: number
   reviews: number
   badge?: string
@@ -87,26 +87,11 @@ const MOTOR_PLANS: Plan[] = [
     claimSettlement: '94%',
     responseTime: '48 hours',
   },
-  {
-    id: 'tangerine-motor',
-    name: 'Tangerine Third Party Fire & Theft',
-    insurer: 'Tangerine Insurance',
-    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-22-00-57_j7kn4g.jpg',
-    coverType: 'tpft',
-    rating: 4.4,
-    reviews: 743,
-    multiplier: 0.48,
-    features: ['Third party liability', 'Fire damage cover', 'Theft protection', 'NIID registered', 'NAICOM regulated'],
-    exclusions: ['Own vehicle accident damage', 'Flood damage', 'Mechanical breakdown'],
-    claimSettlement: '93%',
-    responseTime: '72 hours',
-  },
 ]
 
 const COVER_TYPE_LABELS: Record<string, string> = {
   comprehensive: 'Comprehensive',
   tpo: 'Third Party Only',
-  tpft: 'Third Party Fire & Theft',
 }
 
 const PRODUCT_COLORS: Record<string, { main: string; light: string; text: string }> = {
@@ -637,7 +622,7 @@ export default function QuoteResultPage() {
             <div className="border-t border-[var(--border-subtle)] mb-5" />
             <div className="mb-5">
               <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Cover Type</p>
-              {(['comprehensive', 'tpo', 'tpft'] as const).map(key => (
+              {(['comprehensive', 'tpo'] as const).map(key => (
                 <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key]} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
               ))}
             </div>
