@@ -211,10 +211,10 @@ function PlanCard({
         </div>
 
         <div className="mb-4 flex items-start gap-3">
-          <div className="w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 overflow-hidden bg-white" style={{ borderColor: 'var(--border-subtle)' }}>
+          <div className="w-12 h-12 rounded-xl border flex items-center justify-center shrink-0 overflow-hidden bg-white p-1.5" style={{ borderColor: 'var(--border-subtle)' }}>
             {plan.logo
               // eslint-disable-next-line @next/next/no-img-element
-              ? <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-cover" />
+              ? <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-contain" />
               : <span className="font-display font-bold text-[13px]" style={{ color: color.main }}>{plan.insurer.slice(0, 2).toUpperCase()}</span>
             }
           </div>
@@ -360,7 +360,7 @@ function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestP
           <>
             <h3 className="font-display font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>Save your quote</h3>
             <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
-              We’ll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
+              We'll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
             </p>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -466,10 +466,10 @@ function CompareModal({ plans, basePrice, color, onClose, onSelect }: {
                     </span>
                   )}
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-white" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="w-9 h-9 rounded-lg border flex items-center justify-center shrink-0 overflow-hidden bg-white p-1" style={{ borderColor: 'var(--border-subtle)' }}>
                       {p.logo
                         // eslint-disable-next-line @next/next/no-img-element
-                        ? <img src={p.logo} alt={p.insurer} className="w-full h-full object-cover" />
+                        ? <img src={p.logo} alt={p.insurer} className="w-full h-full object-contain" />
                         : <span className="font-display font-bold text-[10px]" style={{ color: color.main }}>{p.insurer.slice(0, 2).toUpperCase()}</span>
                       }
                     </div>
