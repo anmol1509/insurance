@@ -568,17 +568,24 @@ export default function QuoteResultPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--page-bg)' }}>
-      <div className="sticky top-0 z-50 bg-white border-b border-[var(--border-default)] py-3.5 px-5 lg:px-10">
-        <div className="max-w-6xl mx-auto flex items-center gap-4">
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-default)' }}>
+        <div className="max-w-6xl mx-auto px-5 lg:px-10 h-[60px] flex items-center gap-4">
           <Logo size={28} href="/" />
-          <div className="flex-1 min-w-0">
-            <h1 className="font-display font-extrabold text-xl tracking-tight leading-tight" style={{ color: 'var(--text-primary)' }}>
-              {plans.length} plans available
-            </h1>
-            <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              Compare and select the right plan for you
-            </p>
+
+          <div className="h-5 w-px shrink-0 hidden sm:block" style={{ backgroundColor: 'var(--border-default)' }} />
+
+          <div className="flex-1 min-w-0 flex items-baseline gap-2">
+            <span className="font-display font-extrabold text-[24px] tracking-tight leading-none" style={{ color: color.main }}>
+              {plans.length}
+            </span>
+            <span className="font-display font-bold text-[17px] tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              plans available
+            </span>
+            <span className="hidden md:inline font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
+              · compare and choose the right cover
+            </span>
           </div>
+
           <div className="flex items-center gap-3 shrink-0 flex-wrap justify-end">
             <Link href={`/quote/${product}`}
               className="flex items-center gap-1.5 font-sans text-[13px] hover:underline hidden sm:flex"
