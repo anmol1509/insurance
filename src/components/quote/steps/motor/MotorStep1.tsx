@@ -34,19 +34,11 @@ const coverTypes = [
     priceHint: 'From ₦15,000/yr',
     tooltip: 'The legal minimum in Nigeria. Covers injury or damage you cause to others — does NOT cover any damage to your own vehicle. Mandatory under Nigerian law.',
   },
-  {
-    id: 'tpft' as const,
-    label: 'Third Party Fire & Theft',
-    priceHint: 'From ₦35,000/yr',
-    tooltip: 'Third party cover PLUS protection if your own vehicle is stolen or damaged by fire. A middle-ground option for older vehicles.',
-  },
 ]
 
 const useTypes = [
   { id: 'private' as const, label: 'Private' },
   { id: 'commercial' as const, label: 'Commercial' },
-  { id: 'own_goods' as const, label: 'Own Goods' },
-  { id: 'hired' as const, label: 'Hired' },
 ]
 
 export default function MotorStep1() {
@@ -238,7 +230,7 @@ export default function MotorStep1() {
         <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
           Cover type <span className="text-[var(--error)]">*</span>
         </p>
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3">
           {coverTypes.map((ct) => (
             <div key={ct.id} className="relative">
               <RadioCard
@@ -284,7 +276,7 @@ export default function MotorStep1() {
         <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
           How will the vehicle be used? <span className="text-[var(--error)]">*</span>
         </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid sm:grid-cols-2 gap-3">
           {useTypes.map((ut) => (
             <RadioCard
               key={ut.id}
