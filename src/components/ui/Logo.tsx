@@ -21,10 +21,10 @@ export default function Logo({
   const inner = (
     <span className="flex items-center gap-2.5">
       <Image
-        src="/logo.svg"
+        src="https://res.cloudinary.com/degunlqed/image/upload/v1778554881/silogo_bujrpu.png"
         alt="ShopInsurance"
         width={size}
-        height={Math.round(size * 1.08)}
+        height={size}
         priority
         className="shrink-0"
         style={{ borderRadius: size * 0.22 }}
