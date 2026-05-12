@@ -34,19 +34,11 @@ const coverTypes = [
     priceHint: 'From ₦15,000/yr',
     tooltip: 'The legal minimum in Nigeria. Covers injury or damage you cause to others — does NOT cover any damage to your own vehicle. Mandatory under Nigerian law.',
   },
-  {
-    id: 'tpft' as const,
-    label: 'Third Party Fire & Theft',
-    priceHint: 'From ₦35,000/yr',
-    tooltip: 'Third party cover PLUS protection if your own vehicle is stolen or damaged by fire. A middle-ground option for older vehicles.',
-  },
 ]
 
 const useTypes = [
   { id: 'private' as const, label: 'Private' },
   { id: 'commercial' as const, label: 'Commercial' },
-  { id: 'own_goods' as const, label: 'Own Goods' },
-  { id: 'hired' as const, label: 'Hired' },
 ]
 
 export default function MotorStep1() {

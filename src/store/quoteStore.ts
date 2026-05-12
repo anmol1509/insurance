@@ -11,8 +11,8 @@ export interface MotorData {
   registrationNumber: string
   chassisVIN: string
   marketValueRange: string
-  useType: 'private' | 'commercial' | 'own_goods' | 'hired' | null
-  coverType: 'comprehensive' | 'tpo' | 'tpft' | null
+  useType: 'private' | 'commercial' | null
+  coverType: 'comprehensive' | 'tpo' | null
   usageCategory: 'personal' | 'business' | 'commercial' | null
   geographicalState: string
   accessories: string
