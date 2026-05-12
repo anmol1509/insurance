@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 const HIDDEN_PREFIXES = ['/quote/', '/dashboard', '/admin', '/login', '/register']
 
 const products = [
-  { name: 'Motor',    href: '/quote/motor',    color: '#0A5C36', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
+  { name: 'Motor',    href: '/quote/motor',    color: '#25D366', icon: Car,       from: '₦15,000/yr', desc: 'Car, SUV, truck cover' },
   { name: 'Medical',  href: '/quote/medical',  color: '#059669', icon: Heart,     from: '₦45,000/yr', desc: 'HMO & health plans' },
   { name: 'Travel',   href: '/quote/travel',   color: '#D97706', icon: Plane,     from: '₦12,000/yr', desc: 'Single & multi-trip' },
   { name: 'Business', href: '/quote/business', color: '#7C3AED', icon: Building2, from: '₦60,000/yr', desc: 'Property & liability' },
