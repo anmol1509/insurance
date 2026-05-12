@@ -23,24 +23,26 @@ export default function TrustBannerSection() {
           className="relative"
         >
           <div
-            className="rounded-3xl overflow-hidden h-[400px] flex items-center justify-center"
+            className="rounded-3xl overflow-hidden h-[400px] flex items-center justify-center relative"
             style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            <svg
-              viewBox="0 0 380 400"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full h-full"
-            >
-              <rect width="380" height="400" fill="transparent" />
-              <circle cx="190" cy="200" r="160" fill="rgba(255,255,255,0.03)" />
-              <circle cx="190" cy="200" r="100" fill="rgba(255,255,255,0.05)" />
-              <circle cx="190" cy="140" r="45" fill="rgba(255,255,255,0.09)" />
-              <path
-                d="M110 280 Q110 230 190 230 Q270 230 270 280 L270 340 Q270 360 190 360 Q110 360 110 340 Z"
-                fill="rgba(255,255,255,0.09)"
-              />
-            </svg>
+            {/* Decorative ring */}
+            <div
+              className="absolute w-[320px] h-[320px] rounded-full"
+              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+            />
+            <div
+              className="absolute w-[220px] h-[220px] rounded-full"
+              style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+            />
+            {/* Logo */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://res.cloudinary.com/degunlqed/image/upload/v1778554881/silogo_bujrpu.png"
+              alt="ShopInsurance"
+              className="relative z-10"
+              style={{ width: 140, height: 140, borderRadius: 28 }}
+            />
           </div>
 
           {/* Decorative SVG */}
