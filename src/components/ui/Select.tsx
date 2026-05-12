@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown, Check, Search } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -33,19 +33,30 @@ export default function Select({
   productColor = 'var(--green-700)',
 }: SelectProps) {
   const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const ref = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
 
   const selected = options.find((o) => o.value === value)
+  const filtered = query.trim()
+    ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
+    : options
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false)
+        setQuery('')
       }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 50)
+    else setQuery('')
+  }, [open])
 
   return (
     <div className={cn('relative flex flex-col gap-1.5', className)} ref={ref}>
@@ -85,25 +96,46 @@ export default function Select({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full mt-1 left-0 right-0 z-50 bg-white rounded-xl shadow-lg border border-[var(--border-default)] max-h-72 overflow-y-auto"
+            className="absolute top-full mt-1 left-0 right-0 z-50 bg-white rounded-xl shadow-lg border border-[var(--border-default)] overflow-hidden"
           >
-            {options.map((opt) => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => {
-                  onChange?.(opt.value)
-                  setOpen(false)
-                }}
-                className={cn(
-                  'w-full px-4 py-2.5 text-left font-sans text-sm flex items-center justify-between hover:bg-[var(--surface-raised)] transition-colors',
-                  opt.value === value && 'bg-[var(--green-50)] text-[var(--green-700)]'
-                )}
-              >
-                {opt.label}
-                {opt.value === value && <Check className="w-4 h-4" />}
-              </button>
-            ))}
+            {options.length > 5 && (
+              <div className="px-3 pt-2.5 pb-1.5 border-b border-[var(--border-subtle)]">
+                <div className="flex items-center gap-2 h-9 px-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
+                  <Search className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--text-muted)' }} />
+                  <input
+                    ref={searchRef}
+                    type="text"
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    placeholder="Type to search…"
+                    className="flex-1 bg-transparent font-sans text-[13px] outline-none"
+                    style={{ color: 'var(--text-primary)' }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="max-h-60 overflow-y-auto">
+              {filtered.length === 0 ? (
+                <p className="px-4 py-3 font-sans text-[13px] text-center" style={{ color: 'var(--text-muted)' }}>No results</p>
+              ) : filtered.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange?.(opt.value)
+                    setOpen(false)
+                    setQuery('')
+                  }}
+                  className={cn(
+                    'w-full px-4 py-2.5 text-left font-sans text-sm flex items-center justify-between hover:bg-[var(--surface-raised)] transition-colors',
+                    opt.value === value && 'bg-[var(--green-50)] text-[var(--green-700)]'
+                  )}
+                >
+                  {opt.label}
+                  {opt.value === value && <Check className="w-4 h-4" />}
+                </button>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

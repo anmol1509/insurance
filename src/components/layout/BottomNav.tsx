@@ -111,7 +111,7 @@ export default function BottomNav() {
             href="/"
             className={cn(
               'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/') && pathname === '/' ? 'text-orange-500' : 'text-[var(--text-subtle)]'
+              active('/') && pathname === '/' ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
             )}
           >
             <Home className="w-5 h-5" />
@@ -123,7 +123,7 @@ export default function BottomNav() {
             href="/renewals"
             className={cn(
               'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/renewals') ? 'text-orange-500' : 'text-[var(--text-subtle)]'
+              active('/renewals') ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
             )}
           >
             <RefreshCw className="w-5 h-5" />
@@ -135,8 +135,8 @@ export default function BottomNav() {
             <button
               type="button"
               onClick={() => setSheetOpen(true)}
-              className="w-14 h-14 -mt-6 rounded-full bg-orange-500 flex items-center justify-center transition-transform active:scale-95"
-              style={{ boxShadow: '0 4px 20px rgba(255,107,53,0.45)' }}
+              className="w-14 h-14 -mt-6 rounded-full bg-[var(--green-700)] flex items-center justify-center transition-transform active:scale-95"
+              style={{ boxShadow: '0 4px 20px rgba(10,92,54,0.45)' }}
               aria-label="Get a quote"
             >
               <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
@@ -149,7 +149,7 @@ export default function BottomNav() {
             href="/claims/new"
             className={cn(
               'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/claims') ? 'text-orange-500' : 'text-[var(--text-subtle)]'
+              active('/claims') ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
             )}
           >
             <FileText className="w-5 h-5" />
@@ -161,7 +161,7 @@ export default function BottomNav() {
             href="/login"
             className={cn(
               'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active(['/login', '/register', '/dashboard']) ? 'text-orange-500' : 'text-[var(--text-subtle)]'
+              active(['/login', '/register', '/dashboard']) ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
             )}
           >
             <User className="w-5 h-5" />

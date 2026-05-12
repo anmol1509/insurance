@@ -238,7 +238,7 @@ export default function Navbar() {
                   'hidden md:flex h-9 px-4 items-center rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md',
                   isHero
                     ? 'bg-white/15 hover:bg-white/25 text-white border border-white/30'
-                    : 'bg-orange-500 hover:bg-orange-600 text-white'
+                    : 'bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white'
                 )}
               >
                 Login
@@ -251,7 +251,7 @@ export default function Navbar() {
                     'h-9 px-4 flex items-center gap-1.5 rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md',
                     isHero
                       ? 'bg-white text-[var(--green-800)] hover:bg-white/90'
-                      : 'bg-orange-500 hover:bg-orange-600 text-white'
+                      : 'bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white'
                   )}
                 >
                   Get a Quote
@@ -349,7 +349,7 @@ export default function Navbar() {
 
               <div className="mt-6 px-5 flex flex-col gap-2.5">
                 <Link href="/login" onClick={() => setDrawerOpen(false)}
-                  className="h-12 flex items-center justify-center bg-orange-500 hover:bg-orange-600 rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
+                  className="h-12 flex items-center justify-center bg-[var(--green-700)] hover:bg-[var(--green-600)] rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
                   Login / Sign up
                 </Link>
               </div>
