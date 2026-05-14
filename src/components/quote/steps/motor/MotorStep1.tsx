@@ -220,7 +220,7 @@ export default function MotorStep1() {
             />
           </div>
           <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
-            Enter the vehicle's current resale value. This determines your IDV (Insured Declared Value).
+            Enter the vehicle\'s current resale value. This determines your IDV (Insured Declared Value).
           </p>
         </div>
       </div>
