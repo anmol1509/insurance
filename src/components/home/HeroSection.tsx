@@ -128,7 +128,7 @@ export default function HeroSection() {
                           onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(29,78,216,0.1)' }}
+                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,211,102,0.15)' }}
                           onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
                         />
                       </div>
@@ -230,7 +230,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Trust pills */}
-            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-wrap gap-5">
+            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-wrap gap-5 mb-5">
               {['Instant NIID certificate', 'Claims in 24 hours', 'NAICOM regulated'].map((pill) => (
                 <div key={pill} className="flex items-center gap-1.5">
                   <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
@@ -241,6 +241,26 @@ export default function HeroSection() {
                   <span className="font-sans text-[13px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{pill}</span>
                 </div>
               ))}
+            </motion.div>
+
+            {/* SICL powered-by strip */}
+            <motion.div
+              custom={6} variants={fadeUp} initial="hidden" animate="visible"
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl w-fit"
+              style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif"
+                alt="SICL"
+                className="h-7 w-auto object-contain shrink-0"
+                style={{ filter: 'brightness(0) invert(1)', opacity: 0.9 }}
+              />
+              <div className="h-5 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
+              <div>
+                <p className="font-sans text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.45)' }}>Powered by</p>
+                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.85)' }}>Standard Insurance Consultants Ltd · 45+ Years</p>
+              </div>
             </motion.div>
           </div>
 
