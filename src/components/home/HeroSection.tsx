@@ -246,20 +246,22 @@ export default function HeroSection() {
             {/* SICL powered-by strip */}
             <motion.div
               custom={6} variants={fadeUp} initial="hidden" animate="visible"
-              className="flex items-center gap-3 px-4 py-3 rounded-2xl w-fit"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-2xl w-fit"
               style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)' }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif"
-                alt="SICL"
-                className="h-7 w-auto object-contain shrink-0"
-                style={{ filter: 'brightness(0) invert(1)', opacity: 0.9 }}
-              />
+              {/* Logo on white pill for visibility */}
+              <div className="px-2.5 py-1.5 rounded-lg shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif"
+                  alt="SICL"
+                  className="h-6 w-auto object-contain"
+                />
+              </div>
               <div className="h-5 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
               <div>
-                <p className="font-sans text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.45)' }}>Powered by</p>
-                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.85)' }}>Standard Insurance Consultants Ltd · 45+ Years</p>
+                <p className="font-sans text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.5)' }}>Powered by</p>
+                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.9)' }}>Standard Insurance Consultants Ltd · 45+ Years</p>
               </div>
             </motion.div>
           </div>
