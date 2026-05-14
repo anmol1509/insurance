@@ -2,6 +2,7 @@ import HeroSection from '@/components/home/HeroSection'
 import ProductBentoGrid from '@/components/home/ProductBentoGrid'
 import PressSection from '@/components/home/PressSection'
 import InsurerPartnersStrip from '@/components/home/InsurerPartnersStrip'
+import SICLTrustSection from '@/components/home/SICLTrustSection'
 import TrustStatsSection from '@/components/home/TrustStatsSection'
 import HowItWorksSection from '@/components/home/HowItWorksSection'
 import FeatureCardsSection from '@/components/home/FeatureCardsSection'
@@ -16,6 +17,7 @@ export default function HomePage() {
       <HeroSection />
       <PressSection />
       <InsurerPartnersStrip />
+      <SICLTrustSection />
       <ProductBentoGrid />
       <TrustStatsSection />
       <HowItWorksSection />

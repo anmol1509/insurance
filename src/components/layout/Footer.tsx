@@ -108,9 +108,20 @@ export default function Footer() {
             <div className="mb-4">
               <Logo size={36} variant="white" wordmarkColor="white" />
             </div>
-            <p className="font-sans text-[13px] leading-relaxed mb-4" style={{ color: '#6B7280' }}>
+            <p className="font-sans text-[13px] leading-relaxed mb-3" style={{ color: '#6B7280' }}>
               Nigeria's smartest insurance platform. Compare motor, health, travel and business cover from multiple NAICOM-licensed insurers — free, in minutes.
             </p>
+            <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid #1e3d2e' }}>
+              <div className="flex items-center justify-center w-6 h-6 rounded-lg shrink-0" style={{ backgroundColor: '#0A5C36' }}>
+                <span className="font-display font-black text-[8px] text-white tracking-tight">SICL</span>
+              </div>
+              <div>
+                <p className="font-sans text-[10px]" style={{ color: '#6B7280' }}>Powered by</p>
+                <p className="font-sans font-semibold text-[11px] leading-tight" style={{ color: '#9CA3AF' }}>
+                  Standard Insurance Consultants Ltd · 45+ Yrs
+                </p>
+              </div>
+            </div>
             <div className="space-y-1">
               <p className="font-sans text-[13px]" style={{ color: '#6B7280' }}>
                 14 Adeola Odeku Street, Victoria Island
