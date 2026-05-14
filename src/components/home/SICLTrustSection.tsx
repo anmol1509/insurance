@@ -42,23 +42,24 @@ export default function SICLTrustSection() {
               Powered by
             </p>
 
-            {/* SICL logo */}
-            <div className="mb-5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={SICL_LOGO}
-                alt="Standard Insurance Consultants Limited"
-                className="h-14 w-auto object-contain"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
+            {/* SICL logo — on a white pill for contrast */}
+            <div className="mb-5 inline-flex">
+              <div className="px-4 py-2.5 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={SICL_LOGO}
+                  alt="Standard Insurance Consultants Limited"
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
             </div>
 
             <h2 className="font-display font-extrabold text-[22px] lg:text-[26px] leading-tight tracking-tight text-white mb-4 max-w-[480px]">
-              Nigeria's most trusted insurance brokerage — behind every policy on this platform
+              Nigeria&apos;s most trusted insurance brokerage — behind every policy on this platform
             </h2>
 
-            <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
-              Standard Insurance Consultants Limited (SICL) is one of Africa's leading insurance brokerage firms, with a 45-year track record of protecting individuals, families, and businesses across Nigeria and beyond.
+            <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
+              Standard Insurance Consultants Limited (SICL) is one of Africa&apos;s leading insurance brokerage firms, with a 45-year track record of protecting individuals, families, and businesses across Nigeria and beyond.
             </p>
 
             {/* Certifications row */}
@@ -100,7 +101,7 @@ export default function SICLTrustSection() {
                   {value}
                 </p>
                 <p className="font-sans font-bold text-[15px] text-white mb-0.5">{label}</p>
-                <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{sub}</p>
+                <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{sub}</p>
               </motion.div>
             ))}
           </div>
