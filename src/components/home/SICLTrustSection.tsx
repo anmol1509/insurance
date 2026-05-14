@@ -1,99 +1,110 @@
 'use client'
 import { motion } from 'framer-motion'
-import { Shield, Award, TrendingUp } from 'lucide-react'
+
+const SICL_LOGO = 'https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif'
 
 const stats = [
   {
-    icon: Award,
     value: '45+',
     label: 'Years of Experience',
-    sub: 'Founded 1979 · Trusted since',
+    sub: 'In operation since 1979',
   },
   {
-    icon: Shield,
     value: '$2M',
     label: 'Professional Indemnity',
-    sub: 'Cover protecting every policy',
+    sub: 'Every policy is protected',
   },
   {
-    icon: TrendingUp,
     value: '97%',
     label: 'Client Retention Rate',
-    sub: 'Clients who stay, year on year',
+    sub: 'Clients who return, year on year',
   },
 ]
 
 export default function SICLTrustSection() {
   return (
     <section
-      className="px-5 lg:px-20 py-10 border-y"
-      style={{ backgroundColor: 'var(--green-50)', borderColor: '#c8e6d4' }}
+      className="px-5 lg:px-20 py-14 lg:py-20"
+      style={{ background: 'linear-gradient(135deg, #011a14 0%, #022c22 60%, #063d24 100%)' }}
     >
       <div className="max-w-[1280px] mx-auto">
-        {/* Powered-by header */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.4 }}
-          className="flex flex-col sm:flex-row sm:items-center gap-3 mb-8"
-        >
-          <div className="flex items-center gap-2.5">
-            {/* SICL badge */}
-            <div
-              className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
-              style={{ backgroundColor: 'var(--green-700)' }}
-            >
-              <span className="font-display font-black text-[11px] text-white tracking-tight">SICL</span>
+        <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
+
+          {/* Left — SICL identity */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="font-sans font-semibold text-[11px] uppercase tracking-[0.14em] mb-5"
+              style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Powered by
+            </p>
+
+            {/* SICL logo */}
+            <div className="mb-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={SICL_LOGO}
+                alt="Standard Insurance Consultants Limited"
+                className="h-14 w-auto object-contain"
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
             </div>
-            <div>
-              <p className="font-sans font-semibold text-[11px] uppercase tracking-[0.1em]" style={{ color: 'var(--green-700)' }}>
-                Powered by
-              </p>
-              <p className="font-display font-bold text-[15px] leading-tight" style={{ color: 'var(--text-primary)' }}>
-                Standard Insurance Consultants Limited
-              </p>
+
+            <h2 className="font-display font-extrabold text-[22px] lg:text-[26px] leading-tight tracking-tight text-white mb-4 max-w-[480px]">
+              Nigeria's most trusted insurance brokerage — behind every policy on this platform
+            </h2>
+
+            <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              Standard Insurance Consultants Limited (SICL) is one of Africa's leading insurance brokerage firms, with a 45-year track record of protecting individuals, families, and businesses across Nigeria and beyond.
+            </p>
+
+            {/* Certifications row */}
+            <div className="flex flex-wrap gap-3 mt-7">
+              {[
+                'NAICOM Licensed',
+                'NCRIB Member',
+                '$2M Professional Indemnity',
+                'ISO Certified',
+              ].map((badge) => (
+                <div
+                  key={badge}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-sans font-semibold text-[11px]"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.85)' }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5 L4 7 L8 3" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {badge}
+                </div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="hidden sm:block h-8 w-px mx-4" style={{ backgroundColor: '#a8d5b8' }} />
-
-          <p className="font-sans text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)', maxWidth: '420px' }}>
-            One of Nigeria's leading insurance brokerage firms — and a trusted partner across Africa and the Globe.
-          </p>
-        </motion.div>
-
-        {/* Stats row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {stats.map(({ icon: Icon, value, label, sub }, i) => (
-            <motion.div
-              key={label}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-40px' }}
-              transition={{ duration: 0.35, delay: i * 0.08 }}
-              className="flex items-start gap-4 px-5 py-4 rounded-2xl border bg-white"
-              style={{ borderColor: '#d4eade' }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                style={{ backgroundColor: 'var(--green-50)', border: '1.5px solid #c8e6d4' }}
+          {/* Right — Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-0 lg:gap-0 divide-y lg:divide-y divide-x-0 sm:divide-x lg:divide-x-0"
+            style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+            {stats.map(({ value, label, sub }, i) => (
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="py-7 sm:px-8 lg:px-0 lg:py-7 first:pt-0 lg:first:pt-0 last:pb-0 lg:last:pb-0"
               >
-                <Icon className="w-5 h-5" style={{ color: 'var(--green-700)' }} />
-              </div>
-              <div>
-                <p className="font-display font-black text-2xl leading-none" style={{ color: 'var(--green-700)' }}>
+                <p className="font-display font-black leading-none mb-1.5"
+                  style={{ fontSize: 'clamp(40px, 4vw, 52px)', color: 'var(--green-400)' }}>
                   {value}
                 </p>
-                <p className="font-sans font-semibold text-[13px] mt-0.5" style={{ color: 'var(--text-primary)' }}>
-                  {label}
-                </p>
-                <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {sub}
-                </p>
-              </div>
-            </motion.div>
-          ))}
+                <p className="font-sans font-bold text-[15px] text-white mb-0.5">{label}</p>
+                <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.45)' }}>{sub}</p>
+              </motion.div>
+            ))}
+          </div>
+
         </div>
       </div>
     </section>
