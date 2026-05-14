@@ -19,7 +19,7 @@ const products = [
     valueProp: 'Simple prices. Super fast claims.',
     sub: "That's our promise.",
     featureLabel: 'NAICOM Approved',
-    color: 'var(--motor-600)', borderColor: '#0A5C36',
+    color: 'var(--motor-600)', borderColor: '#25D366',
     href: '/motor',
     icon: Car,
     large: true,
