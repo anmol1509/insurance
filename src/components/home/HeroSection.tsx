@@ -1,9 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy, Star } from 'lucide-react'
+import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -23,6 +23,15 @@ const TABS = [
 
 type TabKey = 'motor' | 'medical' | 'travel' | 'business'
 
+const LIVE_POLICIES = [
+  { product: 'Motor', city: 'Lagos', time: '2 min ago' },
+  { product: 'Health', city: 'Abuja', time: '4 min ago' },
+  { product: 'Travel', city: 'Port Harcourt', time: '6 min ago' },
+  { product: 'Business', city: 'Kano', time: '8 min ago' },
+  { product: 'Motor', city: 'Ibadan', time: '11 min ago' },
+  { product: 'Health', city: 'Enugu', time: '13 min ago' },
+]
+
 const COVERAGE_OPTIONS = ['Just me', 'Me + spouse', 'Family (3–5)', 'Family (6+)']
 const BUSINESS_TYPES  = ['Retail / Shop', 'Restaurant / Food', 'Construction', 'Tech / Agency', 'Manufacturing', 'Other']
 const DESTINATIONS    = ['United Kingdom', 'United States', 'Schengen (Europe)', 'Canada', 'UAE / Dubai', 'Other destination']
@@ -33,6 +42,12 @@ export default function HeroSection() {
   const [plateNum,  setPlateNum]  = useState('')
 
   const tab = TABS.find((t) => t.key === activeTab)!
+  const [tickerIdx, setTickerIdx] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setTickerIdx(i => (i + 1) % LIVE_POLICIES.length), 3500)
+    return () => clearInterval(t)
+  }, [])
 
   return (
     <section className="pt-16 pb-10 md:pt-20 md:pb-14" style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 55%, #065f46 100%)' }}>
@@ -41,17 +56,12 @@ export default function HeroSection() {
 
           {/* ── Left ── */}
           <div>
-            {/* Award badges */}
-            <motion.div className="flex flex-wrap gap-2.5 mb-5" initial="hidden" animate="visible">
+            {/* Badge */}
+            <motion.div className="flex mb-5" initial="hidden" animate="visible">
               <motion.span custom={0} variants={fadeUp}
                 className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
                 style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
                 <Trophy className="w-3 h-3" /> Nigeria&apos;s #1 Insurance Platform
-              </motion.span>
-              <motion.span custom={1} variants={fadeUp}
-                className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
-                <Star className="w-3 h-3" /> Best Insurtech 2025
               </motion.span>
             </motion.div>
 
@@ -310,17 +320,28 @@ export default function HeroSection() {
               })}
             </div>
 
-            {/* Live policy badge */}
+            {/* Live policy ticker */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className="mt-4 mx-auto w-fit bg-white rounded-full shadow-md px-4 py-2.5 flex items-center gap-2.5"
+              className="mt-4 mx-auto w-fit bg-white rounded-full shadow-md px-4 py-2.5 flex items-center gap-2.5 overflow-hidden"
+              style={{ minWidth: 260 }}
             >
               <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: 'var(--green-500)' }} />
-              <span className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-                Policy issued · Motor · Lagos · 2 min ago
-              </span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={tickerIdx}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.3 }}
+                  className="font-sans text-[13px] whitespace-nowrap"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  Policy issued · {LIVE_POLICIES[tickerIdx].product} · {LIVE_POLICIES[tickerIdx].city} · {LIVE_POLICIES[tickerIdx].time}
+                </motion.span>
+              </AnimatePresence>
             </motion.div>
           </div>
 
