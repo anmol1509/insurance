@@ -58,10 +58,10 @@ export default function HeroSection() {
             {/* H1 */}
             <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mb-4">
               <h1 className="font-display font-extrabold leading-[1.08] tracking-tight"
-                style={{ fontSize: 'clamp(36px, 4.8vw, 54px)', color: 'white' }}>
-                Have Nigeria&apos;s smartest
-                <br />insurer by your{' '}
-                <em className="not-italic font-serif italic" style={{ fontSize: 'clamp(40px, 5.3vw, 60px)', borderBottom: '2px solid rgba(255,255,255,0.45)', paddingBottom: '2px' }}>side</em>
+                style={{ fontSize: 'clamp(34px, 4.5vw, 52px)', color: 'white' }}>
+                Buy insurance with{' '}
+                <em className="not-italic font-serif italic" style={{ borderBottom: '2px solid rgba(255,255,255,0.45)', paddingBottom: '2px' }}>confidence.</em>
+                <br />Claim without the headache.
               </h1>
             </motion.div>
 
@@ -260,8 +260,8 @@ export default function HeroSection() {
               </div>
               <div className="h-5 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
               <div>
-                <p className="font-sans text-[10px] uppercase tracking-[0.1em]" style={{ color: 'rgba(255,255,255,0.5)' }}>Powered by</p>
-                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.9)' }}>Standard Insurance Consultants Ltd · 45+ Years</p>
+                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.9)' }}>Backed by <strong>Standard Insurance Consultants Ltd</strong></p>
+                <p className="font-sans text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>Trusted since 1980</p>
               </div>
             </motion.div>
           </div>
