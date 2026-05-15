@@ -26,45 +26,13 @@ export default function TrustBannerSection() {
             className="rounded-3xl overflow-hidden h-[400px] flex items-center justify-center relative"
             style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            {/* Decorative rings */}
-            <div
-              className="absolute w-[320px] h-[320px] rounded-full"
-              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
-            />
-            <div
-              className="absolute w-[220px] h-[220px] rounded-full"
-              style={{ border: '1px solid rgba(255,255,255,0.06)' }}
-            />
-            {/* Logo */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://res.cloudinary.com/degunlqed/image/upload/v1778554881/silogo_bujrpu.png"
               alt="ShopInsurance"
-              className="relative z-10"
-              style={{ width: 140, height: 140, borderRadius: 28 }}
+              className="w-full h-full object-cover"
             />
           </div>
-
-          {/* Decorative SVG */}
-          <svg
-            className="absolute -top-6 -right-6"
-            width="120"
-            height="120"
-            viewBox="0 0 120 120"
-            fill="none"
-          >
-            <motion.path
-              d="M10 60 C30 10, 90 10, 110 60 S90 110, 10 60"
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth="3"
-              strokeLinecap="round"
-              fill="none"
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.5 }}
-            />
-          </svg>
         </motion.div>
 
         {/* Right */}

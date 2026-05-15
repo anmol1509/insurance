@@ -15,7 +15,7 @@ interface Plan {
   name: string
   insurer: string
   logo?: string
-  coverType: 'comprehensive' | 'tpo'
+  coverType: string
   rating: number
   reviews: number
   badge?: string
@@ -89,9 +89,210 @@ const MOTOR_PLANS: Plan[] = [
   },
 ]
 
+const MEDICAL_PLANS: Plan[] = [
+  {
+    id: 'hygeia-individual',
+    name: 'Hygeia HMO Individual',
+    insurer: 'Hygeia HMO',
+    coverType: 'individual',
+    rating: 4.8,
+    reviews: 3120,
+    badge: 'Most popular',
+    multiplier: 1.0,
+    features: ['700+ accredited hospitals', 'Outpatient & inpatient cover', 'Maternity benefit', 'Dental & optical', 'Emergency evacuation', 'Free annual check-up'],
+    exclusions: ['Cosmetic surgery', 'Pre-existing conditions (first 6 months)', 'Self-inflicted injuries', 'Experimental treatment'],
+    claimSettlement: '97%',
+    responseTime: '24 hours',
+    popular: true,
+  },
+  {
+    id: 'axa-family',
+    name: 'AXA Mansard Family Care',
+    insurer: 'AXA Mansard Health',
+    coverType: 'family',
+    rating: 4.7,
+    reviews: 2480,
+    badge: 'Best value',
+    multiplier: 0.88,
+    features: ['Covers up to 6 dependants', '500+ hospital network', 'Cashless claims', 'Maternity & newborn cover', '24/7 teleconsultation', 'Preventive care'],
+    exclusions: ['Cosmetic procedures', 'War-related injuries', 'Substance abuse treatment', 'Infertility treatment'],
+    claimSettlement: '95%',
+    responseTime: '48 hours',
+  },
+  {
+    id: 'leadway-premium',
+    name: 'Leadway Health Premium',
+    insurer: 'Leadway Assurance',
+    coverType: 'premium',
+    rating: 4.6,
+    reviews: 1870,
+    multiplier: 1.15,
+    features: ['International coverage', '900+ hospital network', 'Private ward access', 'Specialist consultations', 'Chronic disease management', 'Annual wellness exam'],
+    exclusions: ['Cosmetic surgery', 'Organ transplant (first year)', 'Hearing aids', 'Fertility treatments'],
+    claimSettlement: '96%',
+    responseTime: '24 hours',
+  },
+  {
+    id: 'reliance-basic',
+    name: 'Reliance HMO Basic',
+    insurer: 'Reliance HMO',
+    coverType: 'individual',
+    rating: 4.4,
+    reviews: 1240,
+    multiplier: 0.52,
+    features: ['300+ hospital network', 'Outpatient consultations', 'Basic diagnostics', 'Emergency care', 'NHIA compliant'],
+    exclusions: ['Specialist referrals', 'Maternity benefit', 'Dental & optical', 'Surgery (non-emergency)'],
+    claimSettlement: '93%',
+    responseTime: '48 hours',
+  },
+]
+
+const TRAVEL_PLANS: Plan[] = [
+  {
+    id: 'aiico-schengen',
+    name: 'AIICO Schengen Standard',
+    insurer: 'AIICO Insurance',
+    coverType: 'schengen',
+    rating: 4.8,
+    reviews: 1950,
+    badge: 'Most popular',
+    multiplier: 1.0,
+    features: ['€30,000 medical cover', 'Schengen visa compliant', 'Trip cancellation cover', 'Lost baggage up to €500', 'Flight delay compensation', 'Certificate in 5 minutes'],
+    exclusions: ['Pre-existing conditions', 'Adventure sports', 'War zones', 'Intentional self-harm'],
+    claimSettlement: '97%',
+    responseTime: '24 hours',
+    popular: true,
+  },
+  {
+    id: 'nsia-worldwide',
+    name: 'NSIA Worldwide Cover',
+    insurer: 'NSIA Insurance',
+    coverType: 'worldwide',
+    rating: 4.7,
+    reviews: 1320,
+    badge: 'Best value',
+    multiplier: 0.85,
+    features: ['$50,000 medical cover', 'Global coverage incl. USA/Canada', 'Emergency evacuation', 'Personal liability cover', 'Lost passport assistance', '24/7 emergency helpline'],
+    exclusions: ['Pre-existing conditions', 'Extreme sports', 'Pandemics (optional add-on)', 'Business travel'],
+    claimSettlement: '95%',
+    responseTime: '48 hours',
+  },
+  {
+    id: 'axa-premium-travel',
+    name: 'AXA Travel Premium',
+    insurer: 'AXA Mansard',
+    coverType: 'worldwide',
+    rating: 4.6,
+    reviews: 980,
+    multiplier: 1.22,
+    features: ['€100,000 medical cover', 'Business travel included', 'Cancel for any reason', 'Electronic device cover', 'Emergency dental', 'Concierge service'],
+    exclusions: ['Suicide or self-harm', 'Drug/alcohol related', 'Illegal activities', 'Known events at booking'],
+    claimSettlement: '96%',
+    responseTime: '24 hours',
+  },
+  {
+    id: 'leadway-basic-travel',
+    name: 'Leadway Travel Basic',
+    insurer: 'Leadway Assurance',
+    coverType: 'schengen',
+    rating: 4.4,
+    reviews: 760,
+    multiplier: 0.60,
+    features: ['€30,000 medical cover', 'Schengen visa compliant', 'Emergency hospitalisation', 'Repatriation cover', 'NAICOM licensed'],
+    exclusions: ['Trip cancellation', 'Baggage loss', 'Pre-existing conditions', 'Adventure activities'],
+    claimSettlement: '92%',
+    responseTime: '48 hours',
+  },
+]
+
+const BUSINESS_PLANS: Plan[] = [
+  {
+    id: 'aiico-business-comp',
+    name: 'AIICO Business Comprehensive',
+    insurer: 'AIICO Insurance',
+    coverType: 'comprehensive',
+    rating: 4.8,
+    reviews: 1430,
+    badge: 'Most popular',
+    multiplier: 1.0,
+    features: ['Fire & allied perils', 'Burglary & theft', 'Public liability cover', 'Employer\'s liability', 'Business interruption', 'Electronic equipment cover'],
+    exclusions: ['Gradual deterioration', 'War & terrorism', 'Nuclear risk', 'Intentional damage by owner'],
+    claimSettlement: '96%',
+    responseTime: '48 hours',
+    popular: true,
+  },
+  {
+    id: 'leadway-sme',
+    name: 'Leadway SME Shield',
+    insurer: 'Leadway Assurance',
+    coverType: 'standard',
+    rating: 4.7,
+    reviews: 1180,
+    badge: 'Best value',
+    multiplier: 0.87,
+    features: ['Fire & building cover', 'Stock & inventory cover', 'Money in transit', 'Fidelity guarantee', 'Glass breakage', 'Goods in transit'],
+    exclusions: ['Mechanical breakdown', 'War & civil unrest', 'Wear & tear', 'Cyber attacks'],
+    claimSettlement: '94%',
+    responseTime: '48 hours',
+  },
+  {
+    id: 'nsia-business',
+    name: 'NSIA Business Plus',
+    insurer: 'NSIA Insurance',
+    coverType: 'comprehensive',
+    rating: 4.6,
+    reviews: 870,
+    multiplier: 1.12,
+    features: ['All-risk property cover', 'Product liability', 'Directors & officers liability', 'Cyber liability add-on', 'Business travel cover', 'Key person insurance'],
+    exclusions: ['Pre-existing structural defects', 'Pollution liability', 'Nuclear risk', 'Intentional acts'],
+    claimSettlement: '95%',
+    responseTime: '24 hours',
+  },
+  {
+    id: 'axa-business-basic',
+    name: 'AXA Business Starter',
+    insurer: 'AXA Mansard',
+    coverType: 'standard',
+    rating: 4.4,
+    reviews: 640,
+    multiplier: 0.65,
+    features: ['Fire & allied perils', 'Burglary cover', 'Public liability (basic)', 'NAICOM licensed', 'Online policy management'],
+    exclusions: ['Business interruption', 'Electronic equipment', 'Goods in transit', 'Employer\'s liability'],
+    claimSettlement: '92%',
+    responseTime: '72 hours',
+  },
+]
+
+const ALL_PLANS: Record<string, Plan[]> = {
+  motor: MOTOR_PLANS,
+  medical: MEDICAL_PLANS,
+  travel: TRAVEL_PLANS,
+  business: BUSINESS_PLANS,
+}
+
 const COVER_TYPE_LABELS: Record<string, string> = {
   comprehensive: 'Comprehensive',
   tpo: 'Third Party Only',
+  individual: 'Individual Plan',
+  family: 'Family Plan',
+  premium: 'Premium Plan',
+  schengen: 'Schengen / Europe',
+  worldwide: 'Worldwide Cover',
+  standard: 'Standard Cover',
+}
+
+const PRODUCT_COVER_TYPES: Record<string, string[]> = {
+  motor:    ['comprehensive', 'tpo'],
+  medical:  ['individual', 'family', 'premium'],
+  travel:   ['schengen', 'worldwide'],
+  business: ['standard', 'comprehensive'],
+}
+
+const PRODUCT_FEATURE_FILTERS: Record<string, string[]> = {
+  motor:    ['Roadside Assist', 'Towing', 'NIID Registered', 'Windscreen Cover'],
+  medical:  ['Maternity Cover', 'Dental & Optical', 'International Cover', 'Teleconsultation'],
+  travel:   ['Trip Cancellation', 'Baggage Cover', 'Emergency Evacuation', 'Flight Delay'],
+  business: ['Fire Cover', 'Burglary Cover', 'Public Liability', 'Business Interruption'],
 }
 
 const PRODUCT_COLORS: Record<string, { main: string; light: string; text: string }> = {
@@ -543,7 +744,7 @@ export default function QuoteResultPage() {
   const product = (activeProduct ?? 'motor') as string
   const basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
-  const state = motorData.geographicalState || 'Nigeria'
+  const state = product === 'motor' ? (motorData.geographicalState || 'Nigeria') : 'Nigeria'
 
   function toggleCoverFilter(val: string) {
     setCoverFilters(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
@@ -555,9 +756,11 @@ export default function QuoteResultPage() {
     setCompareIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 3 ? [...prev, id] : prev)
   }
 
-  const FEATURE_FILTER_OPTIONS = ['Roadside Assist', 'Towing', 'NIID Registered', 'Windscreen Cover']
+  const productPlans = ALL_PLANS[product] ?? MOTOR_PLANS
+  const FEATURE_FILTER_OPTIONS = PRODUCT_FEATURE_FILTERS[product] ?? PRODUCT_FEATURE_FILTERS.motor
+  const COVER_TYPE_OPTIONS = PRODUCT_COVER_TYPES[product] ?? PRODUCT_COVER_TYPES.motor
 
-  const plans = [...MOTOR_PLANS]
+  const plans = [...productPlans]
     .filter(p => {
       if (coverFilters.length && !coverFilters.includes(p.coverType)) return false
       if (featureFilters.length && !featureFilters.every(f => p.features.some(pf => pf.toLowerCase().includes(f.toLowerCase())))) return false
@@ -569,7 +772,7 @@ export default function QuoteResultPage() {
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
     })
 
-  const lowestPrice = Math.round(basePrice * Math.min(...MOTOR_PLANS.map(p => p.multiplier)))
+  const lowestPrice = Math.round(basePrice * Math.min(...productPlans.map(p => p.multiplier)))
 
   function handleSelect(_plan: Plan) {
     router.push('/quote/checkout')
@@ -622,8 +825,8 @@ export default function QuoteResultPage() {
             <div className="border-t border-[var(--border-subtle)] mb-5" />
             <div className="mb-5">
               <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Cover Type</p>
-              {(['comprehensive', 'tpo'] as const).map(key => (
-                <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key]} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
+              {COVER_TYPE_OPTIONS.map(key => (
+                <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key] ?? key} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
               ))}
             </div>
             <div className="border-t border-[var(--border-subtle)] mb-5" />
@@ -738,7 +941,7 @@ export default function QuoteResultPage() {
       <AnimatePresence>
         {showCompare && (
           <CompareModal
-            plans={MOTOR_PLANS.filter(p => compareIds.includes(p.id))}
+            plans={productPlans.filter(p => compareIds.includes(p.id))}
             basePrice={basePrice} color={color}
             onClose={() => setShowCompare(false)}
             onSelect={handleSelect}
