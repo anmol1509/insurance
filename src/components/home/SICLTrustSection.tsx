@@ -37,10 +37,10 @@ export default function SICLTrustSection() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5 }}
           >
-            <p className="font-sans font-semibold text-[11px] uppercase tracking-[0.14em] mb-5"
-              style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Powered by
+            <p className="font-sans font-semibold text-[13px] mb-1" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              Backed by <strong>Standard Insurance Consultants Limited</strong>
             </p>
+            <p className="font-sans text-[11px] mb-5" style={{ color: 'rgba(255,255,255,0.5)' }}>Trusted since 1980</p>
 
             {/* SICL logo — on a white pill for contrast */}
             <div className="mb-5 inline-flex">
