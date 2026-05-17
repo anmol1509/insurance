@@ -72,11 +72,11 @@ export const OCCUPATIONS = [
 
 export const PRODUCT_STEPS = {
   motor: [
-    { id: 1, label: 'Vehicle info',   title: 'Tell us about your vehicle',     sub: "We'll use this to prepare an accurate quote." },
-    { id: 2, label: 'Driver details', title: 'Driver & risk details',           sub: 'Helps us assess the risk profile of the primary driver.' },
-    { id: 3, label: 'Your details',   title: 'Your personal information',       sub: 'Required for KYC verification under NAICOM regulations.' },
-    { id: 4, label: 'Documents',      title: 'Upload your documents',           sub: 'Required documentation per NAICOM/NSIA guidelines.' },
-    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+    { id: 1, label: 'Your car',        title: 'Find your car',                  sub: 'Enter your registration plate to auto-fill your vehicle details.' },
+    { id: 2, label: 'Car details',     title: 'Confirm your car details',       sub: 'We pre-filled these from the registry — check and edit if needed.' },
+    { id: 3, label: 'Value & cover',   title: 'Car value & cover type',         sub: 'Set the insured value and choose comprehensive or third-party cover.' },
+    { id: 4, label: 'Your details',    title: 'Your personal information',      sub: 'Required for KYC verification under NAICOM regulations.' },
+    { id: 5, label: 'Documents',       title: 'Documents & review',             sub: 'Upload required documents and confirm your details.' },
   ],
   medical: [
     { id: 1, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },

@@ -16,6 +16,10 @@ export interface MotorData {
   usageCategory: 'personal' | 'business' | 'commercial' | null
   geographicalState: string
   accessories: string
+  fuelType: string
+  vehicleVariant: string
+  carValue: number | null
+  previousPolicyExpiry: string
   // Step 2 — Driver & Risk
   driverAge: number | null
   drivingExperience: string
@@ -223,6 +227,7 @@ const defaultMotor: MotorData = {
   vehicleMakeModel: '', yearOfManufacture: null, vehicleType: '', engineCapacity: '',
   vehicleColour: '', registrationNumber: '', chassisVIN: '', marketValueRange: '',
   useType: null, coverType: null, usageCategory: null, geographicalState: '', accessories: '',
+  fuelType: '', vehicleVariant: '', carValue: null, previousPolicyExpiry: '',
   driverAge: null, drivingExperience: '', claimsHistory: false, claimsDetail: '',
   securityFeatures: [], licenseNumber: '', licenseExpiry: '',
   fullName: '', dateOfBirth: '', nin: '', bvn: '', phone: '', email: '',

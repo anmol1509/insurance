@@ -71,7 +71,7 @@ export default function HeroSection() {
                 style={{ fontSize: 'clamp(34px, 4.5vw, 52px)', color: 'white' }}>
                 Buy insurance with{' '}
                 <em className="not-italic font-serif italic" style={{ borderBottom: '2px solid rgba(255,255,255,0.45)', paddingBottom: '2px' }}>confidence.</em>
-                <br />Claim without the headache.
+                <br />Claim stress free.
               </h1>
             </motion.div>
 
@@ -271,7 +271,6 @@ export default function HeroSection() {
               <div className="h-5 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
               <div>
                 <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.9)' }}>Backed by <strong>Standard Insurance Consultants Ltd</strong></p>
-                <p className="font-sans text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>Trusted since 1980</p>
               </div>
             </motion.div>
           </div>
