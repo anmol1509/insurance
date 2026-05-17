@@ -148,7 +148,7 @@ export default function HeroSection() {
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--motor-600)' }}
                       >
-                        Get Quotes →
+                        Compare Plans →
                       </button>
                     </div>
                   )}
@@ -173,7 +173,7 @@ export default function HeroSection() {
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--medical-600)' }}
                       >
-                        Get Quotes →
+                        Compare Plans →
                       </button>
                     </div>
                   )}
@@ -198,7 +198,7 @@ export default function HeroSection() {
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--travel-600)' }}
                       >
-                        Get Quotes →
+                        Compare Plans →
                       </button>
                     </div>
                   )}
@@ -223,7 +223,7 @@ export default function HeroSection() {
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--business-600)' }}
                       >
-                        Get Quotes →
+                        Compare Plans →
                       </button>
                     </div>
                   )}
