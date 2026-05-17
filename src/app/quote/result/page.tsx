@@ -81,11 +81,41 @@ const MOTOR_PLANS: Plan[] = [
     coverType: 'tpo',
     rating: 4.5,
     reviews: 987,
-    multiplier: 0.22,
+    badge: 'Lowest price',
+    multiplier: 0.21,
     features: ['Third party bodily injury', 'Property damage liability', 'NIID registered', 'Online certificate', 'NAICOM licensed'],
     exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle'],
     claimSettlement: '94%',
     responseTime: '48 hours',
+    popular: true,
+  },
+  {
+    id: 'leadway-tpo',
+    name: 'Leadway Third Party',
+    insurer: 'Leadway Assurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-14_nfoe7t.jpg',
+    coverType: 'tpo',
+    rating: 4.6,
+    reviews: 1230,
+    multiplier: 0.24,
+    features: ['Third party bodily injury', 'Property damage liability', 'NIID auto-registered', 'Digital certificate', 'NAICOM licensed', '24/7 claims hotline'],
+    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
+    claimSettlement: '95%',
+    responseTime: '48 hours',
+  },
+  {
+    id: 'nsia-tpo',
+    name: 'NSIA Third Party Plus',
+    insurer: 'NSIA Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-13_ew0ijl.jpg',
+    coverType: 'tpo',
+    rating: 4.4,
+    reviews: 890,
+    multiplier: 0.29,
+    features: ['Third party bodily injury', 'Property damage liability', 'NIID registered', 'Passenger liability', 'NAICOM licensed', 'Priority claims desk'],
+    exclusions: ['Own vehicle damage', 'Theft', 'Fire to own car', 'Flood damage'],
+    claimSettlement: '93%',
+    responseTime: '72 hours',
   },
 ]
 
@@ -742,9 +772,22 @@ export default function QuoteResultPage() {
   const [showCompare, setShowCompare] = useState(false)
 
   const product = (activeProduct ?? 'motor') as string
-  const basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
   const state = product === 'motor' ? (motorData.geographicalState || 'Nigeria') : 'Nigeria'
+
+  let basePrice: number
+  if (product === 'motor') {
+    const carValue = motorData.carValue ?? 0
+    if (motorData.coverType === 'comprehensive' && carValue > 0) {
+      basePrice = Math.round(carValue * 0.05)
+    } else if (motorData.coverType === 'tpo') {
+      basePrice = 75000
+    } else {
+      basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
+    }
+  } else {
+    basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
+  }
 
   function toggleCoverFilter(val: string) {
     setCoverFilters(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
