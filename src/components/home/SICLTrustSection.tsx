@@ -37,6 +37,10 @@ export default function SICLTrustSection() {
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.5 }}
           >
+            <p className="font-sans font-semibold text-[13px] mb-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
+              Backed by
+            </p>
+
             {/* SICL logo — on a white pill for contrast */}
             <div className="mb-5 inline-flex">
               <div className="px-4 py-2.5 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}>
