@@ -5,7 +5,7 @@ const SICL_LOGO = 'https://res.cloudinary.com/degunlqed/image/upload/v1778748730
 
 const stats = [
   {
-    value: '45+',
+    value: '46+',
     label: 'Years of Experience',
     sub: 'In operation since 1980',
   },
@@ -58,7 +58,7 @@ export default function SICLTrustSection() {
             </h2>
 
             <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
-              Standard Insurance Consultants Limited (SICL) is one of Africa&apos;s leading insurance brokerage firms, with a 45-year track record of protecting individuals, families, and businesses across Nigeria and beyond.
+              Standard Insurance Consultants Limited (SICL) is one of Africa&apos;s leading insurance brokerage firms, with a 46-year track record of protecting individuals, families, and businesses across Nigeria and beyond.
             </p>
 
             {/* Certifications row */}
