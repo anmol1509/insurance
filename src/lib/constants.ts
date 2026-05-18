@@ -75,8 +75,9 @@ export const PRODUCT_STEPS = {
     { id: 1, label: 'Your car',        title: 'Find your car',                  sub: 'Enter your registration plate to auto-fill your vehicle details.' },
     { id: 2, label: 'Car details',     title: 'Confirm your car details',       sub: 'We pre-filled these from the registry — check and edit if needed.' },
     { id: 3, label: 'Value & cover',   title: 'Car value & cover type',         sub: 'Set the insured value and choose comprehensive or third-party cover.' },
-    { id: 4, label: 'Your details',    title: 'Your personal information',      sub: 'Required for KYC verification under NAICOM regulations.' },
-    { id: 5, label: 'Documents',       title: 'Documents & review',             sub: 'Upload required documents and confirm your details.' },
+    { id: 4, label: 'Choose plan',     title: 'Compare & choose a plan',        sub: 'Pick the licensed insurer and cover that best suits your needs.' },
+    { id: 5, label: 'Your details',    title: 'Your personal information',      sub: 'Required for KYC verification under NAICOM regulations.' },
+    { id: 6, label: 'Documents',       title: 'Documents & review',             sub: 'Upload required documents and confirm your details.' },
   ],
   medical: [
     { id: 1, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },

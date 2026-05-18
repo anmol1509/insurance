@@ -7,7 +7,7 @@ const stats = [
   {
     value: '45+',
     label: 'Years of Experience',
-    sub: 'In operation since 1979',
+    sub: 'In operation since 1980',
   },
   {
     value: '$2M',

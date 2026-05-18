@@ -122,7 +122,7 @@ export default function MotorReview() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-display font-bold text-sm" style={{ color: 'var(--text-secondary)' }}>Policyholder</h3>
-          <button type="button" onClick={() => setStep('motor', 4)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
+          <button type="button" onClick={() => setStep('motor', 5)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
         </div>
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
           <Row label="Full Name" value={motorData.fullName} />
