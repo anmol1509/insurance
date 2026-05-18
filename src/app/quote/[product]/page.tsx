@@ -8,6 +8,7 @@ import { PRODUCT_STEPS } from '@/lib/constants'
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
 import MotorStep3 from '@/components/quote/steps/motor/MotorStep3'
+import MotorPlanSelect from '@/components/quote/steps/motor/MotorPlanSelect'
 import MotorStep4 from '@/components/quote/steps/motor/MotorStep4'
 import MotorReview from '@/components/quote/steps/motor/MotorReview'
 
@@ -31,7 +32,7 @@ const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
 const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
-  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorStep4,    MotorReview],
+  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorPlanSelect, MotorStep4,    MotorReview],
   medical:  [MedicalStep1,  MedicalStep2,  MedicalStep3,  MedicalReview],
   travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
   business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
