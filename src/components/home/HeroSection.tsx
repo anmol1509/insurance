@@ -240,7 +240,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Trust pills */}
-            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-wrap gap-5 mb-5">
+            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="grid grid-cols-2 gap-x-8 gap-y-2.5 mb-5">
               {['Instant NIID certificate', 'Claims in 24 hours', 'NAICOM regulated', 'Vetted Underwriters'].map((pill) => (
                 <div key={pill} className="flex items-center gap-1.5">
                   <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
