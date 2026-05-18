@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
@@ -242,47 +242,6 @@ const PRODUCT_COLORS: Record<string, { main: string; light: string; text: string
   business: { main: 'var(--business-600)', light: 'var(--business-50)', text: 'var(--business-700)' },
 }
 
-function SidebarRadio({ label, checked, onChange, color }: { label: string; checked: boolean; onChange: () => void; color: string }) {
-  return (
-    <label className="flex items-center gap-2.5 cursor-pointer py-1.5 group">
-      <span
-        className="w-4 h-4 rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors"
-        style={{ borderColor: checked ? color : 'var(--border-medium)', backgroundColor: checked ? color : 'transparent' }}
-        onClick={onChange}
-      >
-        {checked && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-      </span>
-      <span
-        className="font-sans text-[13px] transition-colors"
-        style={{ color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: checked ? 600 : 400 }}
-        onClick={onChange}
-      >
-        {label}
-      </span>
-    </label>
-  )
-}
-
-function SidebarCheckbox({ label, checked, onChange, color }: { label: string; checked: boolean; onChange: () => void; color: string }) {
-  return (
-    <label className="flex items-center gap-2.5 cursor-pointer py-1.5">
-      <span
-        className="w-4 h-4 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-all"
-        style={{ borderColor: checked ? color : 'var(--border-medium)', backgroundColor: checked ? color : 'transparent' }}
-        onClick={onChange}
-      >
-        {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
-      </span>
-      <span
-        className="font-sans text-[13px]"
-        style={{ color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: checked ? 500 : 400 }}
-        onClick={onChange}
-      >
-        {label}
-      </span>
-    </label>
-  )
-}
 
 function PlanCard({
   plan, basePrice, color, index, compareSelected, onToggleCompare, canCompare, onSelect,
@@ -683,6 +642,13 @@ export default function QuoteResultPage() {
 
   const product = (activeProduct ?? 'motor') as string
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
+
+  useEffect(() => {
+    if (product === 'motor' && motorData.coverType) {
+      setCoverFilters([motorData.coverType])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const state = product === 'motor' ? (motorData.geographicalState || 'Nigeria') : 'Nigeria'
 
   let basePrice: number
@@ -766,41 +732,63 @@ export default function QuoteResultPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-5 lg:px-10 py-7 flex gap-7 items-start">
-        <aside className="w-60 shrink-0 hidden lg:block">
-          <div className="bg-white rounded-2xl border border-[var(--border-default)] p-5 sticky top-6">
-            <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Sort By</p>
-              {([['popular', 'Most Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
-                <SidebarRadio key={key} label={label} checked={sortBy === key} onChange={() => setSortBy(key)} color={color.main} />
-              ))}
-            </div>
-            <div className="border-t border-[var(--border-subtle)] mb-5" />
-            <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Cover Type</p>
-              {COVER_TYPE_OPTIONS.map(key => (
-                <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key] ?? key} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
-              ))}
-            </div>
-            <div className="border-t border-[var(--border-subtle)] mb-5" />
-            <div>
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Features</p>
-              {FEATURE_FILTER_OPTIONS.map(f => (
-                <SidebarCheckbox key={f} label={f} checked={featureFilters.includes(f)} onChange={() => toggleFeatureFilter(f)} color={color.main} />
-              ))}
-            </div>
-            {(coverFilters.length > 0 || featureFilters.length > 0) && (
-              <button type="button" onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
-                className="mt-4 w-full h-8 rounded-lg border font-sans text-[12px] font-medium transition-colors hover:bg-[var(--surface-raised)]"
-                style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-        </aside>
+      <div className="max-w-6xl mx-auto px-5 lg:px-10 py-7">
+        {/* Horizontal filter bar */}
+        <div className="bg-white rounded-2xl border border-[var(--border-default)] px-4 py-3 mb-5 flex items-center gap-2 flex-wrap">
+          {/* Sort pills */}
+          <span className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] shrink-0" style={{ color: 'var(--text-muted)' }}>Sort</span>
+          {([['popular', 'Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setSortBy(key)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={sortBy === key
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {label}
+            </button>
+          ))}
 
-        <div className="flex-1 min-w-0">
+          <div className="h-5 w-px shrink-0 hidden sm:block" style={{ backgroundColor: 'var(--border-subtle)' }} />
+
+          {/* Cover type pills */}
+          <span className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] shrink-0" style={{ color: 'var(--text-muted)' }}>Cover</span>
+          {COVER_TYPE_OPTIONS.map(key => (
+            <button key={key} type="button" onClick={() => toggleCoverFilter(key)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={coverFilters.includes(key)
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {COVER_TYPE_LABELS[key] ?? key}
+            </button>
+          ))}
+
+          <div className="h-5 w-px shrink-0 hidden sm:block" style={{ backgroundColor: 'var(--border-subtle)' }} />
+
+          {/* Feature pills */}
+          {FEATURE_FILTER_OPTIONS.map(f => (
+            <button key={f} type="button" onClick={() => toggleFeatureFilter(f)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={featureFilters.includes(f)
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {f}
+            </button>
+          ))}
+
+          {/* Clear */}
+          {(coverFilters.length > 0 || featureFilters.length > 0) && (
+            <button type="button" onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
+              className="ml-auto h-7 px-3 rounded-full font-sans text-[12px] font-medium border transition-colors hover:bg-[var(--surface-raised)] shrink-0"
+              style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className="font-sans font-semibold text-[12px] px-3 py-1 rounded-full border"
               style={{ backgroundColor: color.light, borderColor: color.main, color: color.text }}>
