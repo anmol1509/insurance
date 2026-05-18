@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
@@ -7,6 +7,8 @@ import { Shield, Star, ArrowLeft, Check, GitCompare, X, FileText, Mail, ChevronD
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Logo from '@/components/ui/Logo'
+import { MOTOR_PLANS } from '@/lib/motorPlans'
+import type { MotorPlan } from '@/lib/motorPlans'
 
 type SortKey = 'popular' | 'price' | 'rating'
 
@@ -26,68 +28,6 @@ interface Plan {
   responseTime: string
   popular?: boolean
 }
-
-const MOTOR_PLANS: Plan[] = [
-  {
-    id: 'aiico-motor',
-    name: 'AIICO Comprehensive',
-    insurer: 'AIICO Insurance',
-    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-14_nfoe7t.jpg',
-    coverType: 'comprehensive',
-    rating: 4.8,
-    reviews: 2341,
-    badge: 'Most popular',
-    multiplier: 1.0,
-    features: ['NIID auto-registered', '24/7 roadside assist', 'Towing included', 'Windscreen cover', 'Flood & fire protection', 'Courtesy car'],
-    exclusions: ['Racing & speed testing', 'Wear & tear', 'Mechanical breakdown', 'Unlicensed driver'],
-    claimSettlement: '98%',
-    responseTime: '24 hours',
-    popular: true,
-  },
-  {
-    id: 'fgi-motor',
-    name: 'FGI Comprehensive',
-    insurer: 'FGI Insurance',
-    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-12_ovaz7m.jpg',
-    coverType: 'comprehensive',
-    rating: 4.7,
-    reviews: 1892,
-    badge: 'Best value',
-    multiplier: 0.91,
-    features: ['NIID auto-registered', 'Towing included', 'Cashless claims', 'Windscreen cover', 'Flood & fire', 'Online policy management'],
-    exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
-    claimSettlement: '96%',
-    responseTime: '48 hours',
-  },
-  {
-    id: 'nsia-motor',
-    name: 'NSIA Comprehensive',
-    insurer: 'NSIA Insurance',
-    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-13_ew0ijl.jpg',
-    coverType: 'comprehensive',
-    rating: 4.6,
-    reviews: 1534,
-    multiplier: 1.08,
-    features: ['New-for-old replacement', 'International coverage', 'Priority claims desk', 'NIID registered', '24/7 support', 'Windscreen cover'],
-    exclusions: ['Racing', 'Wear & tear', 'Mechanical failure', 'Unlicensed driver'],
-    claimSettlement: '97%',
-    responseTime: '24 hours',
-  },
-  {
-    id: 'sunu-motor',
-    name: 'SUNU Third Party Only',
-    insurer: 'SUNU Insurance',
-    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-53-36_h3rmxo.jpg',
-    coverType: 'tpo',
-    rating: 4.5,
-    reviews: 987,
-    multiplier: 0.22,
-    features: ['Third party bodily injury', 'Property damage liability', 'NIID registered', 'Online certificate', 'NAICOM licensed'],
-    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle'],
-    claimSettlement: '94%',
-    responseTime: '48 hours',
-  },
-]
 
 const MEDICAL_PLANS: Plan[] = [
   {
@@ -215,7 +155,7 @@ const BUSINESS_PLANS: Plan[] = [
     reviews: 1430,
     badge: 'Most popular',
     multiplier: 1.0,
-    features: ['Fire & allied perils', 'Burglary & theft', 'Public liability cover', "Employer's liability", 'Business interruption', 'Electronic equipment cover'],
+    features: ['Fire & allied perils', 'Burglary & theft', 'Public liability cover', 'Employer\'s liability', 'Business interruption', 'Electronic equipment cover'],
     exclusions: ['Gradual deterioration', 'War & terrorism', 'Nuclear risk', 'Intentional damage by owner'],
     claimSettlement: '96%',
     responseTime: '48 hours',
@@ -257,7 +197,7 @@ const BUSINESS_PLANS: Plan[] = [
     reviews: 640,
     multiplier: 0.65,
     features: ['Fire & allied perils', 'Burglary cover', 'Public liability (basic)', 'NAICOM licensed', 'Online policy management'],
-    exclusions: ['Business interruption', 'Electronic equipment', 'Goods in transit', "Employer's liability"],
+    exclusions: ['Business interruption', 'Electronic equipment', 'Goods in transit', 'Employer\'s liability'],
     claimSettlement: '92%',
     responseTime: '72 hours',
   },
@@ -302,47 +242,6 @@ const PRODUCT_COLORS: Record<string, { main: string; light: string; text: string
   business: { main: 'var(--business-600)', light: 'var(--business-50)', text: 'var(--business-700)' },
 }
 
-function SidebarRadio({ label, checked, onChange, color }: { label: string; checked: boolean; onChange: () => void; color: string }) {
-  return (
-    <label className="flex items-center gap-2.5 cursor-pointer py-1.5 group">
-      <span
-        className="w-4 h-4 rounded-full border-[2px] flex items-center justify-center shrink-0 transition-colors"
-        style={{ borderColor: checked ? color : 'var(--border-medium)', backgroundColor: checked ? color : 'transparent' }}
-        onClick={onChange}
-      >
-        {checked && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
-      </span>
-      <span
-        className="font-sans text-[13px] transition-colors"
-        style={{ color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: checked ? 600 : 400 }}
-        onClick={onChange}
-      >
-        {label}
-      </span>
-    </label>
-  )
-}
-
-function SidebarCheckbox({ label, checked, onChange, color }: { label: string; checked: boolean; onChange: () => void; color: string }) {
-  return (
-    <label className="flex items-center gap-2.5 cursor-pointer py-1.5">
-      <span
-        className="w-4 h-4 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-all"
-        style={{ borderColor: checked ? color : 'var(--border-medium)', backgroundColor: checked ? color : 'transparent' }}
-        onClick={onChange}
-      >
-        {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
-      </span>
-      <span
-        className="font-sans text-[13px]"
-        style={{ color: checked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: checked ? 500 : 400 }}
-        onClick={onChange}
-      >
-        {label}
-      </span>
-    </label>
-  )
-}
 
 function PlanCard({
   plan, basePrice, color, index, compareSelected, onToggleCompare, canCompare, onSelect,
@@ -380,7 +279,7 @@ function PlanCard({
               className="font-sans font-semibold text-[11px] px-2.5 py-1 rounded-full border"
               style={{ color: color.main, borderColor: color.main, backgroundColor: color.light }}
             >
-              {COVER_TYPE_LABELS[plan.coverType] ?? plan.coverType}
+              {COVER_TYPE_LABELS[plan.coverType]}
             </span>
             {plan.badge && (
               <span className="font-sans font-semibold text-[11px] px-2.5 py-1 rounded-full bg-[var(--green-50)] text-[var(--green-700)] border border-[var(--green-100)]">
@@ -420,7 +319,7 @@ function PlanCard({
           {[
             { label: 'CLAIM SETTLEMENT', value: plan.claimSettlement },
             { label: 'RESPONSE TIME', value: plan.responseTime },
-            { label: 'COVER', value: (COVER_TYPE_LABELS[plan.coverType] ?? plan.coverType).split(' ')[0] },
+            { label: 'COVER', value: COVER_TYPE_LABELS[plan.coverType].split(' ')[0] },
             { label: 'NAICOM', value: 'Licensed' },
           ].map(({ label, value }) => (
             <div key={label}>
@@ -546,7 +445,7 @@ function SaveEmailModal({ onClose, lowestPrice }: { onClose: () => void; lowestP
           <>
             <h3 className="font-display font-bold text-lg mb-1" style={{ color: 'var(--text-primary)' }}>Save your quote</h3>
             <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
-              We’ll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
+              We'll email results from {formatNaira(lowestPrice)}/yr so you can compare later.
             </p>
             <input
               type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -580,7 +479,7 @@ function CompareModal({ plans, basePrice, color, onClose, onSelect }: {
     { label: 'Claim Settlement', getValue: p => p.claimSettlement },
     { label: 'Response Time', getValue: p => p.responseTime },
     { label: 'Rating', getValue: p => `${p.rating} ★  (${p.reviews.toLocaleString()} reviews)` },
-    { label: 'Cover Type', getValue: p => COVER_TYPE_LABELS[p.coverType] ?? p.coverType },
+    { label: 'Cover Type', getValue: p => COVER_TYPE_LABELS[p.coverType] },
     { label: 'NAICOM Licensed', getValue: () => 'Yes' },
   ]
 
@@ -742,9 +641,29 @@ export default function QuoteResultPage() {
   const [showCompare, setShowCompare] = useState(false)
 
   const product = (activeProduct ?? 'motor') as string
-  const basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
+
+  useEffect(() => {
+    if (product === 'motor' && motorData.coverType) {
+      setCoverFilters([motorData.coverType])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const state = product === 'motor' ? (motorData.geographicalState || 'Nigeria') : 'Nigeria'
+
+  let basePrice: number
+  if (product === 'motor') {
+    const carValue = motorData.carValue ?? 0
+    if (motorData.coverType === 'comprehensive' && carValue > 0) {
+      basePrice = Math.round(carValue * 0.05)
+    } else if (motorData.coverType === 'tpo') {
+      basePrice = 15000
+    } else {
+      basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
+    }
+  } else {
+    basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
+  }
 
   function toggleCoverFilter(val: string) {
     setCoverFilters(prev => prev.includes(val) ? prev.filter(x => x !== val) : [...prev, val])
@@ -813,41 +732,63 @@ export default function QuoteResultPage() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-5 lg:px-10 py-7 flex gap-7 items-start">
-        <aside className="w-60 shrink-0 hidden lg:block">
-          <div className="bg-white rounded-2xl border border-[var(--border-default)] p-5 sticky top-6">
-            <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Sort By</p>
-              {([['popular', 'Most Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
-                <SidebarRadio key={key} label={label} checked={sortBy === key} onChange={() => setSortBy(key)} color={color.main} />
-              ))}
-            </div>
-            <div className="border-t border-[var(--border-subtle)] mb-5" />
-            <div className="mb-5">
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Cover Type</p>
-              {COVER_TYPE_OPTIONS.map(key => (
-                <SidebarCheckbox key={key} label={COVER_TYPE_LABELS[key] ?? key} checked={coverFilters.includes(key)} onChange={() => toggleCoverFilter(key)} color={color.main} />
-              ))}
-            </div>
-            <div className="border-t border-[var(--border-subtle)] mb-5" />
-            <div>
-              <p className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] mb-2" style={{ color: 'var(--text-muted)' }}>Features</p>
-              {FEATURE_FILTER_OPTIONS.map(f => (
-                <SidebarCheckbox key={f} label={f} checked={featureFilters.includes(f)} onChange={() => toggleFeatureFilter(f)} color={color.main} />
-              ))}
-            </div>
-            {(coverFilters.length > 0 || featureFilters.length > 0) && (
-              <button type="button" onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
-                className="mt-4 w-full h-8 rounded-lg border font-sans text-[12px] font-medium transition-colors hover:bg-[var(--surface-raised)]"
-                style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-        </aside>
+      <div className="max-w-6xl mx-auto px-5 lg:px-10 py-7">
+        {/* Horizontal filter bar */}
+        <div className="bg-white rounded-2xl border border-[var(--border-default)] px-4 py-3 mb-5 flex items-center gap-2 flex-wrap">
+          {/* Sort pills */}
+          <span className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] shrink-0" style={{ color: 'var(--text-muted)' }}>Sort</span>
+          {([['popular', 'Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setSortBy(key)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={sortBy === key
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {label}
+            </button>
+          ))}
 
-        <div className="flex-1 min-w-0">
+          <div className="h-5 w-px shrink-0 hidden sm:block" style={{ backgroundColor: 'var(--border-subtle)' }} />
+
+          {/* Cover type pills */}
+          <span className="font-sans font-bold text-[10px] uppercase tracking-[0.1em] shrink-0" style={{ color: 'var(--text-muted)' }}>Cover</span>
+          {COVER_TYPE_OPTIONS.map(key => (
+            <button key={key} type="button" onClick={() => toggleCoverFilter(key)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={coverFilters.includes(key)
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {COVER_TYPE_LABELS[key] ?? key}
+            </button>
+          ))}
+
+          <div className="h-5 w-px shrink-0 hidden sm:block" style={{ backgroundColor: 'var(--border-subtle)' }} />
+
+          {/* Feature pills */}
+          {FEATURE_FILTER_OPTIONS.map(f => (
+            <button key={f} type="button" onClick={() => toggleFeatureFilter(f)}
+              className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+              style={featureFilters.includes(f)
+                ? { backgroundColor: color.main, borderColor: color.main, color: 'white' }
+                : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              {f}
+            </button>
+          ))}
+
+          {/* Clear */}
+          {(coverFilters.length > 0 || featureFilters.length > 0) && (
+            <button type="button" onClick={() => { setCoverFilters([]); setFeatureFilters([]) }}
+              className="ml-auto h-7 px-3 rounded-full font-sans text-[12px] font-medium border transition-colors hover:bg-[var(--surface-raised)] shrink-0"
+              style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div>
           <div className="flex items-center gap-3 mb-4 flex-wrap">
             <span className="font-sans font-semibold text-[12px] px-3 py-1 rounded-full border"
               style={{ backgroundColor: color.light, borderColor: color.main, color: color.text }}>
