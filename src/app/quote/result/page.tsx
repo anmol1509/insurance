@@ -691,7 +691,7 @@ export default function QuoteResultPage() {
     if (motorData.coverType === 'comprehensive' && carValue > 0) {
       basePrice = Math.round(carValue * 0.05)
     } else if (motorData.coverType === 'tpo') {
-      basePrice = 75000
+      basePrice = 15000
     } else {
       basePrice = (calculatedPremium && calculatedPremium > 0) ? calculatedPremium : 50000
     }

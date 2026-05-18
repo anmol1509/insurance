@@ -16,7 +16,7 @@ export default function MotorPlanSelect() {
   const filtered = MOTOR_PLANS.filter((p) => p.coverType === coverType)
   const basePrice = coverType === 'comprehensive' && carValue > 0
     ? Math.round(carValue * 0.05)
-    : 75000
+    : 15000
 
   function handleSelect(planId: string, multiplier: number) {
     updateMotor({ selectedUnderwriter: planId })
@@ -77,9 +77,9 @@ export default function MotorPlanSelect() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-3 min-w-0">
                 {plan.logo && (
-                  <div className="w-11 h-11 rounded-xl overflow-hidden border shrink-0" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <div className="w-11 h-11 rounded-xl overflow-hidden border bg-white p-1 shrink-0" style={{ borderColor: 'var(--border-subtle)' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-cover" />
+                    <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-contain" />
                   </div>
                 )}
                 <div className="min-w-0">
