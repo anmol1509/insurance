@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
@@ -643,12 +643,16 @@ export default function QuoteResultPage() {
   const product = (activeProduct ?? 'motor') as string
   const color = PRODUCT_COLORS[product] ?? PRODUCT_COLORS.motor
 
+  // Pre-filter motor plans to the user's selected cover type.
+  // Uses a ref guard so this only initialises once — subsequent manual
+  // filter changes by the user are not overridden.
+  const initFilterApplied = useRef(false)
   useEffect(() => {
-    if (product === 'motor' && motorData.coverType) {
+    if (!initFilterApplied.current && product === 'motor' && motorData.coverType) {
+      initFilterApplied.current = true
       setCoverFilters([motorData.coverType])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [product, motorData.coverType])
   const state = product === 'motor' ? (motorData.geographicalState || 'Nigeria') : 'Nigeria'
 
   let basePrice: number
