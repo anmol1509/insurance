@@ -1,5 +1,6 @@
 'use client'
 import { useQuoteStore } from '@/store/quoteStore'
+import type { MotorData } from '@/store/quoteStore'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import RadioCard from '@/components/ui/RadioCard'
@@ -8,6 +9,21 @@ import { AnimatePresence, motion } from 'framer-motion'
 import {
   NIGERIAN_STATES, GENDERS, MARITAL_STATUSES, OCCUPATIONS, ID_TYPES,
 } from '@/lib/constants'
+import { MOTOR_PLANS } from '@/lib/motorPlans'
+
+function formatNGN(n: number) {
+  return '₦' + n.toLocaleString('en-NG')
+}
+
+function ReviewRow({ label, value }: { label: string; value?: string | number | null }) {
+  if (!value && value !== 0) return null
+  return (
+    <div className="flex justify-between py-2 border-b border-[var(--border-subtle)] last:border-0">
+      <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{label}</span>
+      <span className="font-sans text-[13px] font-medium text-right max-w-[55%]" style={{ color: 'var(--text-primary)' }}>{value}</span>
+    </div>
+  )
+}
 
 const stateOptions = NIGERIAN_STATES.map((s) => ({ value: s, label: s }))
 const occupationOptions = OCCUPATIONS.map((o) => ({ value: o, label: o }))
@@ -15,7 +31,7 @@ const idTypeOptions = ID_TYPES.map((t) => ({ value: t, label: t }))
 const maritalOptions = MARITAL_STATUSES.map((m) => ({ value: m, label: m }))
 
 export default function MotorStep4() {
-  const { motorData, updateMotor } = useQuoteStore()
+  const { motorData, updateMotor, calculatedPremium } = useQuoteStore()
 
   return (
     <div className="space-y-7">
@@ -219,6 +235,71 @@ export default function MotorStep4() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Quote summary */}
+      <QuoteSummary motorData={motorData} calculatedPremium={calculatedPremium} />
+
+      {/* Confirmation */}
+      <label className="flex items-start gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          className="mt-0.5 w-4 h-4 rounded"
+          checked={motorData.reviewConfirmed}
+          onChange={(e) => updateMotor({ reviewConfirmed: e.target.checked })}
+        />
+        <span className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+          I confirm that all details above are accurate and consent to NAICOM regulatory disclosures.
+          I understand my quote will be compared across multiple licensed underwriters.
+        </span>
+      </label>
     </div>
+  )
+}
+
+function QuoteSummary({ motorData, calculatedPremium }: {
+  motorData: MotorData
+  calculatedPremium: number | null
+}) {
+  const selectedPlan = motorData.selectedUnderwriter
+    ? MOTOR_PLANS.find((p) => p.id === motorData.selectedUnderwriter)
+    : null
+
+  const carValue = motorData.carValue ?? 0
+  const isComp = motorData.coverType === 'comprehensive'
+  const tpoBase = 15000
+
+  let finalPremium: number | null = calculatedPremium
+  if (!finalPremium && selectedPlan) {
+    const base = isComp && carValue > 0 ? Math.round(carValue * 0.05) : tpoBase
+    finalPremium = Math.round(base * selectedPlan.multiplier)
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+      className="rounded-2xl border-2 p-5 space-y-4"
+      style={{ borderColor: 'var(--motor-200)', backgroundColor: 'var(--motor-50)' }}
+    >
+      <div className="flex items-center justify-between">
+        <h3 className="font-display font-bold text-base" style={{ color: 'var(--motor-700)' }}>Quote Summary</h3>
+        {finalPremium && (
+          <div className="text-right">
+            <span className="font-display font-extrabold text-[22px] leading-none" style={{ color: 'var(--motor-600)' }}>
+              {formatNGN(finalPremium)}
+            </span>
+            <span className="font-sans font-normal text-[12px] ml-1" style={{ color: 'var(--text-muted)' }}>/yr</span>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border border-[var(--motor-100)] bg-white px-4 py-1">
+        <ReviewRow label="Make & Model" value={motorData.vehicleMakeModel} />
+        <ReviewRow label="Year" value={motorData.yearOfManufacture} />
+        <ReviewRow label="Cover Type" value={isComp ? 'Comprehensive' : 'Third Party Only'} />
+        {isComp && carValue > 0 && <ReviewRow label="Car Value (IDV)" value={formatNGN(carValue)} />}
+        {selectedPlan && <ReviewRow label="Insurer" value={selectedPlan.insurer} />}
+        {selectedPlan && <ReviewRow label="Plan" value={selectedPlan.name} />}
+      </div>
+    </motion.div>
   )
 }

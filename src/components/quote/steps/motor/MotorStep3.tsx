@@ -35,8 +35,7 @@ export default function MotorStep3() {
   const [showTooltip, setShowTooltip] = useState<string | null>(null)
 
   const carValue = motorData.carValue ?? 0
-  const compPremium = carValue > 0 ? Math.round(carValue * 0.05) : null
-  const tpoBase = 75000
+  const tpoBase = 15000
 
   async function handleAIEstimate() {
     setAiLoading(true)
@@ -83,8 +82,6 @@ export default function MotorStep3() {
       bg: 'var(--motor-50)',
       border: 'var(--motor-300)',
       recommended: true,
-      pricePreview: compPremium ? `${formatNGN(compPremium)}/yr` : 'Full protection',
-      priceNote: compPremium ? `Calculated on your car value` : 'Select & enter car value to see price',
       desc: 'Covers damage to your own vehicle AND third-party liability. Full protection.',
       features: ['Own vehicle damage', 'Theft & fire', 'Flood cover', 'Third-party liability', 'Roadside assist'],
     },
@@ -96,8 +93,6 @@ export default function MotorStep3() {
       bg: 'var(--surface-raised)',
       border: 'var(--border-medium)',
       recommended: false,
-      pricePreview: 'Fixed annual rate',
-      priceNote: 'Legal minimum in Nigeria',
       desc: 'Covers injury or damage you cause to others only. Does NOT cover your own vehicle.',
       features: ['Third-party bodily injury', 'Third-party property damage', 'NIID registered', 'NAICOM compliant'],
     },
@@ -223,15 +218,6 @@ export default function MotorStep3() {
                       {plan.label}
                     </p>
                   </div>
-                </div>
-
-                <div className="mb-3 pb-3 border-b" style={{ borderColor: active ? 'var(--motor-200)' : 'var(--border-subtle)' }}>
-                  <p className="font-display font-extrabold text-[22px] leading-none" style={{ color: active ? 'var(--motor-600)' : 'var(--text-primary)' }}>
-                    {plan.pricePreview}
-                  </p>
-                  <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    {plan.priceNote}
-                  </p>
                 </div>
 
                 <p className="font-sans text-[12px] mb-3 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
