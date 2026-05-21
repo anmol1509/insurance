@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CheckCircle2, Car, AlertCircle } from 'lucide-react'
+import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil } from 'lucide-react'
 
 const MOCK_LOOKUP: Record<string, {
   vehicleMakeModel: string; yearOfManufacture: number; vehicleType: string;
@@ -17,7 +17,7 @@ const MOCK_LOOKUP: Record<string, {
 type LookupState = 'idle' | 'loading' | 'found' | 'not_found'
 
 export default function MotorStep1() {
-  const { motorData, updateMotor } = useQuoteStore()
+  const { motorData, updateMotor, setStep } = useQuoteStore()
   const [lookupState, setLookupState] = useState<LookupState>('idle')
   const [inputValue, setInputValue] = useState(motorData.registrationNumber)
 
@@ -158,6 +158,8 @@ export default function MotorStep1() {
                 ['Fuel', motorData.fuelType],
                 ['Colour', motorData.vehicleColour],
                 ['Variant', motorData.vehicleVariant],
+                ['Engine', motorData.engineCapacity],
+                ['Chassis', motorData.chassisVIN ? motorData.chassisVIN.slice(0, 8) + '…' : null],
               ].map(([label, value]) => value ? (
                 <div key={String(label)}>
                   <p className="font-sans text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
@@ -165,9 +167,19 @@ export default function MotorStep1() {
                 </div>
               ) : null)}
             </div>
-            <p className="font-sans text-[11px] mt-3 pt-3 border-t" style={{ color: 'var(--text-muted)', borderColor: 'var(--motor-100)' }}>
-              ✓ Pre-filled from FRSC/NIID registry · You can edit these in the next step
-            </p>
+            <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: 'var(--motor-100)' }}>
+              <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                ✓ Pre-filled from FRSC/NIID registry
+              </p>
+              <button
+                type="button"
+                onClick={() => setStep('motor', 2)}
+                className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border font-sans text-[11px] font-medium transition-colors hover:bg-[var(--motor-50)]"
+                style={{ borderColor: 'var(--motor-300)', color: 'var(--motor-700)' }}
+              >
+                <Pencil className="w-3 h-3" /> Edit details
+              </button>
+            </div>
           </motion.div>
         )}
       </div>

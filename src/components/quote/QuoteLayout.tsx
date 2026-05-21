@@ -20,6 +20,7 @@ interface QuoteLayoutProps {
   isFinalStep: boolean
   nextLabel?: string
   nextDisabled?: boolean
+  planSelect?: boolean
   children: React.ReactNode
 }
 
@@ -48,6 +49,7 @@ export default function QuoteLayout({
   isFinalStep,
   nextLabel,
   nextDisabled,
+  planSelect,
   children,
 }: QuoteLayoutProps) {
   const router = useRouter()
@@ -93,7 +95,7 @@ export default function QuoteLayout({
       <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
       <div className="max-w-[1280px] mx-auto">
 
-        <div className="grid lg:grid-cols-[300px_1fr] gap-8 items-start">
+        <div className={`grid gap-8 items-start ${planSelect ? 'lg:grid-cols-[240px_1fr]' : 'lg:grid-cols-[300px_1fr]'}`}>
           {/* Sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-[4.5rem] bg-white rounded-2xl border border-[var(--border-default)] p-7">
@@ -177,86 +179,155 @@ export default function QuoteLayout({
           </aside>
 
           {/* Main content */}
-          <main>
-            <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
-              {/* Top bar */}
-              <div className="flex items-center gap-4 mb-8">
-                <span
-                  className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
-                  style={{ backgroundColor: config.colorBg, color: config.color }}
-                >
-                  Step {currentStep} of {totalSteps}
-                </span>
-                <div className="flex-1 h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: config.color }}
-                    initial={{ width: '0%' }}
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
+          <main className="min-w-0">
+            {planSelect ? (
+              <>
+                {/* Compact header — no card wrapper */}
+                <div className="flex items-center gap-4 mb-5">
+                  <span
+                    className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
+                    style={{ backgroundColor: config.colorBg, color: config.color }}
+                  >
+                    Step {currentStep} of {totalSteps}
+                  </span>
+                  <div className="flex-1 h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: config.color }}
+                      initial={{ width: '0%' }}
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="mb-5">
+                  <h2 className="font-display font-bold text-3xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                    {stepTitle}
+                  </h2>
+                  <p className="font-sans text-[15px] mt-2" style={{ color: 'var(--text-muted)' }}>{stepSub}</p>
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`step-${currentStep}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {children}
+                  </motion.div>
+                </AnimatePresence>
+                <div className="hidden lg:flex items-center justify-between mt-8 pt-5 border-t border-[var(--border-subtle)]">
+                  <AnimatePresence>
+                    {onBack && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        type="button"
+                        onClick={onBack}
+                        className="h-10 px-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-xl)] font-sans font-medium text-sm hover:bg-[var(--surface-raised)] transition-colors"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        ← Back
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                  <p className="font-sans text-[13px] hidden md:block" style={{ color: 'var(--text-subtle)' }}>
+                    Step {currentStep} of {totalSteps} · {config.label}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onNext}
+                    disabled={nextDisabled}
+                    className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
+                    style={{ backgroundColor: 'var(--green-700)' }}
+                  >
+                    {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
+                {/* Top bar */}
+                <div className="flex items-center gap-4 mb-8">
+                  <span
+                    className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
+                    style={{ backgroundColor: config.colorBg, color: config.color }}
+                  >
+                    Step {currentStep} of {totalSteps}
+                  </span>
+                  <div className="flex-1 h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: config.color }}
+                      initial={{ width: '0%' }}
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </div>
+                </div>
 
-              {/* Step heading */}
-              <div className="mb-8">
-                <h2
-                  className="font-display font-bold text-3xl tracking-tight"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {stepTitle}
-                </h2>
-                <p className="font-sans text-[15px] mt-2" style={{ color: 'var(--text-muted)' }}>
-                  {stepSub}
-                </p>
-              </div>
+                {/* Step heading */}
+                <div className="mb-8">
+                  <h2
+                    className="font-display font-bold text-3xl tracking-tight"
+                    style={{ color: 'var(--text-primary)' }}
+                  >
+                    {stepTitle}
+                  </h2>
+                  <p className="font-sans text-[15px] mt-2" style={{ color: 'var(--text-muted)' }}>
+                    {stepSub}
+                  </p>
+                </div>
 
-              {/* Form content */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`step-${currentStep}`}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Bottom action bar — desktop only; mobile uses sticky footer */}
-              <div className="hidden lg:flex items-center justify-between mt-10 pt-6 border-t border-[var(--border-subtle)]">
-                <AnimatePresence>
-                  {onBack && (
-                    <motion.button
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      type="button"
-                      onClick={onBack}
-                      className="h-10 px-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-xl)] font-sans font-medium text-sm hover:bg-[var(--surface-raised)] transition-colors"
-                      style={{ color: 'var(--text-secondary)' }}
-                    >
-                      ← Back
-                    </motion.button>
-                  )}
+                {/* Form content */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`step-${currentStep}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    {children}
+                  </motion.div>
                 </AnimatePresence>
 
-                <p className="font-sans text-[13px] hidden md:block" style={{ color: 'var(--text-subtle)' }}>
-                  Step {currentStep} of {totalSteps} · {config.label}
-                </p>
+                {/* Bottom action bar — desktop only; mobile uses sticky footer */}
+                <div className="hidden lg:flex items-center justify-between mt-10 pt-6 border-t border-[var(--border-subtle)]">
+                  <AnimatePresence>
+                    {onBack && (
+                      <motion.button
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        type="button"
+                        onClick={onBack}
+                        className="h-10 px-4 border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-xl)] font-sans font-medium text-sm hover:bg-[var(--surface-raised)] transition-colors"
+                        style={{ color: 'var(--text-secondary)' }}
+                      >
+                        ← Back
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
 
-                <button
-                  type="button"
-                  onClick={onNext}
-                  disabled={nextDisabled}
-                  className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
-                  style={{ backgroundColor: 'var(--green-700)' }}
-                >
-                  {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
-                </button>
+                  <p className="font-sans text-[13px] hidden md:block" style={{ color: 'var(--text-subtle)' }}>
+                    Step {currentStep} of {totalSteps} · {config.label}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={onNext}
+                    disabled={nextDisabled}
+                    className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
+                    style={{ backgroundColor: 'var(--green-700)' }}
+                  >
+                    {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </main>
         </div>
 

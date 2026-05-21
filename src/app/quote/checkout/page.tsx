@@ -6,6 +6,7 @@ import { ArrowLeft, Shield, Lock, ChevronDown, ChevronUp, Check, CreditCard, Bui
 import Logo from '@/components/ui/Logo'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
+import { MOTOR_PLANS } from '@/lib/motorPlans'
 
 type PayMethod = 'card' | 'bank' | 'ussd'
 
@@ -138,11 +139,14 @@ function PaymentSuccess({ onClose, planName, total, product }: { onClose: () => 
 }
 
 export default function CheckoutPage() {
-  const { calculatedPremium, activeProduct } = useQuoteStore()
+  const { calculatedPremium, activeProduct, motorData } = useQuoteStore()
   const product = (activeProduct ?? 'motor') as string
   const basePrice = calculatedPremium ?? 50000
 
-  const planName = 'Leadway Assurance'
+  const selectedPlan = motorData.selectedUnderwriter
+    ? MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)
+    : null
+  const planName = selectedPlan?.name ?? 'Insurance Plan'
   const planLogo = '🏦'
   const planPrice = basePrice
   const processingFee = Math.round(planPrice * 0.015)
@@ -214,7 +218,7 @@ export default function CheckoutPage() {
             <Lock className="w-3.5 h-3.5" style={{ color: 'var(--green-700)' }} />
             <span className="font-sans text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>Secure Checkout</span>
           </div>
-          <Link href="/quote/result" className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors" title="Back to results">
+          <Link href={product === 'motor' ? '/quote/motor' : '/quote/result'} className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors" title="Back to plans">
             <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           </Link>
         </div>
@@ -223,7 +227,7 @@ export default function CheckoutPage() {
       <div className="max-w-[1200px] mx-auto px-4 lg:px-8 py-6 lg:py-10">
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
           <div className="flex flex-col gap-5">
-            <Link href="/quote/result" className="flex items-center gap-1.5 font-sans text-sm w-fit hover:underline" style={{ color: 'var(--text-muted)' }}>
+            <Link href={product === 'motor' ? '/quote/motor' : '/quote/result'} className="flex items-center gap-1.5 font-sans text-sm w-fit hover:underline" style={{ color: 'var(--text-muted)' }}>
               <ArrowLeft className="w-4 h-4" /> Back to plans
             </Link>
 
