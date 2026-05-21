@@ -14,15 +14,36 @@ const COVER_LABELS: Record<string, string> = {
   tpo: 'Third Party Only',
 }
 
+const FEATURE_OPTIONS = ['Roadside Assist', 'Towing', 'NIID Registered', 'Windscreen Cover']
+
+type SortKey = 'popular' | 'price' | 'rating'
+
 export default function MotorPlanSelect() {
   const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
   const carValue = motorData.carValue ?? 0
   const coverType = motorData.coverType
 
+  const [sortBy, setSortBy] = useState<SortKey>('popular')
+  const [featureFilters, setFeatureFilters] = useState<string[]>([])
+
+  function toggleFeature(f: string) {
+    setFeatureFilters(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
+  }
+
   const filtered = MOTOR_PLANS.filter((p) => p.coverType === coverType)
   const basePrice = coverType === 'comprehensive' && carValue > 0
     ? Math.round(carValue * 0.05)
     : 15000
+
+  const displayPlans = filtered
+    .filter(p => featureFilters.length === 0 || featureFilters.every(f =>
+      p.features.some(pf => pf.toLowerCase().includes(f.toLowerCase()))
+    ))
+    .sort((a, b) => {
+      if (sortBy === 'price') return a.multiplier - b.multiplier
+      if (sortBy === 'rating') return b.rating - a.rating
+      return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
+    })
 
   function handleSelect(planId: string, multiplier: number) {
     updateMotor({ selectedUnderwriter: planId })
@@ -41,25 +62,43 @@ export default function MotorPlanSelect() {
 
   return (
     <div className="space-y-4">
-      {/* Context banner */}
+      {/* Sort + feature filter bar */}
       <div
-        className="flex items-center gap-3 px-4 py-3 rounded-2xl border mb-2"
+        className="rounded-2xl border px-4 py-3 mb-2 flex items-center gap-2 flex-wrap"
         style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-100)' }}
       >
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--motor-600)' }}>
-          <Check className="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--motor-700)' }}>
-            {COVER_LABELS[coverType]} · {carValue > 0 ? formatNGN(carValue) + ' IDV' : 'Third Party'}
-          </p>
-          <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
-            {filtered.length} NAICOM-licensed plans available — pick one to continue
-          </p>
-        </div>
+        <span className="font-sans font-semibold text-[11px] uppercase tracking-wider shrink-0" style={{ color: 'var(--text-muted)' }}>Sort</span>
+        {([['popular', 'Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
+          <button key={key} type="button" onClick={() => setSortBy(key)}
+            className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+            style={sortBy === key
+              ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+              : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+          >{label}</button>
+        ))}
+        <div className="h-5 w-px shrink-0" style={{ backgroundColor: 'var(--border-subtle)' }} />
+        <span className="font-sans font-semibold text-[11px] uppercase tracking-wider shrink-0" style={{ color: 'var(--text-muted)' }}>Features</span>
+        {FEATURE_OPTIONS.map(f => (
+          <button key={f} type="button" onClick={() => toggleFeature(f)}
+            className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
+            style={featureFilters.includes(f)
+              ? { backgroundColor: 'var(--motor-600)', borderColor: 'var(--motor-600)', color: 'white' }
+              : { backgroundColor: 'transparent', borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+          >{f}</button>
+        ))}
+        {featureFilters.length > 0 && (
+          <button type="button" onClick={() => setFeatureFilters([])}
+            className="ml-auto h-7 px-3 rounded-full font-sans text-[12px] font-medium border"
+            style={{ borderColor: 'var(--border-medium)', color: 'var(--text-muted)' }}
+          >Clear</button>
+        )}
       </div>
 
-      {filtered.map((plan, i) => (
+      <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+        {displayPlans.length} plan{displayPlans.length !== 1 ? 's' : ''} · {COVER_LABELS[coverType]}{carValue > 0 ? ` · ${formatNGN(carValue)} IDV` : ''}
+      </p>
+
+      {displayPlans.map((plan, i) => (
         <PlanCard
           key={plan.id}
           plan={plan}

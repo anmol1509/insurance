@@ -56,12 +56,13 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   }, [typedProduct, setActiveProduct])
 
   const nextDisabled =
-    typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed
+    (typedProduct === 'motor' && currentStep === 4 && !motorData.selectedUnderwriter) ||
+    (typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed)
 
   function goNext() {
     if (currentStep === totalSteps) {
       if (nextDisabled) return
-      router.push('/quote/result')
+      router.push('/quote/checkout')
       return
     }
     setStep(typedProduct, currentStep + 1)
@@ -84,6 +85,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       onNext={goNext}
       isFinalStep={currentStep === totalSteps}
       nextDisabled={nextDisabled}
+      planSelect={typedProduct === 'motor' && currentStep === 4}
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>
