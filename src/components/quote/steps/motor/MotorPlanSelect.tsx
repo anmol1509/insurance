@@ -19,7 +19,7 @@ const FEATURE_OPTIONS = ['Roadside Assist', 'Towing', 'NIID Registered', 'Windsc
 type SortKey = 'popular' | 'price' | 'rating'
 
 export default function MotorPlanSelect() {
-  const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
+  const { motorData, updateMotor, setCalculatedPremium, setStep } = useQuoteStore()
   const carValue = motorData.carValue ?? 0
   const coverType = motorData.coverType
 
@@ -33,7 +33,13 @@ export default function MotorPlanSelect() {
   const filtered = MOTOR_PLANS.filter((p) => p.coverType === coverType)
   const basePrice = coverType === 'comprehensive' && carValue > 0
     ? Math.round(carValue * 0.05)
-    : 15000
+    : 20000
+
+  function getPrice(multiplier: number): number {
+    const raw = Math.round(basePrice * multiplier)
+    // Comprehensive: floor at 5% of car value; TPO: floor at ₦20,000
+    return Math.max(raw, basePrice)
+  }
 
   const displayPlans = filtered
     .filter(p => featureFilters.length === 0 || featureFilters.every(f =>
@@ -47,7 +53,11 @@ export default function MotorPlanSelect() {
 
   function handleSelect(planId: string, multiplier: number) {
     updateMotor({ selectedUnderwriter: planId })
-    setCalculatedPremium(Math.round(basePrice * multiplier), {})
+    setCalculatedPremium(getPrice(multiplier), {})
+    setTimeout(() => {
+      setStep('motor', 5)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, 350)
   }
 
   if (!coverType) {
@@ -102,7 +112,7 @@ export default function MotorPlanSelect() {
         <PlanCard
           key={plan.id}
           plan={plan}
-          price={Math.round(basePrice * plan.multiplier)}
+          price={getPrice(plan.multiplier)}
           selected={motorData.selectedUnderwriter === plan.id}
           index={i}
           onSelect={() => handleSelect(plan.id, plan.multiplier)}
