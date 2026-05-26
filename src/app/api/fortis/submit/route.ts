@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const FORTIS_BASE = 'https://jjmgloballtd.com/coreinsurance/api'
-const CLIENT_ID = 'FGI-MOTOR-CLIENT'
-const CLIENT_SECRET = 'FGI-MOTOR-2026!'
 
 async function getToken(): Promise<string> {
   const res = await fetch(`${FORTIS_BASE}/external-api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({ client_id: CLIENT_ID, client_secret: CLIENT_SECRET }),
+    body: JSON.stringify({
+      client_id: process.env.FORTIS_CLIENT_ID,
+      client_secret: process.env.FORTIS_CLIENT_SECRET,
+    }),
     signal: AbortSignal.timeout(8000),
   })
   if (!res.ok) {

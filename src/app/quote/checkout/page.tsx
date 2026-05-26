@@ -207,13 +207,16 @@ export default function CheckoutPage() {
     return Object.keys(errors).length === 0
   }
 
+  const isFortisGlobal = product === 'motor' &&
+    (MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)?.fortisGlobal === true)
+
   async function handlePay() {
     if (!validate()) return
     setPaying(true)
     try {
       const [, apiResult] = await Promise.all([
         new Promise<void>((r) => setTimeout(r, 2200)),
-        product === 'motor'
+        isFortisGlobal
           ? fetch('/api/fortis/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

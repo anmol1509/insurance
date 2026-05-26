@@ -13,9 +13,40 @@ export interface MotorPlan {
   claimSettlement: string
   responseTime: string
   popular?: boolean
+  fortisGlobal?: boolean
 }
 
 export const MOTOR_PLANS: MotorPlan[] = [
+  {
+    id: 'fortis-comp',
+    name: 'Fortis Global Comprehensive',
+    insurer: 'Fortis Global Insurance',
+    coverType: 'comprehensive',
+    rating: 4.7,
+    reviews: 1203,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    fortisGlobal: true,
+    features: ['NIID auto-registered', 'Towing included', 'Cashless claims', 'Windscreen cover', 'Flood & fire protection', 'Online policy management'],
+    exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
+    claimSettlement: '96%',
+    responseTime: '48 hours',
+  },
+  {
+    id: 'fortis-tpo',
+    name: 'Fortis Global Third Party',
+    insurer: 'Fortis Global Insurance',
+    coverType: 'tpo',
+    rating: 4.5,
+    reviews: 876,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    fortisGlobal: true,
+    features: ['Third party bodily injury', 'Property damage liability', 'NIID auto-registered', 'Digital certificate', 'NAICOM licensed', '24/7 claims hotline'],
+    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
+    claimSettlement: '94%',
+    responseTime: '48 hours',
+  },
   {
     id: 'aiico-motor',
     name: 'AIICO Comprehensive',
