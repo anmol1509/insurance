@@ -1,9 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion } from 'framer-motion'
 import { Star, Check, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
+import type { MotorPlan } from '@/lib/motorPlans'
 
 function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
@@ -25,6 +26,27 @@ export default function MotorPlanSelect() {
 
   const [sortBy, setSortBy] = useState<SortKey>('popular')
   const [featureFilters, setFeatureFilters] = useState<string[]>([])
+  const [fortisCatalogPrices, setFortisCatalogPrices] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    fetch('/api/fortis/catalog')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!data?.success) return
+        const products: any[] = data.catalog?.data?.products ?? data.catalog?.products ?? data.catalog?.data ?? []
+        const prices: Record<string, number> = {}
+        products.forEach((p: any) => {
+          const covers: any[] = p.covers ?? []
+          const raw = covers[0]?.price ?? covers[0]?.premium ?? covers[0]?.amount
+          const num = raw != null ? Number(raw) : NaN
+          if (isNaN(num) || num <= 0) return
+          if (/comprehensive/i.test(p.name ?? '')) prices['fortis-comp'] = num
+          else if (/third.?party|tpo/i.test(p.name ?? '')) prices['fortis-tpo'] = num
+        })
+        setFortisCatalogPrices(prices)
+      })
+      .catch(() => {})
+  }, [])
 
   function toggleFeature(f: string) {
     setFeatureFilters(prev => prev.includes(f) ? prev.filter(x => x !== f) : [...prev, f])
@@ -35,8 +57,11 @@ export default function MotorPlanSelect() {
     ? Math.round(carValue * 0.05)
     : 20000
 
-  function getPrice(multiplier: number): number {
-    const raw = Math.round(basePrice * multiplier)
+  function getPrice(plan: MotorPlan): number {
+    if (plan.fortisGlobal && fortisCatalogPrices[plan.id] != null) {
+      return fortisCatalogPrices[plan.id]
+    }
+    const raw = Math.round(basePrice * plan.multiplier)
     // Comprehensive: floor at 5% of car value; TPO: floor at ₦20,000
     return Math.max(raw, basePrice)
   }
@@ -51,9 +76,9 @@ export default function MotorPlanSelect() {
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
     })
 
-  function handleSelect(planId: string, multiplier: number) {
-    updateMotor({ selectedUnderwriter: planId })
-    setCalculatedPremium(getPrice(multiplier), {})
+  function handleSelect(plan: MotorPlan) {
+    updateMotor({ selectedUnderwriter: plan.id })
+    setCalculatedPremium(getPrice(plan), {})
     setTimeout(() => {
       setStep('motor', 5)
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -112,10 +137,10 @@ export default function MotorPlanSelect() {
         <PlanCard
           key={plan.id}
           plan={plan}
-          price={getPrice(plan.multiplier)}
+          price={getPrice(plan)}
           selected={motorData.selectedUnderwriter === plan.id}
           index={i}
-          onSelect={() => handleSelect(plan.id, plan.multiplier)}
+          onSelect={() => handleSelect(plan)}
         />
       ))}
     </div>

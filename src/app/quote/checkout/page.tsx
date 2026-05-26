@@ -25,8 +25,8 @@ const USSD_CODES: Record<string, string> = {
   'Zenith Bank': '*966#',
 }
 
-function PaymentSuccess({ onClose, planName, total, product }: { onClose: () => void; planName: string; total: number; product: string }) {
-  const policyRef = `SI-2026-${Math.floor(100000 + Math.random() * 900000)}`
+function PaymentSuccess({ onClose, planName, total, product, fortisRef }: { onClose: () => void; planName: string; total: number; product: string; fortisRef: string | null }) {
+  const policyRef = fortisRef ?? `SI-2026-${Math.floor(100000 + Math.random() * 900000)}`
   const today = new Date()
   const expiryDate = new Date(today)
   expiryDate.setFullYear(expiryDate.getFullYear() + 1)
@@ -75,6 +75,11 @@ function PaymentSuccess({ onClose, planName, total, product }: { onClose: () => 
               <div>
                 <p className="font-sans text-[11px] uppercase tracking-[0.06em] mb-0.5" style={{ color: 'var(--text-muted)' }}>Policy reference</p>
                 <p className="font-mono font-bold text-[15px]" style={{ color: 'var(--text-primary)' }}>{policyRef}</p>
+                {fortisRef && (
+                  <p className="font-sans text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    Fortis ref: <span className="font-mono font-medium">{fortisRef}</span>
+                  </p>
+                )}
               </div>
               <span className="font-sans font-semibold text-[11px] px-2.5 py-1 rounded-full" style={{ backgroundColor: 'var(--green-50)', color: 'var(--green-700)' }}>Active</span>
             </div>
@@ -175,6 +180,7 @@ export default function CheckoutPage() {
   const [orderOpen, setOrderOpen] = useState(true)
   const [paying, setPaying] = useState(false)
   const [paid, setPaid] = useState(false)
+  const [fortisRef, setFortisRef] = useState<string | null>(null)
 
   function formatCard(val: string) {
     return val.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
@@ -201,10 +207,33 @@ export default function CheckoutPage() {
     return Object.keys(errors).length === 0
   }
 
-  function handlePay() {
+  const isFortisGlobal = product === 'motor' &&
+    (MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)?.fortisGlobal === true)
+
+  async function handlePay() {
     if (!validate()) return
     setPaying(true)
-    setTimeout(() => { setPaying(false); setPaid(true) }, 2200)
+    try {
+      const [, apiResult] = await Promise.all([
+        new Promise<void>((r) => setTimeout(r, 2200)),
+        isFortisGlobal
+          ? fetch('/api/fortis/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                motorData,
+                policyHolder: { fullName, email, phone },
+              }),
+            })
+              .then((r) => r.json())
+              .catch(() => null)
+          : Promise.resolve(null),
+      ])
+      if (apiResult?.reference) setFortisRef(apiResult.reference)
+    } finally {
+      setPaying(false)
+      setPaid(true)
+    }
   }
 
   const today = new Date().toISOString().split('T')[0]
@@ -475,7 +504,7 @@ export default function CheckoutPage() {
       </div>
 
       <AnimatePresence>
-        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} product={product} />}
+        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} product={product} fortisRef={fortisRef} />}
       </AnimatePresence>
     </div>
   )
