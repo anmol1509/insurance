@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -319,26 +319,6 @@ export default function HeroSection() {
                 )
               })}
             </div>
-
-            {/* Digital certificate preview */}
-            <motion.div
-              initial={{ opacity: 0, y: 14, rotate: -1 }}
-              animate={{ opacity: 1, y: 0, rotate: -1 }}
-              transition={{ delay: 0.65, duration: 0.4 }}
-              className="mt-4 max-w-[420px] bg-white rounded-2xl shadow-xl px-4 py-3.5 flex items-center gap-3"
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
-                <ShieldCheck className="w-5 h-5" style={{ color: 'var(--green-700)' }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-sans font-bold text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>NIID Motor Certificate</p>
-                  <span className="font-sans font-semibold text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: 'var(--green-50)', color: 'var(--green-700)' }}>Verified ✓</span>
-                </div>
-                <p className="font-mono text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>SI-2026-481027 · LAG-453-KJA</p>
-              </div>
-              <p className="font-sans text-[10px] shrink-0 text-right leading-tight" style={{ color: 'var(--text-subtle)' }}>issued in<br /><strong style={{ color: 'var(--green-700)' }}>2m 41s</strong></p>
-            </motion.div>
 
             {/* Live policy ticker */}
             <motion.div
