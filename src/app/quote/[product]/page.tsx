@@ -14,6 +14,7 @@ import MotorStep4 from '@/components/quote/steps/motor/MotorStep4'
 
 import MedicalStep1 from '@/components/quote/steps/medical/MedicalStep1'
 import MedicalStep2 from '@/components/quote/steps/medical/MedicalStep2'
+import MedicalPlanSelect from '@/components/quote/steps/medical/MedicalPlanSelect'
 import MedicalStep3 from '@/components/quote/steps/medical/MedicalStep3'
 import MedicalReview from '@/components/quote/steps/medical/MedicalReview'
 
@@ -32,8 +33,8 @@ const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
 const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
-  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorPlanSelect, MotorDocuments, MotorStep4],
-  medical:  [MedicalStep1,  MedicalStep2,  MedicalStep3,  MedicalReview],
+  motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorPlanSelect,   MotorDocuments, MotorStep4],
+  medical:  [MedicalStep1,  MedicalStep2,  MedicalPlanSelect, MedicalStep3, MedicalReview],
   travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
   business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
 }
@@ -45,7 +46,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
-  const { steps, setActiveProduct, setStep, motorData } = useQuoteStore()
+  const { steps, setActiveProduct, setStep, motorData, medicalData } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const totalSteps = PRODUCT_STEPS[typedProduct].length
@@ -57,7 +58,8 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
 
   const nextDisabled =
     (typedProduct === 'motor' && currentStep === 4 && !motorData.selectedUnderwriter) ||
-    (typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed)
+    (typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed) ||
+    (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter)
 
   function goNext() {
     if (currentStep === totalSteps) {
@@ -85,7 +87,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       onNext={goNext}
       isFinalStep={currentStep === totalSteps}
       nextDisabled={nextDisabled}
-      planSelect={typedProduct === 'motor' && currentStep === 4}
+      planSelect={(typedProduct === 'motor' && currentStep === 4) || (typedProduct === 'medical' && currentStep === 3)}
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>
