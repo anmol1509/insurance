@@ -418,146 +418,200 @@ function CompareModal({ plans, prices, onClose, onSelect, onRemove }: {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[80] overflow-y-auto flex items-start justify-center p-4 pt-6"
-      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+      className="fixed inset-0 z-[80] overflow-y-auto"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
       onClick={onClose}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 32 }}
-        transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl mb-8"
-        style={{ backgroundColor: 'white' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Modal header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-default)' }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--motor-50)' }}>
-              <ArrowLeftRight className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
+      <div className="min-h-full flex items-start justify-center p-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: 24 }}
+          transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+          className="w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl"
+          style={{ backgroundColor: 'white' }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Modal header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-default)' }}>
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, var(--motor-100), var(--motor-50))' }}
+              >
+                <ArrowLeftRight className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-[17px]" style={{ color: 'var(--text-primary)' }}>Plan Comparison</h3>
+                <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>{plans.length} plans side by side</p>
+              </div>
             </div>
-            <h3 className="font-display font-bold text-[18px]" style={{ color: 'var(--text-primary)' }}>
-              Side-by-Side Comparison
-            </h3>
+            <button type="button" onClick={onClose}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-raised)]"
+            >
+              <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-raised)]"
-          >
-            <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-          </button>
-        </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr style={{ backgroundColor: 'var(--surface-raised)' }}>
-                <th className="text-left px-6 py-4 font-sans font-semibold text-[11px] uppercase tracking-wider w-40 border-b" style={{ color: 'var(--text-muted)', borderColor: 'var(--border-subtle)' }} />
-                {plans.map((plan, i) => (
-                  <th key={plan.id} className="px-5 py-4 text-left border-b border-l" style={{ borderColor: 'var(--border-subtle)' }}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-display font-bold text-[15px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</p>
-                        <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <Star className="w-3 h-3 fill-current" style={{ color: '#F59E0B' }} />
-                          <span className="font-sans font-medium text-[12px]" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => onRemove(plan.id)}
-                        className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--border-default)]"
-                        style={{ backgroundColor: 'var(--surface-raised)' }}
-                      >
-                        <X className="w-3 h-3" style={{ color: 'var(--text-muted)' }} />
-                      </button>
-                    </div>
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse" style={{ minWidth: `${160 + plans.length * 224}px` }}>
+              <thead>
+                <tr>
+                  {/* Sticky label column */}
+                  <th
+                    className="sticky left-0 z-10 w-40 border-b border-r px-4 py-5 text-left align-bottom"
+                    style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-subtle)' }}
+                  >
+                    <span className="font-sans font-bold text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                      {plans.length} plans
+                    </span>
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Price */}
-              <tr className="border-b" style={{ borderColor: 'var(--border-subtle)' }}>
-                <td className="px-6 py-4 font-sans font-semibold text-[12px]" style={{ color: 'var(--text-secondary)' }}>Annual Premium</td>
-                {plans.map((plan, i) => (
-                  <td key={plan.id} className="px-5 py-4 border-l" style={{ borderColor: 'var(--border-subtle)' }}>
-                    <p className="font-display font-extrabold text-[22px] leading-none" style={{ color: 'var(--motor-600)' }}>{formatNGN(prices[i])}</p>
-                    <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>/yr · excl. taxes</p>
-                  </td>
-                ))}
-              </tr>
+                  {plans.map((plan, i) => (
+                    <th
+                      key={plan.id}
+                      className="border-b border-l px-5 py-5 text-left align-top"
+                      style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-subtle)', minWidth: '224px' }}
+                    >
+                      {/* Logo + remove */}
+                      <div className="flex items-start justify-between gap-2 mb-3">
+                        <div
+                          className="w-12 h-12 rounded-2xl border-2 flex items-center justify-center overflow-hidden bg-white shrink-0 p-1"
+                          style={{ borderColor: 'var(--border-default)' }}
+                        >
+                          {plan.logo
+                            // eslint-disable-next-line @next/next/no-img-element
+                            ? <img src={plan.logo} alt={plan.insurer} className="w-full h-full object-contain" />
+                            : <span className="font-display font-bold text-[14px]" style={{ color: 'var(--motor-600)' }}>
+                                {plan.insurer.slice(0, 2).toUpperCase()}
+                              </span>
+                          }
+                        </div>
+                        <button type="button" onClick={() => onRemove(plan.id)}
+                          className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                          style={{ backgroundColor: '#fef2f2' }}
+                        >
+                          <X className="w-3.5 h-3.5 text-red-400" />
+                        </button>
+                      </div>
 
-              {/* Stats */}
-              {([
-                ['Claim Settlement', 'claimSettlement'],
-                ['Response Time', 'responseTime'],
-                ['Excess', 'excess'],
-                ['Repair Network', 'repairNetwork'],
-              ] as [string, keyof MotorPlan][]).map(([label, key]) => (
-                <tr key={key} className="border-b" style={{ borderColor: 'var(--border-subtle)' }}>
-                  <td className="px-6 py-3 font-sans font-semibold text-[12px]" style={{ color: 'var(--text-secondary)' }}>{label}</td>
-                  {plans.map(plan => (
-                    <td key={plan.id} className="px-5 py-3 font-sans font-medium text-[13px] border-l" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-subtle)' }}>
-                      {String(plan[key])}
-                    </td>
+                      {/* Badge */}
+                      {plan.badge && (
+                        <span
+                          className="inline-flex items-center font-sans font-bold text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full mb-2"
+                          style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)', border: '1px solid var(--motor-100)' }}
+                        >
+                          {plan.badge}
+                        </span>
+                      )}
+
+                      {/* Name + insurer */}
+                      <p className="font-display font-bold text-[15px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</p>
+                      <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</p>
+
+                      {/* Star rating */}
+                      <div className="flex items-center gap-0.5 mt-2 mb-3">
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <Star key={n} className="w-3 h-3 fill-current" style={{ color: n <= Math.round(plan.rating) ? '#F59E0B' : '#D1D5DB' }} />
+                        ))}
+                        <span className="font-sans font-semibold text-[11px] ml-1" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
+                        <span className="font-sans text-[11px] ml-0.5" style={{ color: 'var(--text-muted)' }}>· {plan.reviews.toLocaleString()}</span>
+                      </div>
+
+                      {/* Price + select */}
+                      <div className="pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <p className="font-display font-extrabold text-[24px] leading-none" style={{ color: 'var(--motor-600)' }}>
+                          {formatNGN(prices[i])}
+                        </p>
+                        <p className="font-sans text-[11px] mt-0.5 mb-3" style={{ color: 'var(--text-muted)' }}>/yr · excl. taxes</p>
+                        <button
+                          type="button"
+                          onClick={() => onSelect(plan)}
+                          className="w-full h-9 rounded-xl font-sans font-bold text-[12px] text-white transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
+                          style={{ backgroundColor: 'var(--motor-600)' }}
+                        >
+                          Select Plan →
+                        </button>
+                      </div>
+                    </th>
                   ))}
                 </tr>
-              ))}
+              </thead>
 
-              {/* Features section header */}
-              <tr>
-                <td colSpan={plans.length + 1} className="px-6 py-2.5 font-sans font-bold text-[11px] uppercase tracking-wider" style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)' }}>
-                  Features included
-                </td>
-              </tr>
-
-              {/* Feature rows */}
-              {allFeatures.map((feature, idx) => (
-                <tr key={feature} className="border-b" style={{ borderColor: 'var(--border-subtle)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)' }}>
-                  <td className="px-6 py-2.5 font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>{feature}</td>
-                  {plans.map(plan => {
-                    const has = plan.features.some(f => f.toLowerCase() === feature.toLowerCase())
-                    return (
-                      <td key={plan.id} className="px-5 py-2.5 border-l" style={{ borderColor: 'var(--border-subtle)' }}>
-                        <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: has ? 'var(--motor-50)' : '#fef2f2' }}
-                        >
-                          {has
-                            ? <Check className="w-3 h-3" style={{ color: 'var(--motor-600)' }} strokeWidth={3} />
-                            : <X className="w-3 h-3 text-red-400" strokeWidth={3} />}
-                        </div>
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-
-              {/* Select row */}
-              <tr>
-                <td className="px-6 py-4" />
-                {plans.map(plan => (
-                  <td key={plan.id} className="px-5 py-4 border-l" style={{ borderColor: 'var(--border-subtle)' }}>
-                    <button
-                      type="button"
-                      onClick={() => onSelect(plan)}
-                      className="w-full h-10 rounded-xl font-sans font-bold text-[13px] text-white transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
-                      style={{ backgroundColor: 'var(--motor-600)' }}
-                    >
-                      Select {plan.insurer.split(' ')[0]} →
-                    </button>
+              <tbody>
+                {/* Key stats section */}
+                <tr>
+                  <td
+                    colSpan={plans.length + 1}
+                    className="px-4 py-2 font-sans font-bold text-[10px] uppercase tracking-widest"
+                    style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)', borderTop: '2px solid var(--motor-100)', borderBottom: '1px solid var(--motor-100)' }}
+                  >
+                    Key Statistics
                   </td>
+                </tr>
+
+                {([
+                  ['Claim Settlement', 'claimSettlement'],
+                  ['Response Time', 'responseTime'],
+                  ['Excess', 'excess'],
+                  ['Repair Network', 'repairNetwork'],
+                ] as [string, keyof MotorPlan][]).map(([label, key], idx) => (
+                  <tr key={key} className="border-b" style={{ borderColor: 'var(--border-subtle)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)' }}>
+                    <td
+                      className="sticky left-0 z-10 px-4 py-3.5 font-sans font-semibold text-[12px] border-r"
+                      style={{ color: 'var(--text-secondary)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)', borderColor: 'var(--border-subtle)' }}
+                    >
+                      {label}
+                    </td>
+                    {plans.map(plan => (
+                      <td key={plan.id} className="px-5 py-3.5 font-sans font-medium text-[13px] border-l" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-subtle)' }}>
+                        {String(plan[key])}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+
+                {/* Features section */}
+                <tr>
+                  <td
+                    colSpan={plans.length + 1}
+                    className="px-4 py-2 font-sans font-bold text-[10px] uppercase tracking-widest"
+                    style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)', borderTop: '2px solid var(--motor-100)', borderBottom: '1px solid var(--motor-100)' }}
+                  >
+                    Features Included
+                  </td>
+                </tr>
+
+                {allFeatures.map((feature, idx) => (
+                  <tr key={feature} className="border-b" style={{ borderColor: 'var(--border-subtle)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)' }}>
+                    <td
+                      className="sticky left-0 z-10 px-4 py-2.5 font-sans text-[12px] border-r"
+                      style={{ color: 'var(--text-secondary)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)', borderColor: 'var(--border-subtle)' }}
+                    >
+                      {feature}
+                    </td>
+                    {plans.map(plan => {
+                      const has = plan.features.some(f => f.toLowerCase() === feature.toLowerCase())
+                      return (
+                        <td key={plan.id} className="px-5 py-2.5 border-l" style={{ borderColor: 'var(--border-subtle)' }}>
+                          <div
+                            className="w-5 h-5 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: has ? 'var(--motor-50)' : '#fef2f2' }}
+                          >
+                            {has
+                              ? <Check className="w-3 h-3" style={{ color: 'var(--motor-600)' }} strokeWidth={3} />
+                              : <X className="w-3 h-3 text-red-400" strokeWidth={3} />}
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   )
 }
