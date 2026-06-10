@@ -17,6 +17,14 @@ const COVER_LABELS: Record<string, string> = {
 
 const FEATURE_OPTIONS = ['Roadside Assist', 'Towing', 'NIID Registered', 'Windscreen Cover']
 
+// keyword each filter chip matches against (substring of feature strings)
+const FEATURE_KEYWORDS: Record<string, string> = {
+  'Roadside Assist': 'roadside',
+  'Towing': 'towing',
+  'NIID Registered': 'niid',
+  'Windscreen Cover': 'windscreen',
+}
+
 type SortKey = 'popular' | 'price' | 'rating'
 
 export default function MotorPlanSelect() {
@@ -67,11 +75,12 @@ export default function MotorPlanSelect() {
   }
 
   const displayPlans = filtered
-    .filter(p => featureFilters.length === 0 || featureFilters.every(f =>
-      p.features.some(pf => pf.toLowerCase().includes(f.toLowerCase()))
-    ))
+    .filter(p => featureFilters.length === 0 || featureFilters.every(f => {
+      const keyword = FEATURE_KEYWORDS[f] ?? f.toLowerCase()
+      return p.features.some(pf => pf.toLowerCase().includes(keyword))
+    }))
     .sort((a, b) => {
-      if (sortBy === 'price') return a.multiplier - b.multiplier
+      if (sortBy === 'price') return getPrice(a) - getPrice(b)
       if (sortBy === 'rating') return b.rating - a.rating
       return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
     })
