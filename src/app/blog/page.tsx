@@ -76,8 +76,21 @@ export default function BlogPage() {
                 </div>
               </div>
             </div>
-            <div className="hidden lg:flex items-center justify-center bg-[var(--surface-raised)] text-[100px]">
-              {featured.coverEmoji}
+            <div
+              className="hidden lg:flex items-center justify-center relative overflow-hidden"
+              style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${getCategoryColor(featured.category)} 18%, white) 0%, color-mix(in srgb, ${getCategoryColor(featured.category)} 6%, white) 100%)` }}
+            >
+              <div
+                className="absolute w-64 h-64 rounded-full opacity-30 -right-16 -top-16"
+                style={{ backgroundColor: `color-mix(in srgb, ${getCategoryColor(featured.category)} 25%, white)` }}
+              />
+              <div
+                className="absolute w-40 h-40 rounded-full opacity-30 -left-10 -bottom-10"
+                style={{ backgroundColor: `color-mix(in srgb, ${getCategoryColor(featured.category)} 25%, white)` }}
+              />
+              <div className="w-28 h-28 rounded-3xl bg-white shadow-lg flex items-center justify-center text-[56px] relative group-hover:scale-105 transition-transform duration-200">
+                {featured.coverEmoji}
+              </div>
             </div>
           </div>
         </Link>
@@ -87,8 +100,17 @@ export default function BlogPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {rest.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="group bg-white rounded-3xl border border-[var(--border-default)] overflow-hidden hover:shadow-md transition-shadow duration-200 flex flex-col">
-              <div className="h-36 flex items-center justify-center text-[64px]" style={{ backgroundColor: 'var(--surface-raised)' }}>
-                {post.coverEmoji}
+              <div
+                className="h-36 flex items-center justify-center relative overflow-hidden"
+                style={{ background: `linear-gradient(135deg, color-mix(in srgb, ${getCategoryColor(post.category)} 16%, white) 0%, color-mix(in srgb, ${getCategoryColor(post.category)} 5%, white) 100%)` }}
+              >
+                <div
+                  className="absolute w-32 h-32 rounded-full opacity-30 -right-8 -top-8"
+                  style={{ backgroundColor: `color-mix(in srgb, ${getCategoryColor(post.category)} 25%, white)` }}
+                />
+                <div className="w-16 h-16 rounded-2xl bg-white shadow-md flex items-center justify-center text-[32px] relative group-hover:scale-105 transition-transform duration-200">
+                  {post.coverEmoji}
+                </div>
               </div>
               <div className="p-5 flex flex-col flex-1">
                 <span
