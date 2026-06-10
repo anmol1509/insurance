@@ -197,10 +197,10 @@ export default function ContactPage() {
                 </div>
                 <h3 className="font-display font-bold text-[16px]" style={{ color: 'var(--text-primary)' }}>Email us</h3>
               </div>
-              <a href="mailto:info@standardinsgroup.com"
+              <a href="mailto:support@shopinsurance.com.ng"
                 className="font-sans font-semibold text-[15px] hover:underline"
                 style={{ color: 'var(--green-700)' }}>
-                info@standardinsgroup.com
+                support@shopinsurance.com.ng
               </a>
             </div>
 
