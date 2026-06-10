@@ -231,8 +231,8 @@ function PlanCard({
           {[
             { label: 'CLAIM SETTLEMENT', value: plan.claimSettlement },
             { label: 'RESPONSE TIME',    value: plan.responseTime },
-            { label: 'COVER',            value: plan.coverType === 'comprehensive' ? 'Comprehensive' : 'Third Party' },
-            { label: 'NAICOM',           value: 'Licensed' },
+            { label: 'EXCESS',           value: plan.excess },
+            { label: 'REPAIR NETWORK',   value: plan.repairNetwork },
           ].map(({ label, value }) => (
             <div key={label}>
               <p className="font-sans font-bold text-[9px] uppercase tracking-[0.06em] mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>

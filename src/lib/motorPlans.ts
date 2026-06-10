@@ -12,6 +12,8 @@ export interface MotorPlan {
   exclusions: string[]
   claimSettlement: string
   responseTime: string
+  excess: string
+  repairNetwork: string
   popular?: boolean
   fortisGlobal?: boolean
 }
@@ -31,6 +33,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
     claimSettlement: '96%',
     responseTime: '48 hours',
+    excess: '₦25,000',
+    repairNetwork: '180+ garages',
   },
   {
     id: 'fortis-tpo',
@@ -46,6 +50,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
     claimSettlement: '94%',
     responseTime: '48 hours',
+    excess: 'None',
+    repairNetwork: 'N/A · third party',
   },
   {
     id: 'aiico-motor',
@@ -61,6 +67,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Racing & speed testing', 'Wear & tear', 'Mechanical breakdown', 'Unlicensed driver'],
     claimSettlement: '98%',
     responseTime: '24 hours',
+    excess: '₦20,000',
+    repairNetwork: '250+ garages',
     popular: true,
   },
   {
@@ -77,6 +85,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
     claimSettlement: '96%',
     responseTime: '48 hours',
+    excess: '₦25,000',
+    repairNetwork: '200+ garages',
   },
   {
     id: 'nsia-motor',
@@ -91,6 +101,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Racing', 'Wear & tear', 'Mechanical failure', 'Unlicensed driver'],
     claimSettlement: '97%',
     responseTime: '24 hours',
+    excess: '₦15,000',
+    repairNetwork: '220+ garages',
   },
   {
     id: 'sunu-motor',
@@ -106,6 +118,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle'],
     claimSettlement: '94%',
     responseTime: '48 hours',
+    excess: 'None',
+    repairNetwork: 'N/A · third party',
     popular: true,
   },
   {
@@ -121,6 +135,8 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
     claimSettlement: '95%',
     responseTime: '48 hours',
+    excess: 'None',
+    repairNetwork: 'N/A · third party',
   },
   {
     id: 'nsia-tpo',
@@ -135,5 +151,7 @@ export const MOTOR_PLANS: MotorPlan[] = [
     exclusions: ['Own vehicle damage', 'Theft', 'Fire to own car', 'Flood damage'],
     claimSettlement: '93%',
     responseTime: '72 hours',
+    excess: 'None',
+    repairNetwork: 'N/A · third party',
   },
 ]
