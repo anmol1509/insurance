@@ -152,7 +152,8 @@ export default function CheckoutPage() {
     ? MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)
     : null
   const planName = selectedPlan?.name ?? 'Insurance Plan'
-  const planLogo = '🏦'
+  const planInsurer = selectedPlan?.insurer ?? null
+  const planInitials = (planInsurer ?? planName).split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase()
   const planPrice = basePrice
   const processingFee = Math.round(planPrice * 0.015)
   const stampDuty = 500
@@ -430,8 +431,8 @@ export default function CheckoutPage() {
                 {orderOpen && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} style={{ overflow: 'hidden' }}>
                     <div className="flex items-center gap-3 mt-4 pb-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
-                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
-                        {planLogo}
+                      <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
+                        <span className="font-display font-bold text-[14px]" style={{ color: 'var(--green-700)' }}>{planInitials}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-sans font-semibold text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>{planName}</p>
@@ -484,6 +485,15 @@ export default function CheckoutPage() {
                 <><Lock className="w-4 h-4" /> Pay {formatNaira(total)} securely</>
               )}
             </motion.button>
+
+            {planInsurer && (
+              <div className="flex items-center justify-center gap-1.5 -mt-1">
+                <Shield className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--green-700)' }} />
+                <span className="font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+                  Underwritten by <strong>{planInsurer}</strong> · NAICOM-licensed insurer
+                </span>
+              </div>
+            )}
 
             <div className="flex items-center justify-center gap-4">
               {[{ icon: Lock, label: '256-bit SSL' }, { icon: Shield, label: 'NAICOM' }].map(({ icon: Icon, label }) => (
