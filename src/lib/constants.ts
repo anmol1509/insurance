@@ -82,8 +82,9 @@ export const PRODUCT_STEPS = {
   medical: [
     { id: 1, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },
     { id: 2, label: 'Health details', title: 'Health information',              sub: 'Help us understand your health profile.' },
-    { id: 3, label: 'Coverage',       title: 'Choose your coverage',            sub: 'Select the benefits that suit your needs.' },
-    { id: 4, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+    { id: 3, label: 'Choose plan',    title: 'Compare & choose a plan',         sub: 'Pick the health insurer and cover that best suits your needs.' },
+    { id: 4, label: 'Coverage',       title: 'Additional coverage options',     sub: 'Select extra benefits and riders for your policy.' },
+    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
   ],
   travel: [
     { id: 1, label: 'Traveller info', title: 'Your travel details',             sub: 'Tell us about the traveller(s).' },
