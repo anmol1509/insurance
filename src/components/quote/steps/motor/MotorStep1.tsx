@@ -183,6 +183,20 @@ export default function MotorStep1() {
           </motion.div>
         )}
       </div>
+
+      {/* Trust stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { value: '12,000+', label: 'cars insured' },
+          { value: '₦2.1B', label: 'claims paid out' },
+          { value: '4.8★', label: 'customer rating' },
+        ].map(({ value, label }) => (
+          <div key={label} className="rounded-2xl border bg-white px-3 py-3.5 text-center" style={{ borderColor: 'var(--border-subtle)' }}>
+            <p className="font-display font-extrabold text-[18px] leading-none" style={{ color: 'var(--motor-600)' }}>{value}</p>
+            <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

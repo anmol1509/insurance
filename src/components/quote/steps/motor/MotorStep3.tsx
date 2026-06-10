@@ -35,7 +35,7 @@ export default function MotorStep3() {
   const [showTooltip, setShowTooltip] = useState<string | null>(null)
 
   const carValue = motorData.carValue ?? 0
-  const tpoBase = 15000
+  const tpoBase = 20000
 
   async function handleAIEstimate() {
     setAiLoading(true)
@@ -244,6 +244,38 @@ export default function MotorStep3() {
           })}
         </div>
       </div>
+
+      {/* Live premium estimate */}
+      <AnimatePresence>
+        {motorData.coverType && (motorData.coverType === 'tpo' || carValue > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="rounded-2xl border p-4 flex items-center justify-between gap-4"
+            style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-200)' }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--motor-600)' }}>
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--motor-700)' }}>
+                  Estimated annual premium
+                </p>
+                <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                  {motorData.coverType === 'comprehensive'
+                    ? `5% of your ${formatNGN(carValue)} car value — compare exact plans next`
+                    : 'Flat-rate third party cover — compare exact plans next'}
+                </p>
+              </div>
+            </div>
+            <p className="font-display font-extrabold text-[22px] leading-none shrink-0" style={{ color: 'var(--motor-600)' }}>
+              from {formatNGN(motorData.coverType === 'comprehensive' ? Math.round(carValue * 0.05) : tpoBase)}<span className="font-sans font-medium text-[12px]" style={{ color: 'var(--text-muted)' }}>/yr</span>
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

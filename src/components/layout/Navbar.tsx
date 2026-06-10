@@ -29,7 +29,7 @@ const renewalLinks = [
 ]
 
 const claimLinks = [
-  { icon: FileText,    label: 'File a New Claim',    href: '/claims/new',    desc: 'Start a claim in 2 minutes' },
+  { icon: FileText,    label: 'File a New Claim',    href: '/claims',    desc: 'Start a claim in 2 minutes' },
   { icon: Search,      label: 'Track Existing Claim', href: '/claims/track',  desc: 'Get live status updates' },
   { icon: HelpCircle,  label: 'Claims Guide',         href: '/claims/guide',  desc: 'What to do after an incident' },
 ]
@@ -174,7 +174,7 @@ export default function Navbar() {
               {/* Claims */}
               <div className="relative" onMouseEnter={() => setOpenMenu('claims')} onMouseLeave={() => setOpenMenu(null)}>
                 <button type="button"
-                  onClick={() => requireAuth('/claims/new')}
+                  onClick={() => requireAuth('/claims')}
                   className="flex items-center gap-1 px-3.5 py-2 rounded-full font-sans font-medium text-[13.5px] transition-colors"
                   style={{ color: 'var(--text-muted)' }}
                 >

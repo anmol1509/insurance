@@ -107,28 +107,10 @@ export default function BottomNav() {
       >
         <div className="flex items-stretch h-16">
           {/* Home */}
-          <Link
-            href="/"
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/') && pathname === '/' ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
-            )}
-          >
-            <Home className="w-5 h-5" />
-            <span className="font-sans text-[10px] font-medium">Home</span>
-          </Link>
+          <TabLink href="/" label="Home" icon={Home} isActive={pathname === '/'} />
 
           {/* Renew */}
-          <Link
-            href="/renewals"
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/renewals') ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
-            )}
-          >
-            <RefreshCw className="w-5 h-5" />
-            <span className="font-sans text-[10px] font-medium">Renew</span>
-          </Link>
+          <TabLink href="/renewals" label="Renew" icon={RefreshCw} isActive={active('/renewals')} />
 
           {/* Center quote button */}
           <div className="flex-1 flex flex-col items-center justify-center relative">
@@ -145,30 +127,37 @@ export default function BottomNav() {
           </div>
 
           {/* Claims */}
-          <Link
-            href="/claims/new"
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active('/claims') ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
-            )}
-          >
-            <FileText className="w-5 h-5" />
-            <span className="font-sans text-[10px] font-medium">Claims</span>
-          </Link>
+          <TabLink href="/claims" label="Claims" icon={FileText} isActive={active('/claims')} />
 
           {/* Account */}
-          <Link
-            href="/login"
-            className={cn(
-              'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
-              active(['/login', '/register', '/dashboard']) ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
-            )}
-          >
-            <User className="w-5 h-5" />
-            <span className="font-sans text-[10px] font-medium">Account</span>
-          </Link>
+          <TabLink href="/login" label="Account" icon={User} isActive={active(['/login', '/register', '/dashboard'])} />
         </div>
       </div>
     </>
+  )
+}
+
+function TabLink({ href, label, icon: Icon, isActive }: {
+  href: string
+  label: string
+  icon: React.ElementType
+  isActive: boolean
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors',
+        isActive ? 'text-[var(--green-700)]' : 'text-[var(--text-subtle)]'
+      )}
+    >
+      <span
+        className="flex items-center justify-center w-12 h-6 rounded-full transition-colors"
+        style={{ backgroundColor: isActive ? 'var(--green-50)' : 'transparent' }}
+      >
+        <Icon className="w-5 h-5" />
+      </span>
+      <span className={cn('font-sans text-[10px]', isActive ? 'font-bold' : 'font-medium')}>{label}</span>
+    </Link>
   )
 }
