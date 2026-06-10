@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { proxyFetch } from '@/lib/proxyFetch'
 
 const FORTIS_BASE = 'https://jjmgloballtd.com/coreinsurance/api'
 
 async function getToken(): Promise<string> {
-  const res = await fetch(`${FORTIS_BASE}/external-api/auth/login`, {
+  const res = await proxyFetch(`${FORTIS_BASE}/external-api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
@@ -17,12 +18,11 @@ async function getToken(): Promise<string> {
     throw new Error(`Auth failed (${res.status}): ${text.slice(0, 100)}`)
   }
   const data = await res.json()
-  // Handle common token response shapes
   return data.token ?? data.access_token ?? data.data?.token
 }
 
 async function getCatalog(token: string) {
-  const res = await fetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
+  const res = await proxyFetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
     headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
     signal: AbortSignal.timeout(8000),
   })
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       ],
     }
 
-    const submitRes = await fetch(`${FORTIS_BASE}/external-api/motor/requests`, {
+    const submitRes = await proxyFetch(`${FORTIS_BASE}/external-api/motor/requests`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,

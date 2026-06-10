@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
+import { proxyFetch } from '@/lib/proxyFetch'
 
 const FORTIS_BASE = 'https://jjmgloballtd.com/coreinsurance/api'
 
 async function getToken(): Promise<string> {
-  const res = await fetch(`${FORTIS_BASE}/external-api/auth/login`, {
+  const res = await proxyFetch(`${FORTIS_BASE}/external-api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
@@ -23,7 +24,7 @@ async function getToken(): Promise<string> {
 export async function GET() {
   try {
     const token = await getToken()
-    const res = await fetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
+    const res = await proxyFetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
       signal: AbortSignal.timeout(8000),
     })
