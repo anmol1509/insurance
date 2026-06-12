@@ -55,11 +55,10 @@ export default function QuoteLayout({
   const router = useRouter()
   const config = PRODUCT_CONFIG[product]
 
-  const progressPct = ((currentStep - 1) / totalSteps) * 100
+  const progressPct = (currentStep / totalSteps) * 100
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
-      {/* App-like header — replaces Navbar during quote flow */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
           <Logo size={28} href="/" />
@@ -69,7 +68,10 @@ export default function QuoteLayout({
               {config.label}
             </span>
             <span className="text-[var(--text-subtle)] hidden sm:inline">·</span>
-            <span className="font-sans font-semibold text-[13px]" style={{ color: config.color }}>
+            <span className="font-sans font-semibold text-[13px] sm:hidden" style={{ color: config.color }}>
+              {PRODUCT_STEPS[product][currentStep - 1]?.label}
+            </span>
+            <span className="font-sans font-semibold text-[13px] hidden sm:inline" style={{ color: config.color }}>
               Step {currentStep}/{totalSteps}
             </span>
           </div>
@@ -96,10 +98,8 @@ export default function QuoteLayout({
       <div className="max-w-[1280px] mx-auto">
 
         <div className={`grid gap-8 items-start ${planSelect ? 'lg:grid-cols-[240px_1fr]' : 'lg:grid-cols-[300px_1fr]'}`}>
-          {/* Sidebar */}
           <aside className="hidden lg:block">
             <div className="sticky top-[4.5rem] bg-white rounded-2xl border border-[var(--border-default)] p-7">
-              {/* Product header */}
               <div className="flex items-center gap-3.5 pb-5 border-b border-[var(--border-subtle)]">
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -117,7 +117,6 @@ export default function QuoteLayout({
                 </div>
               </div>
 
-              {/* Step list */}
               <div className="mt-6 flex flex-col">
                 {PRODUCT_STEPS[product].map((step, i) => {
                   const stepNum = i + 1
@@ -157,8 +156,6 @@ export default function QuoteLayout({
                 })}
               </div>
 
-
-              {/* Trust badges */}
               <div className="mt-6 flex flex-wrap gap-2">
                 {[
                   { Icon: Shield, label: 'NAICOM' },
@@ -178,11 +175,9 @@ export default function QuoteLayout({
             </div>
           </aside>
 
-          {/* Main content */}
           <main className="min-w-0">
             {planSelect ? (
               <>
-                {/* Compact header — no card wrapper */}
                 <div className="flex items-center gap-4 mb-5">
                   <span
                     className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
@@ -249,7 +244,6 @@ export default function QuoteLayout({
               </>
             ) : (
               <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
-                {/* Top bar */}
                 <div className="flex items-center gap-4 mb-8">
                   <span
                     className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
@@ -268,7 +262,6 @@ export default function QuoteLayout({
                   </div>
                 </div>
 
-                {/* Step heading */}
                 <div className="mb-8">
                   <h2
                     className="font-display font-bold text-3xl tracking-tight"
@@ -281,7 +274,6 @@ export default function QuoteLayout({
                   </p>
                 </div>
 
-                {/* Form content */}
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={`step-${currentStep}`}
@@ -294,7 +286,6 @@ export default function QuoteLayout({
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Bottom action bar — desktop only; mobile uses sticky footer */}
                 <div className="hidden lg:flex items-center justify-between mt-10 pt-6 border-t border-[var(--border-subtle)]">
                   <AnimatePresence>
                     {onBack && (
@@ -331,7 +322,6 @@ export default function QuoteLayout({
           </main>
         </div>
 
-        {/* Mobile sticky bottom bar */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[var(--border-default)] px-5 py-4 flex gap-3 z-40">
           {onBack && (
             <button
