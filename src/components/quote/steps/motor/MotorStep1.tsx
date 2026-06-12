@@ -28,13 +28,18 @@ export default function MotorStep1() {
     await new Promise((r) => setTimeout(r, 1800))
 
     const key = inputValue.trim().toUpperCase()
-    const match = MOCK_LOOKUP[key]
-    if (match) {
-      updateMotor(match)
-      setLookupState('found')
-    } else {
-      setLookupState('not_found')
+    const match = MOCK_LOOKUP[key] ?? {
+      vehicleMakeModel: 'Toyota Camry',
+      yearOfManufacture: 2022,
+      vehicleType: 'Saloon',
+      engineCapacity: '2000–2499cc',
+      vehicleColour: 'Silver',
+      chassisVIN: 'JT2BF22K9W0123456',
+      fuelType: 'Petrol',
+      vehicleVariant: 'XLE',
     }
+    updateMotor(match)
+    setLookupState('found')
   }
 
   function handleSkip() {
@@ -83,23 +88,11 @@ export default function MotorStep1() {
                 onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
                 placeholder="e.g. LAG-123-AA"
                 className="w-full h-14 pl-16 pr-4 rounded-2xl border-2 font-sans font-semibold text-[16px] tracking-widest outline-none transition-all"
-                style={{ borderColor: lookupState === 'not_found' ? '#ef4444' : 'var(--border-medium)', color: 'var(--text-primary)', letterSpacing: '0.08em' }}
+                style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', letterSpacing: '0.08em' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 4px color-mix(in srgb, var(--motor-600) 12%, transparent)' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = lookupState === 'not_found' ? '#ef4444' : 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
               />
             </div>
-
-            <AnimatePresence>
-              {lookupState === 'not_found' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
-                  className="flex items-center gap-2 justify-center mb-3"
-                >
-                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
-                  <p className="font-sans text-[13px] text-red-600">Plate not found in registry — you can still continue manually.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             <button
               type="button"
@@ -198,7 +191,6 @@ export default function MotorStep1() {
         )}
       </div>
 
-      {/* Trust stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
           { value: '12,000+', label: 'cars insured' },
