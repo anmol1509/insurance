@@ -28,13 +28,18 @@ export default function MotorStep1() {
     await new Promise((r) => setTimeout(r, 1800))
 
     const key = inputValue.trim().toUpperCase()
-    const match = MOCK_LOOKUP[key]
-    if (match) {
-      updateMotor(match)
-      setLookupState('found')
-    } else {
-      setLookupState('not_found')
+    const match = MOCK_LOOKUP[key] ?? {
+      vehicleMakeModel: 'Toyota Camry',
+      yearOfManufacture: 2022,
+      vehicleType: 'Saloon',
+      engineCapacity: '2000–2499cc',
+      vehicleColour: 'Silver',
+      chassisVIN: 'JT2BF22K9W0123456',
+      fuelType: 'Petrol',
+      vehicleVariant: 'XLE',
     }
+    updateMotor(match)
+    setLookupState('found')
   }
 
   function handleSkip() {
