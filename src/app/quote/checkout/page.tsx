@@ -165,10 +165,12 @@ export default function CheckoutPage() {
   }
   const productLabel = PRODUCT_LABELS[product] ?? 'Insurance'
 
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [startDate, setStartDate] = useState('')
+  const tomorrowStr = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0] })()
+
+  const [fullName, setFullName] = useState(product === 'motor' ? motorData.fullName : '')
+  const [email, setEmail] = useState(product === 'motor' ? motorData.email : '')
+  const [phone, setPhone] = useState(product === 'motor' ? motorData.phone : '')
+  const [startDate, setStartDate] = useState(tomorrowStr)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
   const [payMethod, setPayMethod] = useState<PayMethod>('card')
@@ -290,7 +292,7 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Policy start date</label>
-                  <input type="date" value={startDate} min={today} onChange={e => setStartDate(e.target.value)}
+                  <input type="date" value={startDate} min={tomorrowStr} onChange={e => setStartDate(e.target.value)}
                     className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none transition-colors"
                     style={{ borderColor: formErrors.startDate ? 'var(--error)' : 'var(--border-medium)', color: 'var(--text-primary)' }}
                   />

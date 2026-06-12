@@ -55,7 +55,7 @@ export default function QuoteLayout({
   const router = useRouter()
   const config = PRODUCT_CONFIG[product]
 
-  const progressPct = ((currentStep - 1) / totalSteps) * 100
+  const progressPct = (currentStep / totalSteps) * 100
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
@@ -69,7 +69,10 @@ export default function QuoteLayout({
               {config.label}
             </span>
             <span className="text-[var(--text-subtle)] hidden sm:inline">·</span>
-            <span className="font-sans font-semibold text-[13px]" style={{ color: config.color }}>
+            <span className="font-sans font-semibold text-[13px] sm:hidden" style={{ color: config.color }}>
+              {PRODUCT_STEPS[product][currentStep - 1]?.label}
+            </span>
+            <span className="font-sans font-semibold text-[13px] hidden sm:inline" style={{ color: config.color }}>
               Step {currentStep}/{totalSteps}
             </span>
           </div>

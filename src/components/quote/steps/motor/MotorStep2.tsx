@@ -2,8 +2,9 @@
 import { useQuoteStore } from '@/store/quoteStore'
 import Select from '@/components/ui/Select'
 import Input from '@/components/ui/Input'
-import { VEHICLE_MAKES, VEHICLE_TYPES } from '@/lib/constants'
-import { Fuel, Car, Calendar, Briefcase } from 'lucide-react'
+import { VEHICLE_MAKES, VEHICLE_TYPES, ENGINE_CAPACITIES, VEHICLE_COLOURS, COLOUR_SWATCHES } from '@/lib/constants'
+import { Fuel, Car, Calendar, Briefcase, Gauge, Palette, AlertTriangle } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const currentYear = new Date().getFullYear()
 const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) => {
@@ -16,15 +17,17 @@ const makeOptions = VEHICLE_MAKES.map((m) => ({ value: m, label: m }))
 const typeOptions = VEHICLE_TYPES.map((v) => ({ value: v, label: v }))
 
 function ChipGroup({
-  label, options, selected, onSelect, icon: Icon,
+  label, options, selected, onSelect, icon: Icon, required,
 }: {
-  label: string; options: string[]; selected: string; onSelect: (v: string) => void; icon?: React.ElementType
+  label: string; options: string[]; selected: string; onSelect: (v: string) => void; icon?: React.ElementType; required?: boolean
 }) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-2">
         {Icon && <Icon className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />}
-        <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>{label}</p>
+        <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+          {label}{required && <span className="text-[var(--error)] ml-0.5">*</span>}
+        </p>
       </div>
       <div className="flex flex-wrap gap-2">
         {options.map((opt) => {
@@ -50,6 +53,7 @@ function ChipGroup({
 
 export default function MotorStep2() {
   const { motorData, updateMotor } = useQuoteStore()
+  const isOldVehicle = motorData.yearOfManufacture && motorData.yearOfManufacture < 2000
 
   return (
     <div className="space-y-6">
@@ -120,6 +124,49 @@ export default function MotorStep2() {
         icon={Fuel}
       />
 
+      {/* Engine Capacity */}
+      <ChipGroup
+        label="Engine Capacity"
+        options={ENGINE_CAPACITIES}
+        selected={motorData.engineCapacity}
+        onSelect={(v) => updateMotor({ engineCapacity: v })}
+        icon={Gauge}
+      />
+
+      {/* Vehicle Colour */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <Palette className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
+          <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>Vehicle Colour</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {VEHICLE_COLOURS.map((colour) => {
+            const active = motorData.vehicleColour === colour
+            const hex = COLOUR_SWATCHES[colour]
+            return (
+              <button
+                key={colour}
+                type="button"
+                onClick={() => updateMotor({ vehicleColour: colour })}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full border-[1.5px] font-sans font-medium text-[12px] transition-all"
+                style={active
+                  ? { borderColor: 'var(--motor-600)', backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)' }
+                  : { borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}
+              >
+                <span
+                  className="w-3.5 h-3.5 rounded-full border shrink-0"
+                  style={{
+                    backgroundColor: hex,
+                    borderColor: colour === 'White' ? 'var(--border-medium)' : 'transparent',
+                  }}
+                />
+                {colour}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       {/* Registration Year */}
       <div>
         <div className="flex items-center gap-2 mb-2">
@@ -135,7 +182,31 @@ export default function MotorStep2() {
           placeholder="Select year"
           productColor="var(--motor-600)"
         />
+        <AnimatePresence>
+          {isOldVehicle && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
+              className="flex items-start gap-2.5 mt-2.5 px-3 py-2.5 rounded-xl border"
+              style={{ backgroundColor: '#FFF7ED', borderColor: '#FDBA74' }}
+            >
+              <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+              <p className="font-sans text-[12px] text-orange-700">
+                Vehicles registered before 2000 may have limited plan options. Comprehensive cover is typically available for vehicles under 20 years old.
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Chassis / VIN */}
+      <Input
+        label="Chassis / VIN Number"
+        value={motorData.chassisVIN}
+        onChange={(e) => updateMotor({ chassisVIN: e.target.value.toUpperCase() })}
+        placeholder="17-character VIN (optional)"
+        hint="Optional — helps verify vehicle identity"
+        productColor="var(--motor-600)"
+      />
 
       {/* Commercial use */}
       <div>

@@ -56,9 +56,16 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     setActiveProduct(typedProduct)
   }, [typedProduct, setActiveProduct])
 
+  const REQUIRED_MOTOR_DOCS = ['vehicle_license', 'proof_of_ownership', 'drivers_license']
   const nextDisabled =
-    (typedProduct === 'motor' && currentStep === 4 && !motorData.selectedUnderwriter) ||
-    (typedProduct === 'motor' && currentStep === totalSteps && !motorData.reviewConfirmed) ||
+    (typedProduct === 'motor' && (
+      (currentStep === 1 && !motorData.vehicleMakeModel) ||
+      (currentStep === 2 && (!motorData.vehicleMakeModel.trim() || !motorData.vehicleType || !motorData.yearOfManufacture || !motorData.useType)) ||
+      (currentStep === 3 && (!motorData.coverType || (motorData.coverType === 'comprehensive' && !(motorData.carValue && motorData.carValue > 0)))) ||
+      (currentStep === 4 && !motorData.selectedUnderwriter) ||
+      (currentStep === 5 && REQUIRED_MOTOR_DOCS.some((k) => !motorData.uploadedDocs[k])) ||
+      (currentStep === 6 && (!motorData.fullName.trim() || !motorData.email.includes('@') || motorData.phone.replace(/\D/g, '').length < 11 || !motorData.reviewConfirmed))
+    )) ||
     (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter)
 
   function goNext() {
