@@ -28,18 +28,13 @@ export default function MotorStep1() {
     await new Promise((r) => setTimeout(r, 1800))
 
     const key = inputValue.trim().toUpperCase()
-    const found = MOCK_LOOKUP[key] ?? {
-      vehicleMakeModel: 'Toyota Camry',
-      yearOfManufacture: 2020,
-      vehicleType: 'Saloon',
-      engineCapacity: '2000–2499cc',
-      vehicleColour: 'Black',
-      chassisVIN: 'JN1AAZX45U0000001',
-      fuelType: 'Petrol',
-      vehicleVariant: 'SE',
+    const match = MOCK_LOOKUP[key]
+    if (match) {
+      updateMotor(match)
+      setLookupState('found')
+    } else {
+      setLookupState('not_found')
     }
-    updateMotor(found)
-    setLookupState('found')
   }
 
   function handleSkip() {
@@ -69,7 +64,7 @@ export default function MotorStep1() {
         <p className="font-sans text-[14px] mb-6" style={{ color: 'var(--text-muted)' }}>
           {found
             ? "We've pre-filled your car details from the FRSC registry. Review them in the next step."
-            : "We’ll look up your vehicle details automatically from the FRSC/NIID registry."}
+            : "We'll look up your vehicle details automatically from the FRSC/NIID registry."}
         </p>
 
         {!found && (
@@ -127,12 +122,31 @@ export default function MotorStep1() {
             </button>
 
             {lookupState === 'loading' && (
-              <motion.div
-                initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-                transition={{ duration: 1.6, ease: 'linear' }}
-                className="mt-3 h-1 rounded-full origin-left"
-                style={{ backgroundColor: 'var(--motor-600)' }}
-              />
+              <>
+                <motion.div
+                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                  transition={{ duration: 1.6, ease: 'linear' }}
+                  className="mt-3 h-1 rounded-full origin-left"
+                  style={{ backgroundColor: 'var(--motor-600)' }}
+                />
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="rounded-2xl border p-4 text-left mt-3"
+                  style={{ borderColor: 'var(--border-subtle)' }}
+                >
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    {[60, 80, 70, 50, 75, 65, 55, 45].map((w, i) => (
+                      <div key={i} className="animate-pulse">
+                        <div className="h-2 rounded-full mb-1.5" style={{ backgroundColor: 'var(--border-subtle)', width: '40%' }} />
+                        <div className="h-3.5 rounded-full" style={{ backgroundColor: 'var(--surface-raised)', width: `${w}%` }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-3 border-t animate-pulse" style={{ borderColor: 'var(--border-subtle)' }}>
+                    <div className="h-2.5 rounded-full" style={{ backgroundColor: 'var(--border-subtle)', width: '55%' }} />
+                  </div>
+                </motion.div>
+              </>
             )}
 
             <p className="font-sans text-[12px] mt-3" style={{ color: 'var(--text-muted)' }}>
