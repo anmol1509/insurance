@@ -1,32 +1,71 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import DocumentUploadZone from '@/components/ui/DocumentUploadZone'
 import { CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-const DOC_SLOTS = [
-  { key: 'vehicle_license',    label: 'Vehicle License (Registration Certificate)', required: true },
-  { key: 'proof_of_ownership', label: 'Proof of Ownership (Vehicle Particulars)',   required: true },
-  { key: 'drivers_license',    label: "Driver's License Copy",                       required: true },
-  { key: 'proof_of_address',   label: 'Proof of Address (Utility bill / bank statement)', required: false },
-  { key: 'vehicle_photos',     label: 'Vehicle Photographs (front, rear, sides)',   required: false },
-]
-
-const REQUIRED_KEYS = ['vehicle_license', 'proof_of_ownership', 'drivers_license']
+import { MOTOR_PLANS } from '@/lib/motorPlans'
+import { motorDocSlots } from '@/lib/motorDocuments'
+import { validateUpload } from '@/lib/nsia/files'
+import {
+  getDocumentFile,
+  putDocumentFile,
+  removeDocumentFile,
+} from '@/store/documentFiles'
 
 export default function MotorDocuments() {
   const { motorData, updateMotor } = useQuoteStore()
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const uploadedRequired = REQUIRED_KEYS.filter((k) => motorData.uploadedDocs[k]).length
-  const totalRequired = REQUIRED_KEYS.length
-  const allRequired = uploadedRequired === totalRequired
+  const plan = MOTOR_PLANS.find((p) => p.id === motorData.selectedUnderwriter)
+  const isNsia = plan?.nsia === true
+
+  // NSIA names each document slot itself, and asks for more of them on a
+  // comprehensive or corporate policy.
+  const slots = useMemo(() => motorDocSlots(motorData), [motorData])
+
+  const requiredKeys = useMemo(
+    () => slots.filter((slot) => slot.required).map((slot) => slot.key),
+    [slots]
+  )
+
+  const uploadedRequired = requiredKeys.filter((k) => motorData.uploadedDocs[k]).length
+  const totalRequired = requiredKeys.length
+  const allRequired = totalRequired > 0 && uploadedRequired === totalRequired
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  function handleUpload(key: string, file: File) {
+  /**
+   * Upload metadata survives a reload in sessionStorage but the file bytes do
+   * not, so drop any entry whose file is gone rather than showing a document
+   * we can no longer submit.
+   */
+  useEffect(() => {
+    const stale = Object.keys(motorData.uploadedDocs).filter((key) => !getDocumentFile(key))
+    if (stale.length === 0) return
+    const docs = { ...motorData.uploadedDocs }
+    stale.forEach((key) => delete docs[key])
+    updateMotor({ uploadedDocs: docs })
+    // Runs once on mount: later removals are handled by handleRemove.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  async function handleUpload(key: string, file: File) {
+    const problem = await validateUpload(file)
+    if (problem) {
+      setErrors((prev) => ({ ...prev, [key]: problem }))
+      return
+    }
+
+    setErrors((prev) => {
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+
+    putDocumentFile(key, file)
     updateMotor({
       uploadedDocs: {
         ...motorData.uploadedDocs,
@@ -36,6 +75,7 @@ export default function MotorDocuments() {
   }
 
   function handleRemove(key: string) {
+    removeDocumentFile(key)
     const docs = { ...motorData.uploadedDocs }
     delete docs[key]
     updateMotor({ uploadedDocs: docs })
@@ -59,7 +99,7 @@ export default function MotorDocuments() {
               : `${uploadedRequired} of ${totalRequired} required documents uploaded`}
           </p>
           <div className="flex gap-1.5 mt-2">
-            {REQUIRED_KEYS.map((k) => (
+            {requiredKeys.map((k) => (
               <div
                 key={k}
                 className="h-1.5 w-14 rounded-full"
@@ -90,16 +130,19 @@ export default function MotorDocuments() {
       >
         <span className="text-lg shrink-0">📋</span>
         <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-          Required per NAICOM/NSIA guidelines. Files must be clear and legible.
+          {isNsia
+            ? `Required by ${plan?.insurer} to issue your certificate. Photos must be at least 800×600px and utility bills no older than 3 months. `
+            : 'Required per NAICOM/NSIA guidelines. Files must be clear and legible. '}
           Accepted formats: PDF, JPG, PNG (max 5 MB each). Drag &amp; drop supported.
         </p>
       </div>
 
       <DocumentUploadZone
-        slots={DOC_SLOTS}
+        slots={slots}
         uploadedDocs={motorData.uploadedDocs}
         onUpload={handleUpload}
         onRemove={handleRemove}
+        errors={errors}
         productColor="var(--motor-600)"
         productColorBg="var(--motor-50)"
       />

@@ -4,6 +4,7 @@ import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
+import { requiredMotorDocKeys } from '@/lib/motorDocuments'
 
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
@@ -56,7 +57,8 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     setActiveProduct(typedProduct)
   }, [typedProduct, setActiveProduct])
 
-  const REQUIRED_MOTOR_DOCS = ['vehicle_license', 'proof_of_ownership', 'drivers_license']
+  // The required set depends on the plan chosen at step 4 — NSIA asks for more.
+  const REQUIRED_MOTOR_DOCS = requiredMotorDocKeys(motorData)
   const nextDisabled =
     (typedProduct === 'motor' && (
       (currentStep === 1 && !motorData.vehicleMakeModel) ||

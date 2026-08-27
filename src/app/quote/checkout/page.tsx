@@ -7,6 +7,10 @@ import Logo from '@/components/ui/Logo'
 import { useQuoteStore } from '@/store/quoteStore'
 import { formatNaira } from '@/lib/formatters'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
+import { motorDocSlots } from '@/lib/motorDocuments'
+import { submitNsiaApplication } from '@/lib/nsia/browser'
+import { toNsiaCustomer, toNsiaMotorDetails } from '@/lib/nsia/fromQuoteStore'
+import { collectDocumentFiles } from '@/store/documentFiles'
 
 type PayMethod = 'card' | 'bank' | 'ussd'
 
@@ -25,8 +29,8 @@ const USSD_CODES: Record<string, string> = {
   'Zenith Bank': '*966#',
 }
 
-function PaymentSuccess({ onClose, planName, total, product, fortisRef }: { onClose: () => void; planName: string; total: number; product: string; fortisRef: string | null }) {
-  const policyRef = fortisRef ?? `SI-2026-${Math.floor(100000 + Math.random() * 900000)}`
+function PaymentSuccess({ onClose, planName, total, product, insurerRef, insurerRefLabel }: { onClose: () => void; planName: string; total: number; product: string; insurerRef: string | null; insurerRefLabel: string }) {
+  const policyRef = insurerRef ?? `SI-2026-${Math.floor(100000 + Math.random() * 900000)}`
   const today = new Date()
   const expiryDate = new Date(today)
   expiryDate.setFullYear(expiryDate.getFullYear() + 1)
@@ -75,9 +79,9 @@ function PaymentSuccess({ onClose, planName, total, product, fortisRef }: { onCl
               <div>
                 <p className="font-sans text-[11px] uppercase tracking-[0.06em] mb-0.5" style={{ color: 'var(--text-muted)' }}>Policy reference</p>
                 <p className="font-mono font-bold text-[15px]" style={{ color: 'var(--text-primary)' }}>{policyRef}</p>
-                {fortisRef && (
+                {insurerRef && (
                   <p className="font-sans text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                    Fortis ref: <span className="font-mono font-medium">{fortisRef}</span>
+                    {insurerRefLabel}: <span className="font-mono font-medium">{insurerRef}</span>
                   </p>
                 )}
               </div>
@@ -181,7 +185,9 @@ export default function CheckoutPage() {
   const [orderOpen, setOrderOpen] = useState(true)
   const [paying, setPaying] = useState(false)
   const [paid, setPaid] = useState(false)
-  const [fortisRef, setFortisRef] = useState<string | null>(null)
+  const [insurerRef, setInsurerRef] = useState<string | null>(null)
+  const [insurerRefLabel, setInsurerRefLabel] = useState('Insurer ref')
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   function formatCard(val: string) {
     return val.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
@@ -208,13 +214,55 @@ export default function CheckoutPage() {
     return Object.keys(errors).length === 0
   }
 
-  const isFortisGlobal = product === 'motor' &&
-    (MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)?.fortisGlobal === true)
+  const isFortisGlobal = product === 'motor' && selectedPlan?.fortisGlobal === true
+  const isNsia = product === 'motor' && selectedPlan?.nsia === true
+
+  /** Sends the application to NSIA and returns the policy number they issue. */
+  async function submitToNsia(): Promise<string | null> {
+    const slots = motorDocSlots(motorData).map((slot) => slot.key)
+    const files = collectDocumentFiles(slots)
+
+    const missing = motorDocSlots(motorData)
+      .filter((slot) => slot.required && !files[slot.key])
+      .map((slot) => slot.label)
+
+    if (missing.length > 0) {
+      // Uploads live in memory only, so a page reload can lose them.
+      throw new Error(
+        `Please re-upload your documents before paying: ${missing.join(', ')}.`
+      )
+    }
+
+    const result = await submitNsiaApplication({
+      product: 'motor',
+      customer: toNsiaCustomer(motorData, { fullName, email, phone }),
+      details: toNsiaMotorDetails(motorData, planPrice),
+      files,
+    })
+    return result.policyNumber ?? result.certOrDocNo
+  }
 
   async function handlePay() {
     if (!validate()) return
+    setSubmitError(null)
     setPaying(true)
+
     try {
+      if (isNsia) {
+        // A failed submission means no policy exists, so this one is not
+        // swallowed the way the optional Fortis call is.
+        const [, policyNumber] = await Promise.all([
+          new Promise<void>((r) => setTimeout(r, 1200)),
+          submitToNsia(),
+        ])
+        if (policyNumber) {
+          setInsurerRef(policyNumber)
+          setInsurerRefLabel('NSIA policy no')
+        }
+        setPaid(true)
+        return
+      }
+
       const [, apiResult] = await Promise.all([
         new Promise<void>((r) => setTimeout(r, 2200)),
         isFortisGlobal
@@ -230,10 +278,19 @@ export default function CheckoutPage() {
               .catch(() => null)
           : Promise.resolve(null),
       ])
-      if (apiResult?.reference) setFortisRef(apiResult.reference)
+      if (apiResult?.reference) {
+        setInsurerRef(apiResult.reference)
+        setInsurerRefLabel('Fortis ref')
+      }
+      setPaid(true)
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : 'We could not complete your policy. Please try again.'
+      )
     } finally {
       setPaying(false)
-      setPaid(true)
     }
   }
 
@@ -486,6 +543,21 @@ export default function CheckoutPage() {
               )}
             </motion.button>
 
+            {submitError && (
+              <div
+                role="alert"
+                className="rounded-2xl border px-4 py-3 -mt-1"
+                style={{ borderColor: 'var(--error)', backgroundColor: '#FEF2F2' }}
+              >
+                <p className="font-sans font-semibold text-[12px]" style={{ color: 'var(--error)' }}>
+                  We could not issue your policy
+                </p>
+                <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  {submitError} You have not been charged.
+                </p>
+              </div>
+            )}
+
             {planInsurer && (
               <div className="flex items-center justify-center gap-1.5 -mt-1">
                 <Shield className="w-3.5 h-3.5 shrink-0" style={{ color: 'var(--green-700)' }} />
@@ -514,7 +586,7 @@ export default function CheckoutPage() {
       </div>
 
       <AnimatePresence>
-        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} product={product} fortisRef={fortisRef} />}
+        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} product={product} insurerRef={insurerRef} insurerRefLabel={insurerRefLabel} />}
       </AnimatePresence>
     </div>
   )

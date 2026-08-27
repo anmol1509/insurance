@@ -3,6 +3,7 @@ import { useQuoteStore } from '@/store/quoteStore'
 import Select from '@/components/ui/Select'
 import Input from '@/components/ui/Input'
 import { VEHICLE_MAKES, VEHICLE_TYPES } from '@/lib/constants'
+import { mergeOptions, useNsiaDropdowns } from '@/lib/nsia/useNsiaDropdowns'
 import { Fuel, Car, Calendar, Briefcase } from 'lucide-react'
 
 const currentYear = new Date().getFullYear()
@@ -12,7 +13,6 @@ const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) => {
 })
 
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'CNG / LPG']
-const makeOptions = VEHICLE_MAKES.map((m) => ({ value: m, label: m }))
 const typeOptions = VEHICLE_TYPES.map((v) => ({ value: v, label: v }))
 
 function ChipGroup({
@@ -50,6 +50,12 @@ function ChipGroup({
 
 export default function MotorStep2() {
   const { motorData, updateMotor } = useQuoteStore()
+
+  // Prefer the brand names NSIA recognises so a submission is not rejected
+  // over spelling; falls back to our own list when the API is unavailable.
+  const { data: dropdowns } = useNsiaDropdowns<{ 'vehicle-brand': string[] }>(['vehicle-brand'])
+  const makeOptions = mergeOptions(VEHICLE_MAKES, dropdowns['vehicle-brand'])
+    .map((m) => ({ value: m, label: m }))
 
   return (
     <div className="space-y-6">

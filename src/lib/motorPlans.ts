@@ -16,9 +16,45 @@ export interface MotorPlan {
   repairNetwork: string
   popular?: boolean
   fortisGlobal?: boolean
+  /** Submitted to NSIA Insurance through their partner API. */
+  nsia?: boolean
 }
 
 export const MOTOR_PLANS: MotorPlan[] = [
+  {
+    id: 'nsia-comp',
+    name: 'NSIA Comprehensive',
+    insurer: 'NSIA Insurance',
+    coverType: 'comprehensive',
+    rating: 4.6,
+    reviews: 1487,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    nsia: true,
+    features: ['NIID auto-registered', 'Towing included', 'Windscreen cover', 'Flood & fire protection', 'Cashless claims', 'Instant policy number'],
+    exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
+    claimSettlement: '97%',
+    responseTime: '48 hours',
+    excess: '\u20a625,000',
+    repairNetwork: '200+ garages',
+  },
+  {
+    id: 'nsia-tpo',
+    name: 'NSIA Third Party',
+    insurer: 'NSIA Insurance',
+    coverType: 'tpo',
+    rating: 4.5,
+    reviews: 992,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    nsia: true,
+    features: ['Third party bodily injury', 'Property damage liability', 'NIID auto-registered', 'Digital certificate', 'NAICOM licensed', 'Instant policy number'],
+    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
+    claimSettlement: '95%',
+    responseTime: '48 hours',
+    excess: 'None',
+    repairNetwork: 'N/A \u00b7 third party',
+  },
   {
     id: 'fortis-comp',
     name: 'Fortis Global Comprehensive',

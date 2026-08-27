@@ -6,6 +6,7 @@ import { Upload, CheckCircle2, X, FileText, Image as ImageIcon } from 'lucide-re
 interface DocSlot {
   key: string
   label: string
+  hint?: string
   required?: boolean
 }
 
@@ -14,6 +15,8 @@ interface DocumentUploadZoneProps {
   uploadedDocs: Record<string, { name: string; size: number; status: 'uploaded' | 'pending' }>
   onUpload: (key: string, file: File) => void
   onRemove: (key: string) => void
+  /** Per-slot rejection messages, keyed the same way as `uploadedDocs`. */
+  errors?: Record<string, string>
   productColor?: string
   productColorBg?: string
 }
@@ -39,6 +42,7 @@ export default function DocumentUploadZone({
   uploadedDocs,
   onUpload,
   onRemove,
+  errors = {},
   productColor = 'var(--green-700)',
   productColorBg = 'var(--green-50)',
 }: DocumentUploadZoneProps) {
@@ -49,9 +53,8 @@ export default function DocumentUploadZone({
     e.preventDefault()
     setDraggingOver(null)
     const file = e.dataTransfer.files?.[0]
-    if (file && ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-      onUpload(key, file)
-    }
+    // Validation lives with the caller so it can surface a reason per slot.
+    if (file) onUpload(key, file)
   }
 
   return (
@@ -60,13 +63,14 @@ export default function DocumentUploadZone({
         const doc = uploadedDocs[slot.key]
         const uploaded = !!doc
         const isOver = draggingOver === slot.key
+        const error = errors[slot.key]
 
         return (
+          <div key={slot.key}>
           <div
-            key={slot.key}
             className="rounded-2xl border-[1.5px] border-dashed"
             style={{
-              borderColor: isOver ? productColor : (uploaded ? productColor : 'var(--border-medium)'),
+              borderColor: isOver ? productColor : (uploaded ? productColor : (error ? 'var(--error)' : 'var(--border-medium)')),
               backgroundColor: isOver ? productColorBg : (uploaded ? productColorBg : 'var(--surface-raised)'),
               boxShadow: isOver ? `0 0 0 3px color-mix(in srgb, ${productColor} 15%, transparent)` : 'none',
               transition: 'border-color 0.15s, background-color 0.15s, box-shadow 0.15s',
@@ -144,12 +148,20 @@ export default function DocumentUploadZone({
                       {slot.required && <span style={{ color: 'var(--error)' }}> *</span>}
                     </p>
                     <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      {isOver ? 'Drop file here to upload' : 'Click to upload or drag & drop · PDF, JPG, PNG'}
+                      {isOver
+                        ? 'Drop file here to upload'
+                        : slot.hint ?? 'Click to upload or drag & drop · PDF, JPG, PNG'}
                     </p>
                   </div>
                 </motion.button>
               )}
             </AnimatePresence>
+          </div>
+          {error && (
+            <p className="font-sans text-[11px] mt-1.5 px-1" style={{ color: 'var(--error)' }}>
+              {error}
+            </p>
+          )}
           </div>
         )
       })}
