@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil } from 'lucide-react'
+import { lookupVehicleByPlate } from '@/lib/verifydata/browser'
 
 const MOCK_LOOKUP: Record<string, {
   vehicleMakeModel: string; yearOfManufacture: number; vehicleType: string;
@@ -24,10 +25,30 @@ export default function MotorStep1() {
   async function handleLookup() {
     if (!inputValue.trim()) return
     setLookupState('loading')
-    updateMotor({ registrationNumber: inputValue.trim().toUpperCase() })
-    await new Promise((r) => setTimeout(r, 1800))
-
     const key = inputValue.trim().toUpperCase()
+    updateMotor({ registrationNumber: key })
+
+    // Try the real registry lookup (VerifyData) first; fall back to demo data
+    // if it's unavailable, not configured, or the plate isn't found — the
+    // quote flow should never get stuck on a third-party outage.
+    const [, verified] = await Promise.all([
+      new Promise((r) => setTimeout(r, 1800)),
+      lookupVehicleByPlate(key).catch(() => null),
+    ])
+
+    if (verified?.fields.vehicleMakeModel) {
+      updateMotor({
+        vehicleMakeModel: verified.fields.vehicleMakeModel,
+        yearOfManufacture: verified.fields.yearOfManufacture,
+        vehicleType: verified.fields.vehicleType,
+        engineCapacity: verified.fields.engineCapacity,
+        vehicleColour: verified.fields.vehicleColour,
+        chassisVIN: verified.fields.chassisVIN,
+      })
+      setLookupState('found')
+      return
+    }
+
     const match = MOCK_LOOKUP[key] ?? {
       vehicleMakeModel: 'Toyota Camry',
       yearOfManufacture: 2022,
