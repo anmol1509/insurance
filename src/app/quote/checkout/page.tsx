@@ -11,23 +11,39 @@ import { motorDocSlots } from '@/lib/motorDocuments'
 import { submitNsiaApplication } from '@/lib/nsia/browser'
 import { documentSlotsFor } from '@/lib/nsia/documents'
 import { toNsiaCustomer, toNsiaMarineDetails, toNsiaMotorDetails, toNsiaPersonalAccidentDetails } from '@/lib/nsia/fromQuoteStore'
+import { submitTangerineApplication } from '@/lib/tangerine/browser'
+import { toTangerineCustomer, toTangerineMotor } from '@/lib/tangerine/fromQuoteStore'
+import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
 import { collectDocumentFiles } from '@/store/documentFiles'
+import {
+  confirmPayloftTransfer,
+  initiatePayloftOrder,
+  pollPayloftResult,
+  submitPayloftPayment,
+  type PayloftTransactionResult,
+} from '@/lib/payloft/browser'
 
-type PayMethod = 'card' | 'bank' | 'ussd'
+type PayMethod = 'card' | 'bank' | 'mobile'
 
 const CARD_NETWORKS = ['Visa', 'Mastercard', 'Verve']
 
-const BANKS = [
-  'Access Bank', 'First Bank', 'GTBank', 'UBA', 'Zenith Bank',
-  'Stanbic IBTC', 'Fidelity Bank', 'Polaris Bank', 'Union Bank',
-]
+interface TransferAccount {
+  accountNumber: string
+  bankName: string
+  bankCode: string
+  amount: number
+  expiresAt: string
+}
 
-const USSD_CODES: Record<string, string> = {
-  'GTBank': '*737#',
-  'Access Bank': '*901#',
-  'First Bank': '*894#',
-  'UBA': '*919#',
-  'Zenith Bank': '*966#',
+/** Guide "Error Codes & HTTP Status" plus the transfer test scenarios table. */
+function paymentFailureMessage(status: string): string {
+  switch (status) {
+    case 'DECLINED': return 'Your payment was declined. Please check your details or try another method.'
+    case 'INSUFFICIENT_FUNDS': return 'Payment failed: insufficient funds.'
+    case 'TIMEOUT': return 'The payment timed out. Please try again.'
+    case 'FRAUD_BLOCK': return 'This payment was blocked for security reasons. Please contact support.'
+    default: return `Payment was not approved (status: ${status}).`
+  }
 }
 
 function PaymentSuccess({ onClose, planName, total, productLabel, insurerRef, insurerRefLabel }: { onClose: () => void; planName: string; total: number; productLabel: string; insurerRef: string | null; insurerRefLabel: string }) {
@@ -195,13 +211,26 @@ export default function CheckoutPage() {
   const [cardCvv, setCardCvv] = useState('')
   const [cardName, setCardName] = useState('')
   const [cardNetwork, setCardNetwork] = useState('Visa')
-  const [selectedBank, setSelectedBank] = useState(BANKS[0])
+  const [mobileNumber, setMobileNumber] = useState('')
   const [orderOpen, setOrderOpen] = useState(true)
   const [paying, setPaying] = useState(false)
   const [paid, setPaid] = useState(false)
   const [insurerRef, setInsurerRef] = useState<string | null>(null)
   const [insurerRefLabel, setInsurerRefLabel] = useState('Insurer ref')
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  // Bank transfer is a two-step Payloft flow: the first "Pay" click creates
+  // the order and requests a virtual account; a second click, after the
+  // customer has actually sent the money, confirms it.
+  const [payloftOrderId, setPayloftOrderId] = useState<number | null>(null)
+  const [transferAccount, setTransferAccount] = useState<TransferAccount | null>(null)
+
+  function switchPayMethod(next: PayMethod) {
+    setPayMethod(next)
+    setPayloftOrderId(null)
+    setTransferAccount(null)
+    setSubmitError(null)
+  }
 
   function formatCard(val: string) {
     return val.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
@@ -224,12 +253,16 @@ export default function CheckoutPage() {
       if (cardCvv.length < 3) errors.cvv = 'Enter 3-digit CVV'
       if (!cardName.trim()) errors.cardName = 'Name on card required'
     }
+    if (payMethod === 'mobile' && mobileNumber.replace(/\D/g, '').length < 10) {
+      errors.mobile = 'Valid mobile number required'
+    }
     setFormErrors(errors)
     return Object.keys(errors).length === 0
   }
 
   const isFortisGlobal = product === 'motor' && selectedPlan?.fortisGlobal === true
   const isMotorNsia = product === 'motor' && selectedPlan?.nsia === true
+  const isMotorTangerine = product === 'motor' && selectedPlan?.tangerine != null
 
   /** Sends the motor application to NSIA and returns the policy number they issue. */
   async function submitMotorToNsia(): Promise<string | null> {
@@ -254,6 +287,26 @@ export default function CheckoutPage() {
       files,
     })
     return result.policyNumber ?? result.certOrDocNo
+  }
+
+  /** Sends the motor application to Tangerine and returns the policy number they issue. */
+  async function submitMotorToTangerine(): Promise<string | null> {
+    const line = selectedPlan?.tangerine
+    if (!line) return null
+
+    const files = collectDocumentFiles(TANGERINE_DOCUMENT_SLOTS.map((slot) => slot.slot))
+    const missing = TANGERINE_DOCUMENT_SLOTS.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+    if (missing.length > 0) {
+      throw new Error(`Please re-upload your documents before paying: ${missing.join(', ')}.`)
+    }
+
+    const result = await submitTangerineApplication({
+      product: line,
+      customer: toTangerineCustomer(motorData, { fullName, email, phone }),
+      motor: toTangerineMotor(motorData),
+      files,
+    })
+    return result.policyNumber
   }
 
   /** Sends the marine cargo application to NSIA. */
@@ -299,53 +352,145 @@ export default function CheckoutPage() {
     'personal-accident': submitPersonalAccidentToNsia,
   }
 
-  async function handlePay() {
-    if (!validate()) return
-    setSubmitError(null)
-    setPaying(true)
+  /**
+   * Runs only after Payloft has actually approved the payment. A failure
+   * here means the customer has been charged but has no policy — that is a
+   * different, more serious problem than a declined card, so it gets its
+   * own message rather than being folded into a generic "payment failed".
+   */
+  async function finishAfterPaymentApproved(paymentRef: string | null) {
+    const insurerSubmit = isMotorNsia
+      ? { fn: submitMotorToNsia, label: 'NSIA policy no' }
+      : isMotorTangerine
+      ? { fn: submitMotorToTangerine, label: 'Tangerine policy no' }
+      : NSIA_SUBMIT_FN[product]
+      ? { fn: NSIA_SUBMIT_FN[product], label: 'NSIA policy no' }
+      : null
 
-    try {
-      const nsiaSubmit = isMotorNsia ? submitMotorToNsia : NSIA_SUBMIT_FN[product]
-      if (nsiaSubmit) {
-        // A failed submission means no policy exists, so this one is not
-        // swallowed the way the optional Fortis call is.
-        const [, policyNumber] = await Promise.all([
-          new Promise<void>((r) => setTimeout(r, 1200)),
-          nsiaSubmit(),
-        ])
+    if (insurerSubmit) {
+      try {
+        const policyNumber = await insurerSubmit.fn()
         if (policyNumber) {
           setInsurerRef(policyNumber)
-          setInsurerRefLabel('NSIA policy no')
+          setInsurerRefLabel(insurerSubmit.label)
         }
-        setPaid(true)
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : 'please contact support.'
+        setSubmitError(
+          `Your payment was successful${paymentRef ? ` (ref ${paymentRef})` : ''}, but we could not finalise your policy: ${detail}`
+        )
         return
       }
+      setPaid(true)
+      return
+    }
 
-      const [, apiResult] = await Promise.all([
-        new Promise<void>((r) => setTimeout(r, 2200)),
-        isFortisGlobal
-          ? fetch('/api/fortis/submit', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                motorData,
-                policyHolder: { fullName, email, phone },
-              }),
-            })
-              .then((r) => r.json())
-              .catch(() => null)
-          : Promise.resolve(null),
-      ])
+    if (isFortisGlobal) {
+      const apiResult = await fetch('/api/fortis/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ motorData, policyHolder: { fullName, email, phone } }),
+      })
+        .then((r) => r.json())
+        .catch(() => null)
       if (apiResult?.reference) {
         setInsurerRef(apiResult.reference)
         setInsurerRefLabel('Fortis ref')
       }
-      setPaid(true)
+    } else if (paymentRef) {
+      setInsurerRef(paymentRef)
+      setInsurerRefLabel('Payment ref')
+    }
+    setPaid(true)
+  }
+
+  /** Card and PayAttitude both resolve in a single round trip: pay, then poll for the result. */
+  async function handleDirectPay() {
+    const order = await initiatePayloftOrder({
+      amount: total,
+      description: `${productLabel} — ${planName}`,
+      returnUrl: window.location.href,
+      customerName: fullName,
+      email,
+    })
+
+    if (payMethod === 'card') {
+      await submitPayloftPayment(order.orderId, {
+        method: 'card',
+        cardNumber: cardNumber.replace(/\s/g, ''),
+        scheme: cardNetwork.toLowerCase(),
+        expiry: cardExpiry,
+        cvv: cardCvv,
+      })
+    } else {
+      await submitPayloftPayment(order.orderId, {
+        method: 'payattitude',
+        mobile: mobileNumber.replace(/\D/g, ''),
+      })
+    }
+
+    const result: PayloftTransactionResult = await pollPayloftResult(order.orderId)
+    if (result.status !== 'APPROVED') {
+      setSubmitError(paymentFailureMessage(result.status))
+      return
+    }
+    await finishAfterPaymentApproved(result.approvalCode ?? String(result.transactionId))
+  }
+
+  /**
+   * Bank transfer is two clicks: the first requests a virtual account from
+   * Payloft (guide step 3a); the second — after the customer has actually
+   * sent the money — confirms the credit (step 3b) and only then finishes.
+   */
+  async function handleBankTransferStep() {
+    if (!transferAccount) {
+      const order = await initiatePayloftOrder({
+        amount: total,
+        description: `${productLabel} — ${planName}`,
+        returnUrl: window.location.href,
+        customerName: fullName,
+        email,
+      })
+      setPayloftOrderId(order.orderId)
+
+      const result = await submitPayloftPayment(order.orderId, { method: 'transfer' })
+      const data = (result as { data?: Record<string, unknown> }).data ?? result
+      setTransferAccount({
+        accountNumber: String(data.accountNumber ?? ''),
+        bankName: String(data.bankName ?? ''),
+        bankCode: String(data.bankCode ?? ''),
+        amount: Number(data.amount ?? total),
+        expiresAt: String(data.expiresAt ?? ''),
+      })
+      return
+    }
+
+    if (!payloftOrderId) {
+      setSubmitError('Something went wrong with your transfer. Please restart the payment.')
+      return
+    }
+
+    await confirmPayloftTransfer(payloftOrderId)
+    const result = await pollPayloftResult(payloftOrderId)
+    if (result.status !== 'APPROVED') {
+      setSubmitError(paymentFailureMessage(result.status))
+      return
+    }
+    await finishAfterPaymentApproved(result.approvalCode ?? String(result.transactionId))
+  }
+
+  async function handlePay() {
+    if (!validate()) return
+    setSubmitError(null)
+    setPaying(true)
+    try {
+      if (payMethod === 'bank') await handleBankTransferStep()
+      else await handleDirectPay()
     } catch (error) {
       setSubmitError(
         error instanceof Error
           ? error.message
-          : 'We could not complete your policy. Please try again.'
+          : 'We could not complete your payment. Please try again.'
       )
     } finally {
       setPaying(false)
@@ -420,9 +565,9 @@ export default function CheckoutPage() {
                 {([
                   { key: 'card', icon: CreditCard, label: 'Card' },
                   { key: 'bank', icon: Building2, label: 'Bank transfer' },
-                  { key: 'ussd', icon: Smartphone, label: 'USSD' },
+                  { key: 'mobile', icon: Smartphone, label: 'Mobile (PayAttitude)' },
                 ] as { key: PayMethod; icon: React.ElementType; label: string }[]).map(({ key, icon: Icon, label }) => (
-                  <button key={key} type="button" onClick={() => setPayMethod(key)}
+                  <button key={key} type="button" onClick={() => switchPayMethod(key)}
                     className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl border-[1.5px] transition-all font-sans text-[12px] font-medium"
                     style={payMethod === key
                       ? { borderColor: 'var(--green-700)', backgroundColor: 'var(--green-50)', color: 'var(--green-700)' }
@@ -488,47 +633,47 @@ export default function CheckoutPage() {
 
                 {payMethod === 'bank' && (
                   <motion.div key="bank" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }}>
-                    <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
-                      Transfer exactly <strong style={{ color: 'var(--text-primary)' }}>{formatNaira(total)}</strong> to the account below. Your policy activates within 15 minutes of transfer confirmation.
-                    </p>
-                    <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--green-50)', border: '1.5px solid var(--green-100)' }}>
-                      {[
-                        { label: 'Bank', value: 'Coverquick Escrow (GTBank)' },
-                        { label: 'Account number', value: '0123456789' },
-                        { label: 'Account name', value: 'Coverquick Insurance Ltd' },
-                        { label: 'Amount', value: formatNaira(total) },
-                        { label: 'Reference', value: `COV-${Date.now().toString(36).toUpperCase()}` },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="flex justify-between">
-                          <span className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>{label}</span>
-                          <span className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-primary)' }}>{value}</span>
+                    {!transferAccount ? (
+                      <p className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
+                        Click <strong style={{ color: 'var(--text-primary)' }}>Get transfer details</strong> below to generate a unique virtual account for this payment of <strong style={{ color: 'var(--text-primary)' }}>{formatNaira(total)}</strong>.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
+                          Transfer exactly <strong style={{ color: 'var(--text-primary)' }}>{formatNaira(transferAccount.amount)}</strong> to the account below, then confirm you've sent it.
+                        </p>
+                        <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: 'var(--green-50)', border: '1.5px solid var(--green-100)' }}>
+                          {[
+                            { label: 'Bank', value: transferAccount.bankName },
+                            { label: 'Account number', value: transferAccount.accountNumber },
+                            { label: 'Amount', value: formatNaira(transferAccount.amount) },
+                            { label: 'Expires', value: transferAccount.expiresAt },
+                          ].map(({ label, value }) => (
+                            <div key={label} className="flex justify-between">
+                              <span className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                              <span className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-primary)' }}>{value}</span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                    <p className="font-sans text-[11px] mt-3 text-center" style={{ color: 'var(--text-subtle)' }}>Please use your name + phone as narration</p>
+                        <p className="font-sans text-[11px] mt-3 text-center" style={{ color: 'var(--text-subtle)' }}>
+                          This is a sandbox virtual account — no real funds move.
+                        </p>
+                      </>
+                    )}
                   </motion.div>
                 )}
 
-                {payMethod === 'ussd' && (
-                  <motion.div key="ussd" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }}>
-                    <div className="mb-4">
-                      <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Select your bank</label>
-                      <select value={selectedBank} onChange={e => setSelectedBank(e.target.value)}
-                        className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none"
-                        style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                      >
-                        {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
-                      </select>
-                    </div>
-                    <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: 'var(--surface-raised)' }}>
-                      <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--text-muted)' }}>Dial this code on your phone:</p>
-                      <p className="font-display font-extrabold text-[36px] tracking-widest mb-2" style={{ color: 'var(--text-primary)' }}>
-                        {USSD_CODES[selectedBank] ?? '*737#'}
-                      </p>
-                      <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
-                        Follow the prompts · Transfer {formatNaira(total)} · Use reference <strong>COV{Date.now().toString(36).toUpperCase()}</strong>
-                      </p>
-                    </div>
+                {payMethod === 'mobile' && (
+                  <motion.div key="mobile" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.18 }}>
+                    <p className="font-sans text-[13px] mb-4" style={{ color: 'var(--text-muted)' }}>
+                      Pay with the mobile number linked to your PayAttitude wallet.
+                    </p>
+                    <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Mobile number</label>
+                    <input type="tel" value={mobileNumber} onChange={e => setMobileNumber(e.target.value)} placeholder="080XXXXXXXX"
+                      className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none"
+                      style={{ borderColor: formErrors.mobile ? 'var(--error)' : 'var(--border-medium)', color: 'var(--text-primary)' }}
+                    />
+                    {formErrors.mobile && <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--error)' }}>{formErrors.mobile}</p>}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -596,6 +741,10 @@ export default function CheckoutPage() {
             >
               {paying ? (
                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full" />
+              ) : payMethod === 'bank' && transferAccount ? (
+                <><Lock className="w-4 h-4" /> I've sent the transfer</>
+              ) : payMethod === 'bank' ? (
+                <><Lock className="w-4 h-4" /> Get transfer details</>
               ) : (
                 <><Lock className="w-4 h-4" /> Pay {formatNaira(total)} securely</>
               )}

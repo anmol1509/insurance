@@ -46,6 +46,11 @@ export interface MotorData {
   companyName: string
   rcNumber: string
   contactPerson: string
+  // Tangerine-specific — only asked for when a Tangerine plan is chosen
+  lgaOfResidence: string
+  mileageKm: number | null
+  vehicleRegistrationDate: string
+  tin: string
   // Step 4 — Documents
   uploadedDocs: Record<string, { name: string; size: number; status: 'uploaded' | 'pending' }>
   // Review
@@ -301,6 +306,7 @@ const defaultMotor: MotorData = {
   gender: '', maritalStatus: '', residentialAddress: '', residentialState: '',
   occupation: '', idType: '', idNumber: '', isBusinessPolicy: false,
   companyName: '', rcNumber: '', contactPerson: '',
+  lgaOfResidence: '', mileageKm: null, vehicleRegistrationDate: '', tin: '',
   uploadedDocs: {}, reviewConfirmed: false, selectedUnderwriter: null,
 }
 

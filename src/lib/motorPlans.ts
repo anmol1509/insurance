@@ -18,9 +18,45 @@ export interface MotorPlan {
   fortisGlobal?: boolean
   /** Submitted to NSIA Insurance through their partner API. */
   nsia?: boolean
+  /** Submitted to Tangerine through their partner API. */
+  tangerine?: 'comprehensive' | 'thirdparty'
 }
 
 export const MOTOR_PLANS: MotorPlan[] = [
+  {
+    id: 'tangerine-comp',
+    name: 'Tangerine Comprehensive',
+    insurer: 'Tangerine Insurance',
+    coverType: 'comprehensive',
+    rating: 4.5,
+    reviews: 764,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    tangerine: 'comprehensive',
+    features: ['NIID auto-registered', 'Instant temporary certificate', 'Flood & fire protection', 'Theft cover', 'Online certificate reprint', 'Digital claims tracking'],
+    exclusions: ['Racing & speed testing', 'Wear & tear', 'Drunk driving', 'War & terrorism'],
+    claimSettlement: '93%',
+    responseTime: '30 days (final approval)',
+    excess: '\u20a625,000',
+    repairNetwork: '150+ garages',
+  },
+  {
+    id: 'tangerine-tpo',
+    name: 'Tangerine Third Party',
+    insurer: 'Tangerine Insurance',
+    coverType: 'tpo',
+    rating: 4.4,
+    reviews: 512,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    tangerine: 'thirdparty',
+    features: ['Third party bodily injury', 'Property damage liability', 'NIID auto-registered', 'Instant digital certificate', 'NAICOM licensed', 'Online certificate reprint'],
+    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
+    claimSettlement: '91%',
+    responseTime: '24 hours',
+    excess: 'None',
+    repairNetwork: 'N/A \u00b7 third party',
+  },
   {
     id: 'nsia-comp',
     name: 'NSIA Comprehensive',

@@ -5,13 +5,14 @@ import DocumentUploadZone from '@/components/ui/DocumentUploadZone'
 import { CheckCircle2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
-import { motorDocSlots } from '@/lib/motorDocuments'
+import { motorDocSlots, tangerineLineFor } from '@/lib/motorDocuments'
 import { validateUpload } from '@/lib/nsia/files'
 import {
   getDocumentFile,
   putDocumentFile,
   removeDocumentFile,
 } from '@/store/documentFiles'
+import TangerineMotorDetails from './TangerineMotorDetails'
 
 export default function MotorDocuments() {
   const { motorData, updateMotor } = useQuoteStore()
@@ -19,6 +20,7 @@ export default function MotorDocuments() {
 
   const plan = MOTOR_PLANS.find((p) => p.id === motorData.selectedUnderwriter)
   const isNsia = plan?.nsia === true
+  const tangerineLine = tangerineLineFor(motorData.selectedUnderwriter)
 
   // NSIA names each document slot itself, and asks for more of them on a
   // comprehensive or corporate policy.
@@ -132,10 +134,14 @@ export default function MotorDocuments() {
         <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
           {isNsia
             ? `Required by ${plan?.insurer} to issue your certificate. Photos must be at least 800×600px and utility bills no older than 3 months. `
+            : tangerineLine
+            ? `Required by ${plan?.insurer} to generate your policy. Vehicle photos are hosted and linked directly on your application. `
             : 'Required per NAICOM/NSIA guidelines. Files must be clear and legible. '}
           Accepted formats: PDF, JPG, PNG (max 5 MB each). Drag &amp; drop supported.
         </p>
       </div>
+
+      {tangerineLine && <TangerineMotorDetails />}
 
       <DocumentUploadZone
         slots={slots}
