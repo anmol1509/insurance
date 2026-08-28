@@ -9,6 +9,7 @@ type BadgeVariant =
   | 'status-expiring'
   | 'status-expired'
   | 'status-pending'
+  | 'status-cancelled'
   | 'promo'
   | 'default'
 
@@ -27,6 +28,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   'status-expiring':'bg-[#FEF9C3] text-[#854D0E]',
   'status-expired': 'bg-[#FEE2E2] text-[#991B1B]',
   'status-pending': 'bg-[#EFF6FF] text-[#1E40AF]',
+  'status-cancelled': 'bg-[#F1F5F9] text-[#475569]',
   promo:           'bg-orange-50 text-orange-600',
   default:         'bg-[var(--surface-raised)] text-[var(--text-secondary)] border border-[var(--border-default)]',
 }

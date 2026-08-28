@@ -177,4 +177,6 @@ export const PRODUCT_COLORS: Record<string, { main: string; light: string; text:
   medical:  { main: 'var(--medical-600)',  light: 'var(--medical-50)',  text: 'var(--medical-700)',  label: 'Medical',  emoji: '❤️' },
   travel:   { main: 'var(--travel-600)',   light: 'var(--travel-50)',   text: 'var(--travel-700)',   label: 'Travel',   emoji: '✈️' },
   business: { main: 'var(--business-600)', light: 'var(--business-50)', text: 'var(--business-700)', label: 'Business', emoji: '🏢' },
+  marine:   { main: 'var(--marine-600)',   light: 'var(--marine-50)',   text: 'var(--marine-700)',   label: 'Marine',   emoji: '🚢' },
+  'personal-accident': { main: 'var(--pa-600)', light: 'var(--pa-50)', text: 'var(--pa-700)', label: 'Personal Accident', emoji: '🩹' },
 }
