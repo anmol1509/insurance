@@ -70,6 +70,22 @@ export const OCCUPATIONS = [
   'Retiree','Student','Teacher','Trader','Other',
 ]
 
+/** Fallback lists used when the live NSIA dropdown (guide §6, 8.1) is unavailable. */
+export const MARINE_COVER_TYPES = [
+  'All Risks', 'With Average', 'Free from Particular Average (FPA)',
+  'Institute Cargo Clause A', 'Institute Cargo Clause B', 'Institute Cargo Clause C',
+]
+
+export const MARINE_CARGO_CATEGORIES = ['Import Cargo', 'Export Cargo', 'Local Transit']
+
+export const MARINE_PACKING_TYPES = ['Containerized', 'Bulk', 'Palletized', 'Loose', 'Crated']
+
+export const MARINE_CURRENCIES = ['NGN', 'USD', 'GBP', 'EUR']
+
+export const BENEFICIARY_RELATIONSHIPS = [
+  'Spouse', 'Child', 'Parent', 'Sibling', 'Other next of kin',
+]
+
 export const PRODUCT_STEPS = {
   motor: [
     { id: 1, label: 'Your car',        title: 'Find your car',                  sub: 'Enter your registration plate to auto-fill your vehicle details.' },
@@ -98,5 +114,19 @@ export const PRODUCT_STEPS = {
     { id: 3, label: 'Risk details',   title: 'Risk assessment',                 sub: 'A few questions about your premises and operations.' },
     { id: 4, label: 'Contact info',   title: 'Director / contact details',      sub: 'KYC information for the authorised signatory.' },
     { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+  ],
+  marine: [
+    { id: 1, label: 'Shipment',       title: 'Cargo & shipment details',        sub: 'Tell us what is being shipped and how.' },
+    { id: 2, label: 'Cover',          title: 'Choose your cover & premium',     sub: 'We calculate your premium live with NSIA Insurance.' },
+    { id: 3, label: 'Your details',   title: 'Policyholder details',            sub: 'Your information for the insurance certificate.' },
+    { id: 4, label: 'Documents',      title: 'Upload your documents',           sub: 'Required documents for your NSIA marine policy.' },
+    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before submitting.' },
+  ],
+  'personal-accident': [
+    { id: 1, label: 'About you',      title: 'About you',                       sub: 'A few details we need for accident cover.' },
+    { id: 2, label: 'Beneficiary',    title: 'Beneficiary & health',            sub: 'Who should be paid, and a quick health check.' },
+    { id: 3, label: 'Your details',   title: 'Policyholder details',            sub: 'Your information for the insurance certificate.' },
+    { id: 4, label: 'Documents',      title: 'Upload your documents',           sub: 'Required documents for your NSIA personal accident policy.' },
+    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before submitting.' },
   ],
 } as const

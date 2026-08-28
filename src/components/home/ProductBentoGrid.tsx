@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Car, Heart, Plane, Building2 } from 'lucide-react'
+import { ArrowRight, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import Tag from '@/components/ui/Tag'
 
 const fadeUp = {
@@ -55,6 +55,28 @@ const products = [
     color: 'var(--business-600)', borderColor: '#7C3AED',
     href: '/business',
     icon: Building2,
+    large: false,
+  },
+  {
+    id: 'E', tag: 'marine' as const, tagLabel: 'Marine Insurance',
+    title: 'Marine cargo insurance',
+    valueProp: 'Cover for goods in transit',
+    sub: '',
+    featureLabel: 'NSIA Insurance',
+    color: 'var(--marine-600)', borderColor: '#2563EB',
+    href: '/marine',
+    icon: Ship,
+    large: false,
+  },
+  {
+    id: 'F', tag: 'pa' as const, tagLabel: 'Personal Accident',
+    title: 'Personal accident cover',
+    valueProp: 'Protection against injury & disability',
+    sub: '',
+    featureLabel: 'NSIA Insurance',
+    color: 'var(--pa-600)', borderColor: '#E11D48',
+    href: '/personal-accident',
+    icon: HeartPulse,
     large: false,
   },
 ]

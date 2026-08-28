@@ -1,4 +1,4 @@
-import type { MotorData, MedicalData, TravelData, BusinessData } from '@/store/quoteStore'
+import type { MotorData, MedicalData, TravelData, BusinessData, MarineData, PersonalAccidentData } from '@/store/quoteStore'
 
 export function calculateMotorPremium(data: MotorData): { total: number; breakdown: Record<string, number> } {
   if (!data.marketValueRange || !data.coverType) return { total: 0, breakdown: {} }
@@ -90,4 +90,53 @@ export function calculateBusinessPremium(data: BusinessData): { total: number; b
     {} as Record<string, number>
   )
   return { total, breakdown }
+}
+
+/**
+ * Local estimate used only until NSIA's own marine calculator (guide §8.2,
+ * wired via `calculateNsiaMarinePremium`) responds. Rates approximate the
+ * cover types NSIA lists for `/DropDown/marine-cover-type`.
+ */
+export function calculateMarineFallbackPremium(data: MarineData): { total: number; breakdown: Record<string, number> } {
+  const sumInsured = data.sumInsured ?? 0
+  if (!sumInsured || !data.coverType) return { total: 0, breakdown: {} }
+
+  const rates: Record<string, number> = {
+    'All Risks': 0.025,
+    'With Average': 0.02,
+    'Free from Particular Average (FPA)': 0.015,
+    'Institute Cargo Clause A': 0.025,
+    'Institute Cargo Clause B': 0.02,
+    'Institute Cargo Clause C': 0.015,
+  }
+  const rate = rates[data.coverType] ?? 0.02
+  const base = Math.max(sumInsured * rate, 10000)
+
+  return {
+    total: Math.round(base),
+    breakdown: { 'Estimated base premium': Math.round(base) },
+  }
+}
+
+/**
+ * NSIA does not publish a personal accident calculator, so this platform
+ * prices it directly: a sum-insured rate, loaded for higher-risk occupations.
+ */
+export function calculatePersonalAccidentPremium(data: PersonalAccidentData): { total: number; breakdown: Record<string, number> } {
+  const sumInsured = data.sumInsured ?? 0
+  if (!sumInsured) return { total: 0, breakdown: {} }
+
+  const highRiskOccupations = ['Driver', 'Police/Military', 'Construction', 'Farmer']
+  const rate = highRiskOccupations.includes(data.occupation) ? 0.012 : 0.006
+
+  const base = Math.max(sumInsured * rate, 5000)
+  const stampDuty = 200
+
+  return {
+    total: Math.round(base + stampDuty),
+    breakdown: {
+      'Base premium': Math.round(base),
+      'Stamp duty': stampDuty,
+    },
+  }
 }

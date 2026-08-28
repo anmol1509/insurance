@@ -9,7 +9,8 @@ import { formatNaira } from '@/lib/formatters'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import { motorDocSlots } from '@/lib/motorDocuments'
 import { submitNsiaApplication } from '@/lib/nsia/browser'
-import { toNsiaCustomer, toNsiaMotorDetails } from '@/lib/nsia/fromQuoteStore'
+import { documentSlotsFor } from '@/lib/nsia/documents'
+import { toNsiaCustomer, toNsiaMarineDetails, toNsiaMotorDetails, toNsiaPersonalAccidentDetails } from '@/lib/nsia/fromQuoteStore'
 import { collectDocumentFiles } from '@/store/documentFiles'
 
 type PayMethod = 'card' | 'bank' | 'ussd'
@@ -29,7 +30,7 @@ const USSD_CODES: Record<string, string> = {
   'Zenith Bank': '*966#',
 }
 
-function PaymentSuccess({ onClose, planName, total, product, insurerRef, insurerRefLabel }: { onClose: () => void; planName: string; total: number; product: string; insurerRef: string | null; insurerRefLabel: string }) {
+function PaymentSuccess({ onClose, planName, total, productLabel, insurerRef, insurerRefLabel }: { onClose: () => void; planName: string; total: number; productLabel: string; insurerRef: string | null; insurerRefLabel: string }) {
   const policyRef = insurerRef ?? `SI-2026-${Math.floor(100000 + Math.random() * 900000)}`
   const today = new Date()
   const expiryDate = new Date(today)
@@ -89,7 +90,7 @@ function PaymentSuccess({ onClose, planName, total, product, insurerRef, insurer
             </div>
             <div className="grid grid-cols-2 gap-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
               {[
-                { label: 'Product', value: product.charAt(0).toUpperCase() + product.slice(1) + ' Insurance' },
+                { label: 'Product', value: productLabel },
                 { label: 'Insurer', value: planName },
                 { label: 'Valid from', value: fmt(today) },
                 { label: 'Valid to', value: fmt(expiryDate) },
@@ -147,25 +148,38 @@ function PaymentSuccess({ onClose, planName, total, product, insurerRef, insurer
   )
 }
 
+const NSIA_PLAN_NAME: Record<string, string> = {
+  marine: 'NSIA Marine Cargo Cover',
+  'personal-accident': 'NSIA Personal Accident Cover',
+}
+
+const BACK_HREF: Record<string, string> = {
+  motor: '/quote/motor', marine: '/quote/marine', 'personal-accident': '/quote/personal-accident',
+}
+
 export default function CheckoutPage() {
-  const { calculatedPremium, activeProduct, motorData } = useQuoteStore()
+  const { calculatedPremium, activeProduct, motorData, marineData, personalAccidentData } = useQuoteStore()
   const product = (activeProduct ?? 'motor') as string
   const basePrice = calculatedPremium ?? 50000
+
+  const isAlwaysNsia = product === 'marine' || product === 'personal-accident'
 
   const selectedPlan = motorData.selectedUnderwriter
     ? MOTOR_PLANS.find(p => p.id === motorData.selectedUnderwriter)
     : null
-  const planName = selectedPlan?.name ?? 'Insurance Plan'
-  const planInsurer = selectedPlan?.insurer ?? null
+  const planName = selectedPlan?.name ?? NSIA_PLAN_NAME[product] ?? 'Insurance Plan'
+  const planInsurer = selectedPlan?.insurer ?? (isAlwaysNsia ? 'NSIA Insurance' : null)
   const planInitials = (planInsurer ?? planName).split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase()
   const planPrice = basePrice
   const processingFee = Math.round(planPrice * 0.015)
   const stampDuty = 500
   const total = planPrice + processingFee + stampDuty
+  const backHref = BACK_HREF[product] ?? '/quote/result'
 
   const PRODUCT_LABELS: Record<string, string> = {
     motor: 'Motor Insurance', medical: 'Health Insurance',
     travel: 'Travel Insurance', business: 'Business Insurance',
+    marine: 'Marine Insurance', 'personal-accident': 'Personal Accident Insurance',
   }
   const productLabel = PRODUCT_LABELS[product] ?? 'Insurance'
 
@@ -215,10 +229,10 @@ export default function CheckoutPage() {
   }
 
   const isFortisGlobal = product === 'motor' && selectedPlan?.fortisGlobal === true
-  const isNsia = product === 'motor' && selectedPlan?.nsia === true
+  const isMotorNsia = product === 'motor' && selectedPlan?.nsia === true
 
-  /** Sends the application to NSIA and returns the policy number they issue. */
-  async function submitToNsia(): Promise<string | null> {
+  /** Sends the motor application to NSIA and returns the policy number they issue. */
+  async function submitMotorToNsia(): Promise<string | null> {
     const slots = motorDocSlots(motorData).map((slot) => slot.key)
     const files = collectDocumentFiles(slots)
 
@@ -242,18 +256,62 @@ export default function CheckoutPage() {
     return result.policyNumber ?? result.certOrDocNo
   }
 
+  /** Sends the marine cargo application to NSIA. */
+  async function submitMarineToNsia(): Promise<string | null> {
+    const slots = documentSlotsFor('marine')
+    const files = collectDocumentFiles(slots.map((slot) => slot.slot))
+
+    const missing = slots.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+    if (missing.length > 0) {
+      throw new Error(`Please re-upload your documents before paying: ${missing.join(', ')}.`)
+    }
+
+    const result = await submitNsiaApplication({
+      product: 'marine',
+      customer: toNsiaCustomer(marineData, { fullName, email, phone }),
+      details: toNsiaMarineDetails(marineData, planPrice),
+      files,
+    })
+    return result.policyNumber ?? result.certOrDocNo
+  }
+
+  /** Sends the personal accident application to NSIA. */
+  async function submitPersonalAccidentToNsia(): Promise<string | null> {
+    const slots = documentSlotsFor('personal-accident')
+    const files = collectDocumentFiles(slots.map((slot) => slot.slot))
+
+    const missing = slots.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+    if (missing.length > 0) {
+      throw new Error(`Please re-upload your documents before paying: ${missing.join(', ')}.`)
+    }
+
+    const result = await submitNsiaApplication({
+      product: 'personal-accident',
+      customer: toNsiaCustomer(personalAccidentData, { fullName, email, phone }),
+      details: toNsiaPersonalAccidentDetails(personalAccidentData, planPrice),
+      files,
+    })
+    return result.policyNumber ?? result.certOrDocNo
+  }
+
+  const NSIA_SUBMIT_FN: Record<string, () => Promise<string | null>> = {
+    marine: submitMarineToNsia,
+    'personal-accident': submitPersonalAccidentToNsia,
+  }
+
   async function handlePay() {
     if (!validate()) return
     setSubmitError(null)
     setPaying(true)
 
     try {
-      if (isNsia) {
+      const nsiaSubmit = isMotorNsia ? submitMotorToNsia : NSIA_SUBMIT_FN[product]
+      if (nsiaSubmit) {
         // A failed submission means no policy exists, so this one is not
         // swallowed the way the optional Fortis call is.
         const [, policyNumber] = await Promise.all([
           new Promise<void>((r) => setTimeout(r, 1200)),
-          submitToNsia(),
+          nsiaSubmit(),
         ])
         if (policyNumber) {
           setInsurerRef(policyNumber)
@@ -305,7 +363,7 @@ export default function CheckoutPage() {
             <Lock className="w-3.5 h-3.5" style={{ color: 'var(--green-700)' }} />
             <span className="font-sans text-[13px] font-medium" style={{ color: 'var(--text-muted)' }}>Secure Checkout</span>
           </div>
-          <Link href={product === 'motor' ? '/quote/motor' : '/quote/result'} className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors" title="Back to plans">
+          <Link href={backHref} className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors" title="Back to plans">
             <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           </Link>
         </div>
@@ -314,7 +372,7 @@ export default function CheckoutPage() {
       <div className="max-w-[1200px] mx-auto px-4 lg:px-8 py-6 lg:py-10">
         <div className="grid lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
           <div className="flex flex-col gap-5">
-            <Link href={product === 'motor' ? '/quote/motor' : '/quote/result'} className="flex items-center gap-1.5 font-sans text-sm w-fit hover:underline" style={{ color: 'var(--text-muted)' }}>
+            <Link href={backHref} className="flex items-center gap-1.5 font-sans text-sm w-fit hover:underline" style={{ color: 'var(--text-muted)' }}>
               <ArrowLeft className="w-4 h-4" /> Back to plans
             </Link>
 
@@ -586,7 +644,7 @@ export default function CheckoutPage() {
       </div>
 
       <AnimatePresence>
-        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} product={product} insurerRef={insurerRef} insurerRefLabel={insurerRefLabel} />}
+        {paid && <PaymentSuccess onClose={() => setPaid(false)} planName={planName} total={total} productLabel={productLabel} insurerRef={insurerRef} insurerRefLabel={insurerRefLabel} />}
       </AnimatePresence>
     </div>
   )

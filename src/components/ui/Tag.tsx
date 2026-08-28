@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils'
 
-type TagVariant = 'motor' | 'medical' | 'travel' | 'business' | 'default'
+type TagVariant = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'pa' | 'default'
 
 interface TagProps {
   variant?: TagVariant
@@ -13,6 +13,8 @@ const variantStyles: Record<TagVariant, string> = {
   medical:  'bg-medical-50 text-medical-700 border border-medical-100',
   travel:   'bg-travel-50 text-travel-700 border border-travel-100',
   business: 'bg-business-50 text-business-700 border border-business-100',
+  marine:   'bg-marine-50 text-marine-700 border border-marine-100',
+  pa:       'bg-pa-50 text-pa-700 border border-pa-100',
   default:  'bg-[var(--surface-raised)] text-[var(--text-secondary)] border border-[var(--border-default)]',
 }
 

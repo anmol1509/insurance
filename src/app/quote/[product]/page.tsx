@@ -5,6 +5,7 @@ import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
 import { requiredMotorDocKeys } from '@/lib/motorDocuments'
+import { requiredSlotsFor } from '@/lib/nsia/documents'
 
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
@@ -30,7 +31,19 @@ import BusinessStep3 from '@/components/quote/steps/business/BusinessStep3'
 import BusinessStep4 from '@/components/quote/steps/business/BusinessStep4'
 import BusinessReview from '@/components/quote/steps/business/BusinessReview'
 
-const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business'] as const
+import MarineStep1 from '@/components/quote/steps/marine/MarineStep1'
+import MarineStep2 from '@/components/quote/steps/marine/MarineStep2'
+import MarineStep3 from '@/components/quote/steps/marine/MarineStep3'
+import MarineDocuments from '@/components/quote/steps/marine/MarineDocuments'
+import MarineReview from '@/components/quote/steps/marine/MarineReview'
+
+import PersonalAccidentStep1 from '@/components/quote/steps/personal-accident/PersonalAccidentStep1'
+import PersonalAccidentStep2 from '@/components/quote/steps/personal-accident/PersonalAccidentStep2'
+import PersonalAccidentStep3 from '@/components/quote/steps/personal-accident/PersonalAccidentStep3'
+import PersonalAccidentDocuments from '@/components/quote/steps/personal-accident/PersonalAccidentDocuments'
+import PersonalAccidentReview from '@/components/quote/steps/personal-accident/PersonalAccidentReview'
+
+const VALID_PRODUCTS = ['motor', 'medical', 'travel', 'business', 'marine', 'personal-accident'] as const
 type Product = (typeof VALID_PRODUCTS)[number]
 
 const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
@@ -38,6 +51,8 @@ const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
   medical:  [MedicalStep1,  MedicalStep2,  MedicalPlanSelect, MedicalStep3, MedicalReview],
   travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
   business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
+  marine:   [MarineStep1, MarineStep2, MarineStep3, MarineDocuments, MarineReview],
+  'personal-accident': [PersonalAccidentStep1, PersonalAccidentStep2, PersonalAccidentStep3, PersonalAccidentDocuments, PersonalAccidentReview],
 }
 
 export default function QuotePage({ params }: { params: Promise<{ product: string }> }) {
@@ -47,7 +62,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
-  const { steps, setActiveProduct, setStep, motorData, medicalData } = useQuoteStore()
+  const { steps, setActiveProduct, setStep, motorData, medicalData, marineData, personalAccidentData } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const totalSteps = PRODUCT_STEPS[typedProduct].length
@@ -68,7 +83,21 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       (currentStep === 5 && REQUIRED_MOTOR_DOCS.some((k) => !motorData.uploadedDocs[k])) ||
       (currentStep === 6 && (!motorData.fullName.trim() || !motorData.email.includes('@') || motorData.phone.replace(/\D/g, '').length < 11 || !motorData.reviewConfirmed))
     )) ||
-    (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter)
+    (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter) ||
+    (typedProduct === 'marine' && (
+      (currentStep === 1 && (!marineData.cargoCategory || !marineData.cargoDescription.trim() || !(marineData.sumInsured && marineData.sumInsured > 0) || !marineData.voyageFrom.trim() || !marineData.voyageTo.trim())) ||
+      (currentStep === 2 && !marineData.coverType) ||
+      (currentStep === 3 && (!marineData.fullName.trim() || !marineData.email.includes('@') || marineData.phone.replace(/\D/g, '').length < 11 || !marineData.gender || !marineData.occupation || !marineData.residentialAddress.trim() || !marineData.residentialState || !marineData.idType || !marineData.idNumber.trim())) ||
+      (currentStep === 4 && requiredSlotsFor('marine').some((k) => !marineData.uploadedDocs[k])) ||
+      (currentStep === 5 && !marineData.reviewConfirmed)
+    )) ||
+    (typedProduct === 'personal-accident' && (
+      (currentStep === 1 && (!personalAccidentData.dateOfBirth || !personalAccidentData.gender || !personalAccidentData.occupation || !(personalAccidentData.sumInsured && personalAccidentData.sumInsured > 0))) ||
+      (currentStep === 2 && (!personalAccidentData.beneficiaryName.trim() || !personalAccidentData.beneficiaryRelationship || (personalAccidentData.hasPreExistingCondition && !personalAccidentData.preExistingConditionDetails.trim()))) ||
+      (currentStep === 3 && (!personalAccidentData.fullName.trim() || !personalAccidentData.email.includes('@') || personalAccidentData.phone.replace(/\D/g, '').length < 11 || !personalAccidentData.residentialAddress.trim() || !personalAccidentData.residentialState || !personalAccidentData.idType || !personalAccidentData.idNumber.trim())) ||
+      (currentStep === 4 && requiredSlotsFor('personal-accident').some((k) => !personalAccidentData.uploadedDocs[k])) ||
+      (currentStep === 5 && !personalAccidentData.reviewConfirmed)
+    ))
 
   function goNext() {
     if (currentStep === totalSteps) {

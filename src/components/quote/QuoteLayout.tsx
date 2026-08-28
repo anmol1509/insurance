@@ -2,12 +2,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Lock, Zap, X, Car, Heart, Plane, Building2 } from 'lucide-react'
+import { Shield, Lock, Zap, X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import StepCircle from '@/components/ui/StepCircle'
 import { PRODUCT_STEPS } from '@/lib/constants'
 
-type Product = 'motor' | 'medical' | 'travel' | 'business'
+type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
 interface QuoteLayoutProps {
   product: Product
@@ -29,6 +29,8 @@ const PRODUCT_ICON = {
   medical:  Heart,
   travel:   Plane,
   business: Building2,
+  marine:   Ship,
+  'personal-accident': HeartPulse,
 }
 
 const PRODUCT_CONFIG = {
@@ -36,6 +38,8 @@ const PRODUCT_CONFIG = {
   medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'Medical Insurance'  },
   travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'Travel Insurance'   },
   business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'Business Insurance' },
+  marine:   { color: 'var(--marine-600)',   colorBg: 'var(--marine-50)',   label: 'Marine Insurance'   },
+  'personal-accident': { color: 'var(--pa-600)', colorBg: 'var(--pa-50)', label: 'Personal Accident Insurance' },
 }
 
 export default function QuoteLayout({

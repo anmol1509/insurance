@@ -202,7 +202,70 @@ export interface BusinessData {
   confirmed: boolean
 }
 
-type Product = 'motor' | 'medical' | 'travel' | 'business'
+export interface MarineData {
+  // Step 1 — Shipment & cargo
+  cargoCategory: string
+  cargoDescription: string
+  sumInsured: number | null
+  currency: string
+  vesselName: string
+  voyageFrom: string
+  voyageTo: string
+  invoiceNumber: string
+  invoiceValue: number | null
+  packingType: string
+  numberOfPackages: number | null
+  // Step 2 — Cover & premium
+  coverType: string
+  // Step 3 — Policyholder details
+  fullName: string
+  dateOfBirth: string
+  nin: string
+  phone: string
+  email: string
+  gender: string
+  occupation: string
+  residentialAddress: string
+  residentialState: string
+  idType: string
+  idNumber: string
+  // Step 4 — Documents
+  uploadedDocs: Record<string, { name: string; size: number; status: 'uploaded' | 'pending' }>
+  // Review
+  reviewConfirmed: boolean
+}
+
+export interface PersonalAccidentData {
+  // Step 1 — About you
+  dateOfBirth: string
+  gender: string
+  occupation: string
+  height: number | null
+  weight: number | null
+  sumInsured: number | null
+  // Step 2 — Beneficiary & health
+  beneficiaryName: string
+  beneficiaryRelationship: string
+  beneficiaryPhone: string
+  beneficiaryEmail: string
+  hasPreExistingCondition: boolean
+  preExistingConditionDetails: string
+  // Step 3 — Your details
+  fullName: string
+  nin: string
+  phone: string
+  email: string
+  residentialAddress: string
+  residentialState: string
+  idType: string
+  idNumber: string
+  // Step 4 — Documents
+  uploadedDocs: Record<string, { name: string; size: number; status: 'uploaded' | 'pending' }>
+  // Review
+  reviewConfirmed: boolean
+}
+
+type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
 interface QuoteStore {
   activeProduct: Product | null
@@ -213,10 +276,14 @@ interface QuoteStore {
   medicalData: MedicalData
   travelData: TravelData
   businessData: BusinessData
+  marineData: MarineData
+  personalAccidentData: PersonalAccidentData
   updateMotor: (data: Partial<MotorData>) => void
   updateMedical: (data: Partial<MedicalData>) => void
   updateTravel: (data: Partial<TravelData>) => void
   updateBusiness: (data: Partial<BusinessData>) => void
+  updateMarine: (data: Partial<MarineData>) => void
+  updatePersonalAccident: (data: Partial<PersonalAccidentData>) => void
   calculatedPremium: number | null
   premiumBreakdown: Record<string, number>
   setCalculatedPremium: (total: number, breakdown: Record<string, number>) => void
@@ -285,21 +352,48 @@ const defaultBusiness: BusinessData = {
   uploadedDocs: {}, reviewConfirmed: false, selectedUnderwriter: null, confirmed: false,
 }
 
+const defaultMarine: MarineData = {
+  cargoCategory: '', cargoDescription: '', sumInsured: null, currency: 'NGN',
+  vesselName: '', voyageFrom: '', voyageTo: '', invoiceNumber: '', invoiceValue: null,
+  packingType: '', numberOfPackages: null,
+  coverType: '',
+  fullName: '', dateOfBirth: '', nin: '', phone: '', email: '', gender: '',
+  occupation: '', residentialAddress: '', residentialState: '', idType: '', idNumber: '',
+  uploadedDocs: {}, reviewConfirmed: false,
+}
+
+const defaultPersonalAccident: PersonalAccidentData = {
+  dateOfBirth: '', gender: '', occupation: '', height: null, weight: null, sumInsured: null,
+  beneficiaryName: '', beneficiaryRelationship: '', beneficiaryPhone: '', beneficiaryEmail: '',
+  hasPreExistingCondition: false, preExistingConditionDetails: '',
+  fullName: '', nin: '', phone: '', email: '', residentialAddress: '', residentialState: '',
+  idType: '', idNumber: '',
+  uploadedDocs: {}, reviewConfirmed: false,
+}
+
+const defaultSteps: Record<Product, number> = {
+  motor: 1, medical: 1, travel: 1, business: 1, marine: 1, 'personal-accident': 1,
+}
+
 export const useQuoteStore = create<QuoteStore>()(
   persist(
     (set) => ({
       activeProduct: null,
       setActiveProduct: (p) => set({ activeProduct: p }),
-      steps: { motor: 1, medical: 1, travel: 1, business: 1 },
+      steps: defaultSteps,
       setStep: (product, step) => set((s) => ({ steps: { ...s.steps, [product]: step } })),
       motorData: defaultMotor,
       medicalData: defaultMedical,
       travelData: defaultTravel,
       businessData: defaultBusiness,
+      marineData: defaultMarine,
+      personalAccidentData: defaultPersonalAccident,
       updateMotor: (data) => set((s) => ({ motorData: { ...s.motorData, ...data } })),
       updateMedical: (data) => set((s) => ({ medicalData: { ...s.medicalData, ...data } })),
       updateTravel: (data) => set((s) => ({ travelData: { ...s.travelData, ...data } })),
       updateBusiness: (data) => set((s) => ({ businessData: { ...s.businessData, ...data } })),
+      updateMarine: (data) => set((s) => ({ marineData: { ...s.marineData, ...data } })),
+      updatePersonalAccident: (data) => set((s) => ({ personalAccidentData: { ...s.personalAccidentData, ...data } })),
       calculatedPremium: null,
       premiumBreakdown: {},
       setCalculatedPremium: (total, breakdown) => set({ calculatedPremium: total, premiumBreakdown: breakdown }),
@@ -308,13 +402,15 @@ export const useQuoteStore = create<QuoteStore>()(
           set({
             motorData: defaultMotor, medicalData: defaultMedical,
             travelData: defaultTravel, businessData: defaultBusiness,
-            steps: { motor: 1, medical: 1, travel: 1, business: 1 },
+            marineData: defaultMarine, personalAccidentData: defaultPersonalAccident,
+            steps: defaultSteps,
             calculatedPremium: null, premiumBreakdown: {},
           })
         } else {
           const resets: Record<string, object> = {
             motor: { motorData: defaultMotor }, medical: { medicalData: defaultMedical },
             travel: { travelData: defaultTravel }, business: { businessData: defaultBusiness },
+            marine: { marineData: defaultMarine }, 'personal-accident': { personalAccidentData: defaultPersonalAccident },
           }
           set((s) => ({ ...resets[product], steps: { ...s.steps, [product]: 1 } }))
         }
