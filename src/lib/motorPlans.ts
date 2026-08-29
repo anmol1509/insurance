@@ -20,6 +20,8 @@ export interface MotorPlan {
   nsia?: boolean
   /** Submitted to Tangerine through their partner API. */
   tangerine?: 'comprehensive' | 'thirdparty'
+  /** Submitted to AIICO through their partner API. */
+  aiico?: 'comprehensive' | 'third-party'
 }
 
 export const MOTOR_PLANS: MotorPlan[] = [
@@ -135,6 +137,7 @@ export const MOTOR_PLANS: MotorPlan[] = [
     reviews: 2341,
     badge: 'Most popular',
     multiplier: 1.0,
+    aiico: 'comprehensive',
     features: ['NIID auto-registered', '24/7 roadside assist', 'Towing included', 'Windscreen cover', 'Flood & fire protection', 'Courtesy car'],
     exclusions: ['Racing & speed testing', 'Wear & tear', 'Mechanical breakdown', 'Unlicensed driver'],
     claimSettlement: '98%',
@@ -142,6 +145,24 @@ export const MOTOR_PLANS: MotorPlan[] = [
     excess: '₦20,000',
     repairNetwork: '250+ garages',
     popular: true,
+  },
+  {
+    id: 'aiico-tpo',
+    name: 'AIICO Third Party',
+    insurer: 'AIICO Insurance',
+    logo: 'https://res.cloudinary.com/degunlqed/image/upload/v1778556699/PHOTO-2026-05-09-20-50-14_nfoe7t.jpg',
+    coverType: 'tpo',
+    rating: 4.7,
+    reviews: 1685,
+    badge: 'Direct insurer',
+    multiplier: 1.0,
+    aiico: 'third-party',
+    features: ['Third party bodily injury', 'Property damage liability up to ₦3 million', 'NIID auto-registered', 'Digital certificate', 'NAICOM licensed'],
+    exclusions: ['Own vehicle damage', 'Theft of own vehicle', 'Fire damage to own vehicle', 'Medical expenses'],
+    claimSettlement: '97%',
+    responseTime: '24 hours',
+    excess: 'None',
+    repairNetwork: 'N/A · third party',
   },
   {
     id: 'fgi-motor',

@@ -14,6 +14,9 @@ import { toNsiaCustomer, toNsiaMarineDetails, toNsiaMotorDetails, toNsiaPersonal
 import { submitTangerineApplication } from '@/lib/tangerine/browser'
 import { toTangerineCustomer, toTangerineMotor } from '@/lib/tangerine/fromQuoteStore'
 import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
+import { submitAiicoMotorApplication } from '@/lib/aiico/browser'
+import { toAiicoCustomer, toAiicoVehicle } from '@/lib/aiico/fromQuoteStore'
+import { AIICO_DOCUMENT_SLOTS } from '@/lib/aiico/documents'
 import { collectDocumentFiles } from '@/store/documentFiles'
 import {
   confirmPayloftTransfer,
@@ -263,6 +266,28 @@ export default function CheckoutPage() {
   const isFortisGlobal = product === 'motor' && selectedPlan?.fortisGlobal === true
   const isMotorNsia = product === 'motor' && selectedPlan?.nsia === true
   const isMotorTangerine = product === 'motor' && selectedPlan?.tangerine != null
+  const isMotorAiico = product === 'motor' && selectedPlan?.aiico != null
+
+  /** `WetDt = (WefDt + 1 year) - 1 day`, per the AIICO docs. */
+  function aiicoPolicyDates() {
+    const wef = startDate ? new Date(startDate) : new Date()
+    const wet = new Date(wef)
+    wet.setFullYear(wet.getFullYear() + 1)
+    wet.setDate(wet.getDate() - 1)
+    const iso = (d: Date) => d.toISOString().slice(0, 19)
+    return { wefDt: iso(wef), wetDt: iso(wet) }
+  }
+
+  /** AIICO wants a bank account number / masked PAN for its finalize-payment call; we don't collect a real one for every method. */
+  function maskedAccountNumber(): string {
+    if (payMethod === 'card' && cardNumber) {
+      const digits = cardNumber.replace(/\s/g, '')
+      return digits.length >= 10 ? `${digits.slice(0, 6)}******${digits.slice(-4)}` : digits
+    }
+    if (payMethod === 'bank' && transferAccount) return transferAccount.accountNumber
+    if (payMethod === 'mobile' && mobileNumber) return mobileNumber
+    return 'N/A'
+  }
 
   /** Sends the motor application to NSIA and returns the policy number they issue. */
   async function submitMotorToNsia(): Promise<string | null> {
@@ -304,6 +329,35 @@ export default function CheckoutPage() {
       product: line,
       customer: toTangerineCustomer(motorData, { fullName, email, phone }),
       motor: toTangerineMotor(motorData),
+      files,
+    })
+    return result.policyNumber
+  }
+
+  /** Sends the motor application to AIICO and returns the policy number they issue. Call only after payment has been collected. */
+  async function submitMotorToAiico(paymentRef: string | null): Promise<string | null> {
+    const line = selectedPlan?.aiico
+    if (!line) return null
+
+    const files = collectDocumentFiles(AIICO_DOCUMENT_SLOTS.map((slot) => slot.slot))
+    const missing = AIICO_DOCUMENT_SLOTS.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+    if (missing.length > 0) {
+      throw new Error(`Please re-upload your documents before paying: ${missing.join(', ')}.`)
+    }
+
+    const { wefDt, wetDt } = aiicoPolicyDates()
+    const result = await submitAiicoMotorApplication({
+      line,
+      wefDt,
+      wetDt,
+      customer: toAiicoCustomer(motorData, { fullName, email, phone }),
+      vehicle: toAiicoVehicle(motorData),
+      payment: {
+        accountNumber: maskedAccountNumber(),
+        amountPaid: planPrice,
+        paymentRef: paymentRef ?? `SI-${Date.now()}`,
+        partnerReference: `SI-${Date.now()}`,
+      },
       files,
     })
     return result.policyNumber
@@ -363,6 +417,8 @@ export default function CheckoutPage() {
       ? { fn: submitMotorToNsia, label: 'NSIA policy no' }
       : isMotorTangerine
       ? { fn: submitMotorToTangerine, label: 'Tangerine policy no' }
+      : isMotorAiico
+      ? { fn: () => submitMotorToAiico(paymentRef), label: 'AIICO policy no' }
       : NSIA_SUBMIT_FN[product]
       ? { fn: NSIA_SUBMIT_FN[product], label: 'NSIA policy no' }
       : null

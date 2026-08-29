@@ -1,21 +1,46 @@
-/** Builds AIICO API payloads from the validated shapes in schemas.ts. */
+/** Builds AIICO API payloads from already-resolved values (see resolve.ts for text → AIICO-vocabulary matching). */
 import { AIICO_PRODUCT_IDS, AIICO_SUBCLASS_COVER_IDS } from './config'
 import type {
   AiicoFinalizePaymentRequest,
   AiicoMotorScheduleRequest,
   AiicoRenewalScheduleRequest,
 } from './types'
-import type { aiicoCustomerSchema, aiicoImagesSchema, aiicoVehicleSchema } from './schemas'
-import type { z } from 'zod'
 
-type Customer = z.infer<typeof aiicoCustomerSchema>
-type Vehicle = z.infer<typeof aiicoVehicleSchema>
-type Images = z.infer<typeof aiicoImagesSchema>
+export interface ResolvedCustomer {
+  titleId: string
+  genderId?: string
+  firstName: string
+  lastName: string
+  dateOfBirth: string
+  email: string
+  phone: string
+  address: string
+  nin: string
+}
+
+export interface ResolvedVehicle {
+  bodyType: string
+  regNo: string
+  yearOfManufacture: string
+  make: string
+  model: string
+  chassisNo: string
+  color: string
+  engineNo: string
+  vehicleAmount?: number
+}
+
+export interface ResolvedImages {
+  vehicleLicenseUrl: string
+  identificationUrl: string
+  proofOfOwnershipUrl?: string
+  utilityBillUrl?: string
+}
 
 export function toThirdPartySchedule(
-  customer: Customer,
-  vehicle: Vehicle,
-  images: Images,
+  customer: ResolvedCustomer,
+  vehicle: ResolvedVehicle,
+  images: ResolvedImages,
   dates: { wefDt: string; wetDt: string },
   premiumAmount: number
 ): AiicoMotorScheduleRequest {
@@ -50,9 +75,9 @@ export function toThirdPartySchedule(
 }
 
 export function toComprehensiveSchedule(
-  customer: Customer,
-  vehicle: Vehicle,
-  images: Images,
+  customer: ResolvedCustomer,
+  vehicle: ResolvedVehicle,
+  images: ResolvedImages,
   dates: { wefDt: string; wetDt: string }
 ): AiicoMotorScheduleRequest {
   return {

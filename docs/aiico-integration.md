@@ -6,26 +6,44 @@ Life Payments); only **Motor** — Private Motor Third Party, Private Motor
 Comprehensive, and Motor Renewal — has been documented and integrated so
 far. This file will grow as the remaining products are shared.
 
-## Status: backend only, not yet wired into the quote flow
+## Status: wired into the Motor quote flow
 
-This integration currently exists as a standalone, testable backend layer
-(`src/lib/aiico/*` + `/api/aiico/*` routes) but is **not** wired into the
-customer-facing Motor quote flow (`MotorPlanSelect`, checkout) yet. AIICO's
-Motor API expects a meaningfully different data shape than what the flow
-collects today:
+AIICO is now a selectable insurer in the Motor comparison (`aiico-motor` /
+`aiico-tpo` in `src/lib/motorPlans.ts`), alongside Fortis, NSIA, and
+Tangerine. Rather than rebuilding Motor Step 1/3 with new cascading
+dropdowns, the mismatch between AIICO's controlled vocabulary and the
+flow's freeform fields is resolved **server-side, at submission time**
+(`src/lib/aiico/resolve.ts`) — the same approach already used for
+Tangerine's make/model/colour codes:
 
-- A `Title` and structured `Gender` selection (the flow doesn't currently
-  ask for a title).
-- Vehicle make/model chosen from AIICO's own controlled vocabulary via
-  cascading `GetVehicleMake` → `GetVehicleMakeModel` lookups, rather than
-  the flow's current freeform `vehicleMakeModel` text field.
-- Three uploaded images (vehicle license, means of identification, proof
-  of ownership) as base64 or hosted URLs — the flow's existing document
-  slots don't map onto these one-to-one.
+- `title` is a new plain-text field on `MotorData` (Step "Your details"),
+  collected via a small AIICO-only panel (`AiicoMotorDetails.tsx`, shown
+  the same way `TangerineMotorDetails.tsx` is) and matched against
+  `GetTitles` by name.
+- `gender`, `vehicleType` (→ AIICO's 4-item body-type enum), and
+  `vehicleColour` are matched by name/keyword against `GetGenders` /
+  `GetBodyTypes` / `GetColorList` — no new UI.
+- `vehicleMakeModel` (existing combined free-text field) is split against
+  AIICO's year-scoped `GetVehicleMake` → `GetVehicleMakeModel` lists the
+  same way Tangerine's resolver splits combined make/model text.
+- The three required images (vehicle license, means of ID, proof of
+  ownership) plus an optional utility bill are a new AIICO-specific
+  document slot set (`src/lib/aiico/documents.ts`), uploaded the same way
+  as every other insurer's documents, then base64-encoded server-side in
+  the submit route (`fileToBase64`) — AIICO takes base64 or a hosted URL,
+  so no image-hosting step is needed (unlike Tangerine's Cloudinary step).
+- The quote flow doesn't collect a separate engine number; chassis/VIN is
+  reused for `engineNo` as the closest available field.
+- `PostMotorSchedule` then `FinalizePartnerPayment` both run inside
+  `/api/aiico/submit/motor`, called from checkout only after Payloft
+  approves payment (`submitMotorToAiico` in `quote/checkout/page.tsx`),
+  mirroring how NSIA/Tangerine submissions are dispatched there.
 
-Wiring this in is a real UX decision (new form fields, cascading dropdowns)
-rather than a drop-in mapping, so it's being left for a deliberate follow-up
-pass rather than reshaping Motor Step 1/3 silently.
+One known gap: `payment.accountNumber` sent to `FinalizePartnerPayment` is
+a best-effort masked value built from whatever the customer entered for
+their chosen payment method (masked card, transfer account, or mobile
+number) — it's for AIICO's own reconciliation and isn't otherwise
+validated by this platform.
 
 ## Authentication
 
@@ -80,8 +98,8 @@ so that constant should be revisited once the full cover list is confirmed.
 - `GET /vehicle-lookup?plate=`
 - `GET /premium?bodyType=` — Third Party fixed rate.
 - `GET /renewal?policyNo=`
-- `POST /submit/motor` — `{ line: 'third-party'|'comprehensive', wefDt, wetDt, customer, vehicle, images, payment }`. Runs `PostMotorSchedule` then `FinalizePartnerPayment` in one call — **call only after payment has been collected**, since `payment.amountPaid` must match what was actually charged.
-- `POST /submit/motor-renewal` — same two-call pattern for renewals.
+- `POST /submit/motor` — multipart/form-data: a `payload` field of `{ line: 'third-party'|'comprehensive', wefDt, wetDt, customer, vehicle, payment }` (plain text — resolved against AIICO's vocabulary server-side) plus files under `vehicle_license`, `identification`, `proof_of_ownership`, and optionally `utility_bill`. Runs `PostMotorSchedule` then `FinalizePartnerPayment` in one call — **call only after payment has been collected**, since `payment.amountPaid` must match what was actually charged.
+- `POST /submit/motor-renewal` — same two-call pattern for renewals (plain JSON body, no documents involved).
 
 ## Verification
 
@@ -97,3 +115,14 @@ that:
    fails only at the sandbox's own network egress boundary (`CONNECT
    tunnel failed, response 403`) — confirmed identical via a raw `curl` to
    the same host, ruling out a bug in the integration code itself.
+4. In a real browser: seeded the quote store to land directly on Motor's
+   plan-select and documents steps, confirmed both AIICO plans render,
+   selecting one advances the flow and stores `selectedUnderwriter`
+   correctly, the AIICO-only Title panel and all four AIICO document
+   slots render (replacing the generic ones), and the Title dropdown
+   writes back to the store. Also drove `/api/aiico/submit/motor`
+   directly with a full multipart payload (customer/vehicle/payment +
+   fake image blobs) — it validates and resolves everything correctly,
+   returning `503` with no credentials configured and `403` (AIICO's own
+   real rejection) once fake credentials point it at the real host,
+   confirming the full submit chain is wired correctly end to end.

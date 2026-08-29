@@ -45,14 +45,19 @@ export async function submitAiicoMotorApplication(input: {
   wetDt: string
   customer: Record<string, unknown>
   vehicle: Record<string, unknown>
-  images: Record<string, unknown>
   payment: { accountNumber: string; amountPaid: number; paymentRef: string; partnerReference: string }
+  files: Record<string, File | undefined>
 }): Promise<AiicoMotorSubmissionResult> {
-  const response = await fetch('/api/aiico/submit/motor', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  })
+  const form = new FormData()
+  form.append('payload', JSON.stringify({
+    line: input.line, wefDt: input.wefDt, wetDt: input.wetDt,
+    customer: input.customer, vehicle: input.vehicle, payment: input.payment,
+  }))
+  for (const [slot, file] of Object.entries(input.files)) {
+    if (file) form.append(slot, file, file.name)
+  }
+
+  const response = await fetch('/api/aiico/submit/motor', { method: 'POST', body: form })
   return readJson<AiicoMotorSubmissionResult>(response)
 }
 

@@ -6,6 +6,7 @@
 import { MOTOR_PLANS } from './motorPlans'
 import { documentSlotsFor } from './nsia/documents'
 import { TANGERINE_DOCUMENT_SLOTS } from './tangerine/documents'
+import { AIICO_DOCUMENT_SLOTS } from './aiico/documents'
 import type { MotorData } from '@/store/quoteStore'
 
 export interface MotorDocSlot {
@@ -32,6 +33,10 @@ export function tangerineLineFor(planId: string | null): 'comprehensive' | 'thir
   return MOTOR_PLANS.find((plan) => plan.id === planId)?.tangerine ?? null
 }
 
+export function aiicoLineFor(planId: string | null): 'comprehensive' | 'third-party' | null {
+  return MOTOR_PLANS.find((plan) => plan.id === planId)?.aiico ?? null
+}
+
 export function motorDocSlots(motorData: MotorData): MotorDocSlot[] {
   if (isNsiaMotorPlan(motorData.selectedUnderwriter)) {
     return documentSlotsFor('motor', {
@@ -49,6 +54,15 @@ export function motorDocSlots(motorData: MotorData): MotorDocSlot[] {
     return TANGERINE_DOCUMENT_SLOTS.map((entry) => ({
       key: entry.slot,
       label: entry.label,
+      required: entry.required,
+    }))
+  }
+
+  if (aiicoLineFor(motorData.selectedUnderwriter)) {
+    return AIICO_DOCUMENT_SLOTS.map((entry) => ({
+      key: entry.slot,
+      label: entry.label,
+      hint: entry.hint,
       required: entry.required,
     }))
   }

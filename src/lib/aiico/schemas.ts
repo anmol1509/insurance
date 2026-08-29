@@ -1,9 +1,9 @@
-/** Zod schemas for the JSON payloads our /api/aiico/* routes accept. */
+/** Zod schemas for the JSON payloads our /api/aiico/* routes accept. Vehicle/customer fields are plain text — resolve.ts matches them against AIICO's controlled vocabulary. */
 import { z } from 'zod'
 
 export const aiicoCustomerSchema = z.object({
-  titleId: z.string().min(1, 'Title required'),
-  genderId: z.string().optional(),
+  title: z.string().min(1, 'Title required'),
+  gender: z.string().optional(),
   firstName: z.string().min(1, 'First name required'),
   lastName: z.string().min(1, 'Last name required'),
   dateOfBirth: z.string().min(1, 'Date of birth required'),
@@ -14,11 +14,10 @@ export const aiicoCustomerSchema = z.object({
 })
 
 export const aiicoVehicleSchema = z.object({
-  bodyType: z.string().min(1, 'Body type required'),
+  vehicleType: z.string().min(1, 'Vehicle body type required'),
   regNo: z.string().min(1, 'Registration number required'),
   yearOfManufacture: z.string().min(4, 'Manufacture year required'),
-  make: z.string().min(1, 'Vehicle make required'),
-  model: z.string().min(1, 'Vehicle model required'),
+  vehicleMakeModel: z.string().min(1, 'Vehicle make and model required'),
   chassisNo: z.string().min(1, 'Chassis number required'),
   color: z.string().min(1, 'Colour required'),
   engineNo: z.string().min(1, 'Engine number required'),
@@ -26,11 +25,11 @@ export const aiicoVehicleSchema = z.object({
   vehicleAmount: z.number().positive().optional(),
 })
 
-export const aiicoImagesSchema = z.object({
-  vehicleLicenseUrl: z.string().min(1, 'Vehicle license image required'),
-  identificationUrl: z.string().min(1, 'Identification image required'),
-  proofOfOwnershipUrl: z.string().optional(),
-  utilityBillUrl: z.string().optional(),
+export const aiicoPaymentSchema = z.object({
+  accountNumber: z.string().min(1),
+  amountPaid: z.number().positive(),
+  paymentRef: z.string().min(1),
+  partnerReference: z.string().min(1),
 })
 
 export const aiicoMotorSubmitSchema = z.object({
@@ -39,13 +38,7 @@ export const aiicoMotorSubmitSchema = z.object({
   wetDt: z.string().min(1, 'End date required'),
   customer: aiicoCustomerSchema,
   vehicle: aiicoVehicleSchema,
-  images: aiicoImagesSchema,
-  payment: z.object({
-    accountNumber: z.string().min(1),
-    amountPaid: z.number().positive(),
-    paymentRef: z.string().min(1),
-    partnerReference: z.string().min(1),
-  }),
+  payment: aiicoPaymentSchema,
 })
 
 export const aiicoRenewalSubmitSchema = z.object({
@@ -61,12 +54,7 @@ export const aiicoRenewalSubmitSchema = z.object({
   smsTel: z.string().min(7),
   wefDt: z.string().min(1),
   wetDt: z.string().min(1),
-  payment: z.object({
-    accountNumber: z.string().min(1),
-    amountPaid: z.number().positive(),
-    paymentRef: z.string().min(1),
-    partnerReference: z.string().min(1),
-  }),
+  payment: aiicoPaymentSchema,
 })
 
 export function fieldErrors(error: z.ZodError): Record<string, string> {

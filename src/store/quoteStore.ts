@@ -51,6 +51,8 @@ export interface MotorData {
   mileageKm: number | null
   vehicleRegistrationDate: string
   tin: string
+  // AIICO-specific — only asked for when an AIICO plan is chosen
+  title: string
   // Step 4 — Documents
   uploadedDocs: Record<string, { name: string; size: number; status: 'uploaded' | 'pending' }>
   // Review
@@ -307,6 +309,7 @@ const defaultMotor: MotorData = {
   occupation: '', idType: '', idNumber: '', isBusinessPolicy: false,
   companyName: '', rcNumber: '', contactPerson: '',
   lgaOfResidence: '', mileageKm: null, vehicleRegistrationDate: '', tin: '',
+  title: '',
   uploadedDocs: {}, reviewConfirmed: false, selectedUnderwriter: null,
 }
 
