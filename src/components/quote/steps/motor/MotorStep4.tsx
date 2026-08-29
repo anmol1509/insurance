@@ -7,7 +7,7 @@ import RadioCard from '@/components/ui/RadioCard'
 import NINField from '@/components/ui/NINField'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  NIGERIAN_STATES, GENDERS, MARITAL_STATUSES, OCCUPATIONS, ID_TYPES,
+  NIGERIAN_STATES, GENDERS, OCCUPATIONS,
 } from '@/lib/constants'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 
@@ -27,8 +27,6 @@ function ReviewRow({ label, value }: { label: string; value?: string | number | 
 
 const stateOptions = NIGERIAN_STATES.map((s) => ({ value: s, label: s }))
 const occupationOptions = OCCUPATIONS.map((o) => ({ value: o, label: o }))
-const idTypeOptions = ID_TYPES.map((t) => ({ value: t, label: t }))
-const maritalOptions = MARITAL_STATUSES.map((m) => ({ value: m, label: m }))
 
 export default function MotorStep4() {
   const { motorData, updateMotor, calculatedPremium } = useQuoteStore()
@@ -114,21 +112,21 @@ export default function MotorStep4() {
 
       <div className="grid md:grid-cols-2 gap-5">
         <Select
-          label="Marital Status"
-          required
-          options={maritalOptions}
-          value={motorData.maritalStatus}
-          onChange={(v) => updateMotor({ maritalStatus: v })}
-          placeholder="Select marital status"
-          productColor="var(--motor-600)"
-        />
-        <Select
           label="Occupation"
           required
           options={occupationOptions}
           value={motorData.occupation}
           onChange={(v) => updateMotor({ occupation: v })}
           placeholder="Select occupation"
+          productColor="var(--motor-600)"
+        />
+        <Select
+          label="State of Residence"
+          required
+          options={stateOptions}
+          value={motorData.residentialState}
+          onChange={(v) => updateMotor({ residentialState: v })}
+          placeholder="Select state"
           productColor="var(--motor-600)"
         />
       </div>
@@ -141,36 +139,6 @@ export default function MotorStep4() {
         placeholder="Full address including street, area"
         productColor="var(--motor-600)"
       />
-
-      <Select
-        label="State of Residence"
-        required
-        options={stateOptions}
-        value={motorData.residentialState}
-        onChange={(v) => updateMotor({ residentialState: v })}
-        placeholder="Select state"
-        productColor="var(--motor-600)"
-      />
-
-      <div className="grid md:grid-cols-2 gap-5">
-        <Select
-          label="ID Type"
-          required
-          options={idTypeOptions}
-          value={motorData.idType}
-          onChange={(v) => updateMotor({ idType: v })}
-          placeholder="Select ID type"
-          productColor="var(--motor-600)"
-        />
-        <Input
-          label="ID Number"
-          required
-          value={motorData.idNumber}
-          onChange={(e) => updateMotor({ idNumber: e.target.value })}
-          placeholder="Enter ID number"
-          productColor="var(--motor-600)"
-        />
-      </div>
 
       <div>
         <p className="font-sans font-semibold text-[13px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>
@@ -221,14 +189,6 @@ export default function MotorStep4() {
                 value={motorData.rcNumber}
                 onChange={(e) => updateMotor({ rcNumber: e.target.value })}
                 placeholder="CAC registration number"
-                productColor="var(--motor-600)"
-              />
-              <Input
-                label="Contact Person"
-                required
-                value={motorData.contactPerson}
-                onChange={(e) => updateMotor({ contactPerson: e.target.value })}
-                placeholder="Authorised contact name"
                 productColor="var(--motor-600)"
               />
             </div>
