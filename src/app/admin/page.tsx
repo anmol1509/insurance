@@ -1,5 +1,6 @@
 'use client'
 import { useRef } from 'react'
+import Link from 'next/link'
 import { motion, useInView } from 'framer-motion'
 import { mockPolicies, mockClaims, mockDocuments } from '@/lib/mockData'
 import { formatNaira } from '@/lib/formatters'
@@ -10,10 +11,10 @@ import { TrendingUp, AlertTriangle, Zap, Bell } from 'lucide-react'
 // ─── Static data ────────────────────────────────────────────────────────────
 
 const ADMIN_STATS = [
-  { label: 'Total Policies',  value: '1,284',  delta: '+12 this month',       color: 'var(--green-700)', bg: 'var(--green-50)' },
-  { label: 'Premium Volume',  value: '₦94.2M', delta: '+₦8.1M this month',   color: '#7C3AED',          bg: '#F5F3FF' },
-  { label: 'Open Claims',     value: '23',     delta: '4 pending approval',   color: '#DC2626',          bg: '#FEF2F2' },
-  { label: 'New Users (30d)', value: '318',    delta: '+22% vs last month',   color: '#0284C7',          bg: '#F0F9FF' },
+  { label: 'Total Policies',  value: '1,284',  delta: '+12 this month',       color: 'var(--green-700)', bg: 'var(--green-50)', href: '/admin/policies' },
+  { label: 'Premium Volume',  value: '₦94.2M', delta: '+₦8.1M this month',   color: '#7C3AED',          bg: '#F5F3FF',         href: '/admin/reports' },
+  { label: 'Open Claims',     value: '23',     delta: '4 pending approval',   color: '#DC2626',          bg: '#FEF2F2',         href: '/admin/claims' },
+  { label: 'New Users (30d)', value: '318',    delta: '+22% vs last month',   color: '#0284C7',          bg: '#F0F9FF',         href: '/admin/users' },
 ]
 
 const REVENUE_DATA = [
@@ -348,27 +349,31 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="rounded-2xl border p-5"
-            style={{ backgroundColor: 'white', borderColor: 'var(--border-default)' }}
           >
-            <p
-              className="font-sans font-medium text-[11px] uppercase tracking-[0.07em] mb-1.5"
-              style={{ color: 'var(--text-subtle)' }}
+            <Link
+              href={s.href}
+              className="block rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
+              style={{ backgroundColor: 'white', borderColor: 'var(--border-default)' }}
             >
-              {s.label}
-            </p>
-            <p
-              className="font-display font-bold text-[28px] leading-none mb-1"
-              style={{ color: 'var(--text-primary)' }}
-            >
-              {s.value}
-            </p>
-            <span
-              className="font-sans text-[11px] px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: s.bg, color: s.color }}
-            >
-              {s.delta}
-            </span>
+              <p
+                className="font-sans font-medium text-[11px] uppercase tracking-[0.07em] mb-1.5"
+                style={{ color: 'var(--text-subtle)' }}
+              >
+                {s.label}
+              </p>
+              <p
+                className="font-display font-bold text-[28px] leading-none mb-1"
+                style={{ color: 'var(--text-primary)' }}
+              >
+                {s.value}
+              </p>
+              <span
+                className="font-sans text-[11px] px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: s.bg, color: s.color }}
+              >
+                {s.delta}
+              </span>
+            </Link>
           </motion.div>
         ))}
       </div>
@@ -400,18 +405,19 @@ export default function AdminPage() {
             >
               Recent Claims
             </p>
-            <a
+            <Link
               href="/admin/claims"
               className="font-sans font-semibold text-[12px] hover:underline"
               style={{ color: '#DC2626' }}
             >
               View all →
-            </a>
+            </Link>
           </div>
           <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
             {RECENT_CLAIMS.map((c) => (
-              <div
+              <Link
                 key={c.id}
+                href="/admin/claims"
                 className="flex items-center gap-4 px-5 py-3.5 hover:bg-[var(--surface-raised)] transition-colors"
               >
                 <div className="flex-1 min-w-0">
@@ -426,7 +432,7 @@ export default function AdminPage() {
                   {formatNaira(c.amount)}
                 </p>
                 <Badge variant={STATUS_VARIANT[c.status]}>{STATUS_LABEL[c.status]}</Badge>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -456,7 +462,7 @@ export default function AdminPage() {
             ].map((item) => {
               const c = PRODUCT_COLORS[item.type]
               return (
-                <div key={item.type}>
+                <Link key={item.type} href="/admin/policies" className="block hover:opacity-80 transition-opacity">
                   <div className="flex justify-between mb-1.5">
                     <span className="font-sans font-medium text-[13px]" style={{ color: 'var(--text-primary)' }}>
                       {c.emoji} {c.label}
@@ -471,7 +477,7 @@ export default function AdminPage() {
                       style={{ width: `${item.pct}%`, backgroundColor: c.main }}
                     />
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>

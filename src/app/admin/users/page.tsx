@@ -1,17 +1,54 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Shield, UserPlus, X, ChevronDown, Check } from 'lucide-react'
 import Badge from '@/components/ui/Badge'
+import { formatNaira } from '@/lib/formatters'
+import { PRODUCT_COLORS } from '@/lib/mockData'
+import Drawer from '@/components/admin/Drawer'
+import Pagination from '@/components/admin/Pagination'
 
-const ALL_USERS = [
-  { id: 'usr_001', name: 'Emeka Okonkwo',    email: 'customer@demo.com',  phone: '+234 801 234 5678', policies: 3, joinedAt: '2024-03-15', kyc: 'verified' as const },
-  { id: 'usr_002', name: 'Ngozi Adeyemi',     email: 'ngozi@example.com',  phone: '+234 802 345 6789', policies: 1, joinedAt: '2024-05-20', kyc: 'verified' as const },
-  { id: 'usr_003', name: 'Chukwuemeka Ibe',   email: 'cibe@example.com',   phone: '+234 803 456 7890', policies: 2, joinedAt: '2024-07-10', kyc: 'pending' as const },
-  { id: 'usr_004', name: 'Fatima Bello',      email: 'fatima@example.com', phone: '+234 804 567 8901', policies: 1, joinedAt: '2024-09-03', kyc: 'verified' as const },
-  { id: 'usr_005', name: 'Tunde Fashola',     email: 'tunde@example.com',  phone: '+234 805 678 9012', policies: 2, joinedAt: '2024-10-18', kyc: 'unverified' as const },
-  { id: 'usr_006', name: 'Amara Osei',        email: 'amara@example.com',  phone: '+234 806 789 0123', policies: 1, joinedAt: '2024-12-01', kyc: 'verified' as const },
+interface CustomerPolicy { ref: string; productType: 'motor' | 'medical' | 'travel' | 'business'; name: string; premium: number; status: 'active' | 'expiring' | 'expired' }
+interface CustomerClaim { id: string; type: string; amount: number; status: string }
+
+const CUSTOMER_PAGE_SIZE = 5
+
+const ALL_USERS: { id: string; name: string; email: string; phone: string; policies: number; joinedAt: string; kyc: 'verified' | 'pending' | 'unverified'; policyList: CustomerPolicy[]; claims: CustomerClaim[] }[] = [
+  { id: 'usr_001', name: 'Emeka Okonkwo',    email: 'customer@demo.com',  phone: '+234 801 234 5678', policies: 3, joinedAt: '2024-03-15', kyc: 'verified',
+    policyList: [
+      { ref: 'SI-2025-042983', productType: 'motor', name: 'Toyota Camry 2020', premium: 87_500, status: 'active' },
+      { ref: 'SI-2024-011203', productType: 'travel', name: 'UK Business Trip', premium: 32_000, status: 'expired' },
+      { ref: 'SI-2024-088712', productType: 'business', name: 'Office Fire & Burglary', premium: 95_000, status: 'active' },
+    ],
+    claims: [{ id: 'CLM-2025-0921', type: 'Motor – Accidental Damage', amount: 320_000, status: 'Under Review' }] },
+  { id: 'usr_002', name: 'Ngozi Adeyemi',     email: 'ngozi@example.com',  phone: '+234 802 345 6789', policies: 1, joinedAt: '2024-05-20', kyc: 'verified',
+    policyList: [{ ref: 'SI-2025-012456', productType: 'medical', name: 'Family Health Plan', premium: 210_000, status: 'expiring' }],
+    claims: [{ id: 'CLM-2025-0908', type: 'Medical – Hospitalisation', amount: 145_000, status: 'Submitted' }] },
+  { id: 'usr_003', name: 'Chukwuemeka Ibe',   email: 'cibe@example.com',   phone: '+234 803 456 7890', policies: 2, joinedAt: '2024-07-10', kyc: 'pending',
+    policyList: [
+      { ref: 'SI-2025-071122', productType: 'travel', name: 'UK Multi-trip Cover', premium: 54_000, status: 'active' },
+      { ref: 'SI-2024-023341', productType: 'motor', name: 'Kia Rio 2018', premium: 41_000, status: 'expired' },
+    ],
+    claims: [{ id: 'CLM-2025-0887', type: 'Travel – Trip Cancellation', amount: 85_000, status: 'Approved' }] },
+  { id: 'usr_004', name: 'Fatima Bello',      email: 'fatima@example.com', phone: '+234 804 567 8901', policies: 1, joinedAt: '2024-09-03', kyc: 'verified',
+    policyList: [{ ref: 'SI-2025-033218', productType: 'business', name: 'Okonkwo & Sons Office', premium: 95_000, status: 'active' }],
+    claims: [{ id: 'CLM-2025-0871', type: 'Business – Fire Damage', amount: 550_000, status: 'Settled' }] },
+  { id: 'usr_005', name: 'Tunde Fashola',     email: 'tunde@example.com',  phone: '+234 805 678 9012', policies: 2, joinedAt: '2024-10-18', kyc: 'unverified',
+    policyList: [
+      { ref: 'SI-2025-051009', productType: 'motor', name: 'Toyota Hilux 2021', premium: 61_000, status: 'active' },
+      { ref: 'SI-2024-099213', productType: 'medical', name: 'Individual Standard Plan', premium: 68_000, status: 'expired' },
+    ],
+    claims: [{ id: 'CLM-2025-0853', type: 'Motor – Theft', amount: 1_200_000, status: 'Rejected' }] },
+  { id: 'usr_006', name: 'Amara Osei',        email: 'amara@example.com',  phone: '+234 806 789 0123', policies: 1, joinedAt: '2024-12-01', kyc: 'verified',
+    policyList: [{ ref: 'SI-2025-029341', productType: 'medical', name: 'Individual Standard Plan', premium: 98_000, status: 'active' }],
+    claims: [{ id: 'CLM-2025-0844', type: 'Medical – Surgery', amount: 430_000, status: 'Settled' }] },
 ]
+
+type CustomerRecord = typeof ALL_USERS[number]
+
+const POLICY_STATUS_VARIANT: Record<string, 'status-active' | 'status-expiring' | 'status-expired'> = {
+  active: 'status-active', expiring: 'status-expiring', expired: 'status-expired',
+}
 
 const KYC_VARIANT: Record<string, 'status-active' | 'status-expiring' | 'status-expired'> = {
   verified: 'status-active', pending: 'status-expiring', unverified: 'status-expired',
@@ -294,16 +331,107 @@ function InviteModal({ onClose, onInvite }: { onClose: () => void; onInvite: (m:
   )
 }
 
+function CustomerDrawerContent({ customer, onVerifyKyc }: { customer: CustomerRecord; onVerifyKyc: () => void }) {
+  const totalPremium = customer.policyList.reduce((sum, p) => sum + p.premium, 0)
+  return (
+    <div className="flex flex-col gap-5">
+      <div>
+        <p className="font-sans font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>{customer.name}</p>
+        <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{customer.email} · {customer.phone}</p>
+        <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+          <Badge variant={KYC_VARIANT[customer.kyc]}>{customer.kyc.charAt(0).toUpperCase() + customer.kyc.slice(1)}</Badge>
+          <span className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+            Joined {new Date(customer.joinedAt).toLocaleDateString('en-NG', { month: 'short', year: 'numeric' })}
+          </span>
+        </div>
+      </div>
+
+      {customer.kyc !== 'verified' && (
+        <button type="button" onClick={onVerifyKyc}
+          className="flex items-center justify-center gap-2 h-9 rounded-xl text-white font-sans font-medium text-[12px] transition-all hover:-translate-y-px"
+          style={{ backgroundColor: '#16A34A' }}>
+          <Shield className="w-3.5 h-3.5" /> Verify KYC
+        </button>
+      )}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl p-3" style={{ backgroundColor: 'var(--surface-raised)' }}>
+          <p className="font-sans font-bold text-[10px] uppercase tracking-[0.06em] mb-1" style={{ color: 'var(--text-subtle)' }}>Policies</p>
+          <p className="font-display font-bold text-[18px]" style={{ color: 'var(--text-primary)' }}>{customer.policyList.length}</p>
+        </div>
+        <div className="rounded-xl p-3" style={{ backgroundColor: 'var(--surface-raised)' }}>
+          <p className="font-sans font-bold text-[10px] uppercase tracking-[0.06em] mb-1" style={{ color: 'var(--text-subtle)' }}>Total Premium</p>
+          <p className="font-display font-bold text-[18px]" style={{ color: 'var(--text-primary)' }}>{formatNaira(totalPremium)}</p>
+        </div>
+      </div>
+
+      <div>
+        <p className="font-sans font-bold text-[11px] uppercase tracking-[0.06em] mb-2" style={{ color: 'var(--text-subtle)' }}>Policy history</p>
+        <div className="flex flex-col gap-2">
+          {customer.policyList.map((p) => {
+            const c = PRODUCT_COLORS[p.productType]
+            return (
+              <div key={p.ref} className="flex items-center gap-3 px-3 py-2.5 rounded-xl border" style={{ borderColor: 'var(--border-default)' }}>
+                <div className="flex-1 min-w-0">
+                  <span className="font-sans font-medium text-[11px]" style={{ color: c.text }}>{c.emoji} {c.label}</span>
+                  <p className="font-sans font-semibold text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
+                  <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>{p.ref}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-sans font-semibold text-[12px]" style={{ color: 'var(--text-primary)' }}>{formatNaira(p.premium)}</p>
+                  <Badge variant={POLICY_STATUS_VARIANT[p.status]}>{p.status}</Badge>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <div>
+        <p className="font-sans font-bold text-[11px] uppercase tracking-[0.06em] mb-2" style={{ color: 'var(--text-subtle)' }}>Claims history</p>
+        {customer.claims.length === 0 ? (
+          <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>No claims filed.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {customer.claims.map((c) => (
+              <div key={c.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ backgroundColor: 'var(--surface-raised)' }}>
+                <div className="flex-1 min-w-0">
+                  <p className="font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>{c.type}</p>
+                  <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>{c.id}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-sans font-semibold text-[12px]" style={{ color: 'var(--text-primary)' }}>{formatNaira(c.amount)}</p>
+                  <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>{c.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function AdminUsersPage() {
   const [tab, setTab] = useState<'customers' | 'team'>('customers')
   const [search, setSearch] = useState('')
   const [admins, setAdmins] = useState<AdminMember[]>(INITIAL_ADMINS)
   const [showInvite, setShowInvite] = useState(false)
   const [editPerms, setEditPerms] = useState<AdminMember | null>(null)
+  const [users, setUsers] = useState(ALL_USERS)
+  const [page, setPage] = useState(1)
+  const [openCustomer, setOpenCustomer] = useState<CustomerRecord | null>(null)
 
-  const shownUsers = ALL_USERS.filter((u) =>
+  const filteredUsers = useMemo(() => users.filter((u) =>
     !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
-  )
+  ), [users, search])
+
+  const shownUsers = filteredUsers.slice((page - 1) * CUSTOMER_PAGE_SIZE, page * CUSTOMER_PAGE_SIZE)
+
+  function verifyKyc(id: string) {
+    setUsers((prev) => prev.map((u) => u.id === id ? { ...u, kyc: 'verified' } : u))
+    setOpenCustomer((prev) => prev && prev.id === id ? { ...prev, kyc: 'verified' } : prev)
+  }
 
   function handleInvite(m: AdminMember) {
     setAdmins((prev) => [m, ...prev])
@@ -352,7 +480,7 @@ export default function AdminUsersPage() {
         <>
           <div className="relative max-w-sm mb-5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or email…"
+            <input type="text" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1) }} placeholder="Search by name or email…"
               className="w-full h-10 pl-9 pr-4 rounded-xl border font-sans text-[13px] outline-none"
               style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
               onFocus={(e) => { e.currentTarget.style.borderColor = '#DC2626'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.08)' }}
@@ -369,7 +497,8 @@ export default function AdminUsersPage() {
             <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
               {shownUsers.map((user, i) => (
                 <motion.div key={user.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
-                  className="grid grid-cols-1 lg:grid-cols-[2fr_1.5fr_100px_100px_100px] gap-3 lg:gap-4 px-5 py-4 hover:bg-[var(--surface-raised)] transition-colors items-center">
+                  onClick={() => setOpenCustomer(user)}
+                  className="grid grid-cols-1 lg:grid-cols-[2fr_1.5fr_100px_100px_100px] gap-3 lg:gap-4 px-5 py-4 hover:bg-[var(--surface-raised)] transition-colors items-center cursor-pointer">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full flex items-center justify-center font-sans font-bold text-[13px] shrink-0"
                       style={{ backgroundColor: 'var(--green-50)', color: 'var(--green-700)' }}>
@@ -393,6 +522,7 @@ export default function AdminUsersPage() {
                 </motion.div>
               ))}
             </div>
+            <Pagination page={page} pageSize={CUSTOMER_PAGE_SIZE} total={filteredUsers.length} onPageChange={setPage} />
           </div>
         </>
       ) : (
@@ -460,6 +590,15 @@ export default function AdminUsersPage() {
         {showInvite && <InviteModal onClose={() => setShowInvite(false)} onInvite={handleInvite} />}
         {editPerms && <PermissionsModal member={editPerms} onClose={() => setEditPerms(null)} onSave={handleSavePerms} />}
       </AnimatePresence>
+
+      <Drawer
+        open={!!openCustomer}
+        onClose={() => setOpenCustomer(null)}
+        title={openCustomer?.name ?? ''}
+        subtitle={openCustomer?.id}
+      >
+        {openCustomer && <CustomerDrawerContent customer={openCustomer} onVerifyKyc={() => verifyKyc(openCustomer.id)} />}
+      </Drawer>
     </div>
   )
 }
