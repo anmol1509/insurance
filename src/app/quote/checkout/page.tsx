@@ -16,7 +16,7 @@ import { toTangerineCustomer, toTangerineMotor } from '@/lib/tangerine/fromQuote
 import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
 import { submitAiicoMotorApplication } from '@/lib/aiico/browser'
 import { toAiicoCustomer, toAiicoVehicle } from '@/lib/aiico/fromQuoteStore'
-import { AIICO_DOCUMENT_SLOTS } from '@/lib/aiico/documents'
+import { aiicoDocumentSlots } from '@/lib/aiico/documents'
 import { fetchMotorInsurerStatus, motorInsurerKeyFor } from '@/lib/motorInsurerStatus'
 import { collectDocumentFiles } from '@/store/documentFiles'
 import {
@@ -340,8 +340,9 @@ export default function CheckoutPage() {
     const line = selectedPlan?.aiico
     if (!line) return null
 
-    const files = collectDocumentFiles(AIICO_DOCUMENT_SLOTS.map((slot) => slot.slot))
-    const missing = AIICO_DOCUMENT_SLOTS.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+    const relevantSlots = aiicoDocumentSlots(line)
+    const files = collectDocumentFiles(relevantSlots.map((slot) => slot.slot))
+    const missing = relevantSlots.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
     if (missing.length > 0) {
       throw new Error(`Please re-upload your documents before paying: ${missing.join(', ')}.`)
     }

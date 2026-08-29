@@ -3,7 +3,7 @@ import { finalizePartnerPayment, postMotorSchedule } from '@/lib/aiico/api'
 import { fileToBase64, toComprehensiveSchedule, toFinalizePayment, toThirdPartySchedule } from '@/lib/aiico/mappers'
 import type { ResolvedCustomer, ResolvedImages, ResolvedVehicle } from '@/lib/aiico/mappers'
 import { resolveBodyType, resolveColor, resolveGenderId, resolveTitleId, resolveVehicleMakeModel } from '@/lib/aiico/resolve'
-import { AIICO_DOCUMENT_SLOTS } from '@/lib/aiico/documents'
+import { aiicoDocumentSlots } from '@/lib/aiico/documents'
 import { aiicoMotorSubmitSchema, fieldErrors } from '@/lib/aiico/schemas'
 import { aiicoErrorResponse } from '@/lib/aiico/http'
 import { validateFileBasics } from '@/lib/nsia/files'
@@ -12,8 +12,9 @@ import { validateFileBasics } from '@/lib/nsia/files'
  * `POST /api/aiico/submit/motor` — multipart/form-data:
  *   - `payload`: JSON string of `{ line, wefDt, wetDt, customer, vehicle, payment }`
  *     (plain text — resolved against AIICO's vocabulary here, not by the caller)
- *   - files under `vehicle_license`, `identification`, `proof_of_ownership`,
- *     and optionally `utility_bill`
+ *   - files under `vehicle_license`, `identification`, and optionally
+ *     `utility_bill`; `proof_of_ownership` too, but only for `comprehensive`
+ *     — Third Party's documented payload never includes that field
  *
  * AIICO splits new business into two calls: `PostMotorSchedule` (registers
  * the risk and returns a `transactionRef` + the authoritative premium) and
@@ -46,17 +47,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Some details are missing or invalid.', fields: fieldErrors(parsed.error) }, { status: 400 })
   }
   const { line, wefDt, wetDt, customer, vehicle, payment } = parsed.data
+  const relevantSlots = aiicoDocumentSlots(line)
 
   const files: Partial<Record<string, File>> = {}
   const fileErrors: Record<string, string> = {}
-  for (const slot of AIICO_DOCUMENT_SLOTS) {
+  for (const slot of relevantSlots) {
     const value = form.get(slot.slot)
     if (!value || typeof value === 'string') continue
     const problem = validateFileBasics({ name: value.name, size: value.size, type: value.type })
     if (problem) fileErrors[slot.slot] = problem
     else files[slot.slot] = value
   }
-  const missing = AIICO_DOCUMENT_SLOTS.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
+  const missing = relevantSlots.filter((slot) => slot.required && !files[slot.slot]).map((slot) => slot.label)
   if (missing.length > 0 || Object.keys(fileErrors).length > 0) {
     return NextResponse.json(
       { success: false, error: missing.length > 0 ? `Missing required documents: ${missing.join(', ')}.` : 'Some files could not be accepted.', fields: fileErrors },

@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import DocumentUploadZone from '@/components/ui/DocumentUploadZone'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import { aiicoLineFor, motorDocSlots, tangerineLineFor } from '@/lib/motorDocuments'
@@ -83,6 +83,26 @@ export default function MotorDocuments() {
     const docs = { ...motorData.uploadedDocs }
     delete docs[key]
     updateMotor({ uploadedDocs: docs })
+  }
+
+  if (slots.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-4 px-5 py-6 rounded-2xl border-2"
+        style={{ borderColor: 'var(--motor-300)', backgroundColor: 'var(--motor-50)' }}
+      >
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--motor-600)' }}>
+          <ShieldCheck className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <p className="font-sans font-bold text-[14px]" style={{ color: 'var(--motor-700)' }}>No documents needed</p>
+          <p className="font-sans text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+            {`${plan?.insurer ?? 'This insurer'} doesn't require any document uploads to process your application. You're all set — continue to the next step.`}
+          </p>
+        </div>
+      </motion.div>
+    )
   }
 
   return (

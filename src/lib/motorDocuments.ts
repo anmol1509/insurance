@@ -1,12 +1,16 @@
 /**
- * Which documents the motor flow asks for. NSIA and Tangerine each name
- * their own slots and want different things depending on the plan the
- * customer picked.
+ * Which documents the motor flow asks for. Every insurer this platform
+ * actually integrates with (NSIA, Tangerine, AIICO) names its own slots
+ * from its own documented API; Fortis's documented payload has no
+ * document/image fields at all, so it asks for none. The generic fallback
+ * below only ever applies to the handful of catalog-only plans that have
+ * no live backend, since there is no fifth insurer to guess requirements
+ * for.
  */
 import { MOTOR_PLANS } from './motorPlans'
 import { documentSlotsFor } from './nsia/documents'
 import { TANGERINE_DOCUMENT_SLOTS } from './tangerine/documents'
-import { AIICO_DOCUMENT_SLOTS } from './aiico/documents'
+import { aiicoDocumentSlots } from './aiico/documents'
 import type { MotorData } from '@/store/quoteStore'
 
 export interface MotorDocSlot {
@@ -16,7 +20,7 @@ export interface MotorDocSlot {
   required: boolean
 }
 
-/** Used when the chosen plan is not submitted through NSIA or Tangerine. */
+/** Used only for catalog-only plans with no live insurer backend (e.g. FGI, SUNU, Leadway). */
 export const GENERIC_MOTOR_DOC_SLOTS: MotorDocSlot[] = [
   { key: 'vehicle_license',    label: 'Vehicle License (Registration Certificate)', required: true },
   { key: 'proof_of_ownership', label: 'Proof of Ownership (Vehicle Particulars)',   required: true },
@@ -29,6 +33,10 @@ export function isNsiaMotorPlan(planId: string | null): boolean {
   return MOTOR_PLANS.find((plan) => plan.id === planId)?.nsia === true
 }
 
+export function isFortisMotorPlan(planId: string | null): boolean {
+  return MOTOR_PLANS.find((plan) => plan.id === planId)?.fortisGlobal === true
+}
+
 export function tangerineLineFor(planId: string | null): 'comprehensive' | 'thirdparty' | null {
   return MOTOR_PLANS.find((plan) => plan.id === planId)?.tangerine ?? null
 }
@@ -38,6 +46,10 @@ export function aiicoLineFor(planId: string | null): 'comprehensive' | 'third-pa
 }
 
 export function motorDocSlots(motorData: MotorData): MotorDocSlot[] {
+  if (isFortisMotorPlan(motorData.selectedUnderwriter)) {
+    return []
+  }
+
   if (isNsiaMotorPlan(motorData.selectedUnderwriter)) {
     return documentSlotsFor('motor', {
       isCorporate: motorData.isBusinessPolicy,
@@ -58,8 +70,9 @@ export function motorDocSlots(motorData: MotorData): MotorDocSlot[] {
     }))
   }
 
-  if (aiicoLineFor(motorData.selectedUnderwriter)) {
-    return AIICO_DOCUMENT_SLOTS.map((entry) => ({
+  const aiicoLine = aiicoLineFor(motorData.selectedUnderwriter)
+  if (aiicoLine) {
+    return aiicoDocumentSlots(aiicoLine).map((entry) => ({
       key: entry.slot,
       label: entry.label,
       hint: entry.hint,
