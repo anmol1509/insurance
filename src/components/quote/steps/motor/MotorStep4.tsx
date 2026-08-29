@@ -10,6 +10,7 @@ import {
   NIGERIAN_STATES, GENDERS, OCCUPATIONS,
 } from '@/lib/constants'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
+import { motorClientInfoConfig } from '@/lib/motorClientInfo'
 
 function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
@@ -30,10 +31,20 @@ const occupationOptions = OCCUPATIONS.map((o) => ({ value: o, label: o }))
 
 export default function MotorStep4() {
   const { motorData, updateMotor, calculatedPremium } = useQuoteStore()
+  const config = motorClientInfoConfig(motorData.selectedUnderwriter)
+  const selectedPlan = motorData.selectedUnderwriter
+    ? MOTOR_PLANS.find((p) => p.id === motorData.selectedUnderwriter)
+    : null
 
   return (
     <div className="space-y-7">
-      <div className="grid md:grid-cols-2 gap-5">
+      {selectedPlan && (
+        <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
+          Showing only the details {selectedPlan.insurer} needs.
+        </p>
+      )}
+
+      <div className={config.dateOfBirth ? 'grid md:grid-cols-2 gap-5' : ''}>
         <Input
           label="Full Name"
           required
@@ -42,33 +53,41 @@ export default function MotorStep4() {
           placeholder="As on your ID document"
           productColor="var(--motor-600)"
         />
-        <Input
-          label="Date of Birth"
-          required
-          type="date"
-          value={motorData.dateOfBirth}
-          onChange={(e) => updateMotor({ dateOfBirth: e.target.value })}
-          hint="Must be 18 or older"
-          productColor="var(--motor-600)"
-        />
+        {config.dateOfBirth && (
+          <Input
+            label="Date of Birth"
+            required
+            type="date"
+            value={motorData.dateOfBirth}
+            onChange={(e) => updateMotor({ dateOfBirth: e.target.value })}
+            hint="Must be 18 or older"
+            productColor="var(--motor-600)"
+          />
+        )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <NINField
-          value={motorData.nin}
-          onChange={(v) => updateMotor({ nin: v })}
-          productColor="var(--motor-600)"
-        />
-        <Input
-          label="Bank Verification Number (BVN)"
-          value={motorData.bvn}
-          onChange={(e) => updateMotor({ bvn: e.target.value.replace(/\D/g, '').slice(0, 11) })}
-          placeholder="11-digit BVN"
-          inputMode="numeric"
-          maxLength={11}
-          productColor="var(--motor-600)"
-        />
-      </div>
+      {(config.nin || config.bvn) && (
+        <div className={config.nin && config.bvn ? 'grid md:grid-cols-2 gap-5' : ''}>
+          {config.nin && (
+            <NINField
+              value={motorData.nin}
+              onChange={(v) => updateMotor({ nin: v })}
+              productColor="var(--motor-600)"
+            />
+          )}
+          {config.bvn && (
+            <Input
+              label="Bank Verification Number (BVN)"
+              value={motorData.bvn}
+              onChange={(e) => updateMotor({ bvn: e.target.value.replace(/\D/g, '').slice(0, 11) })}
+              placeholder="11-digit BVN"
+              inputMode="numeric"
+              maxLength={11}
+              productColor="var(--motor-600)"
+            />
+          )}
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-5">
         <Input
@@ -92,44 +111,52 @@ export default function MotorStep4() {
         />
       </div>
 
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Gender <span className="text-[var(--error)]">*</span>
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          {GENDERS.map((g) => (
-            <RadioCard
-              key={g}
-              label={g}
-              selected={motorData.gender === g}
-              onClick={() => updateMotor({ gender: g })}
-              productColor="var(--motor-600)"
-              productColorBg="var(--motor-50)"
-            />
-          ))}
+      {config.gender && (
+        <div>
+          <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
+            Gender <span className="text-[var(--error)]">*</span>
+          </p>
+          <div className="grid grid-cols-3 gap-3">
+            {GENDERS.map((g) => (
+              <RadioCard
+                key={g}
+                label={g}
+                selected={motorData.gender === g}
+                onClick={() => updateMotor({ gender: g })}
+                productColor="var(--motor-600)"
+                productColorBg="var(--motor-50)"
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <Select
-          label="Occupation"
-          required
-          options={occupationOptions}
-          value={motorData.occupation}
-          onChange={(v) => updateMotor({ occupation: v })}
-          placeholder="Select occupation"
-          productColor="var(--motor-600)"
-        />
-        <Select
-          label="State of Residence"
-          required
-          options={stateOptions}
-          value={motorData.residentialState}
-          onChange={(v) => updateMotor({ residentialState: v })}
-          placeholder="Select state"
-          productColor="var(--motor-600)"
-        />
-      </div>
+      {(config.occupation || config.residentialState) && (
+        <div className={config.occupation && config.residentialState ? 'grid md:grid-cols-2 gap-5' : ''}>
+          {config.occupation && (
+            <Select
+              label="Occupation"
+              required
+              options={occupationOptions}
+              value={motorData.occupation}
+              onChange={(v) => updateMotor({ occupation: v })}
+              placeholder="Select occupation"
+              productColor="var(--motor-600)"
+            />
+          )}
+          {config.residentialState && (
+            <Select
+              label="State of Residence"
+              required
+              options={stateOptions}
+              value={motorData.residentialState}
+              onChange={(v) => updateMotor({ residentialState: v })}
+              placeholder="Select state"
+              productColor="var(--motor-600)"
+            />
+          )}
+        </div>
+      )}
 
       <Input
         label="Residential Address"
@@ -140,33 +167,35 @@ export default function MotorStep4() {
         productColor="var(--motor-600)"
       />
 
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>
-          Policy Type <span className="text-[var(--error)]">*</span>
-        </p>
-        <p className="font-sans text-[12px] mb-3" style={{ color: 'var(--text-muted)' }}>
-          Is this policy for an individual or a registered company?
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <RadioCard
-            label="Individual"
-            selected={!motorData.isBusinessPolicy}
-            onClick={() => updateMotor({ isBusinessPolicy: false })}
-            productColor="var(--motor-600)"
-            productColorBg="var(--motor-50)"
-          />
-          <RadioCard
-            label="Corporate"
-            selected={motorData.isBusinessPolicy}
-            onClick={() => updateMotor({ isBusinessPolicy: true })}
-            productColor="var(--motor-600)"
-            productColorBg="var(--motor-50)"
-          />
+      {config.corporateToggle && (
+        <div>
+          <p className="font-sans font-semibold text-[13px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>
+            Policy Type <span className="text-[var(--error)]">*</span>
+          </p>
+          <p className="font-sans text-[12px] mb-3" style={{ color: 'var(--text-muted)' }}>
+            Is this policy for an individual or a registered company?
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <RadioCard
+              label="Individual"
+              selected={!motorData.isBusinessPolicy}
+              onClick={() => updateMotor({ isBusinessPolicy: false })}
+              productColor="var(--motor-600)"
+              productColorBg="var(--motor-50)"
+            />
+            <RadioCard
+              label="Corporate"
+              selected={motorData.isBusinessPolicy}
+              onClick={() => updateMotor({ isBusinessPolicy: true })}
+              productColor="var(--motor-600)"
+              productColorBg="var(--motor-50)"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <AnimatePresence>
-        {motorData.isBusinessPolicy && (
+        {config.corporateToggle && config.corporateDetails && motorData.isBusinessPolicy && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
