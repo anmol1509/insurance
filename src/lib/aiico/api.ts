@@ -1,0 +1,97 @@
+/** Typed wrappers for every AIICO Motor endpoint documented so far (Third Party, Comprehensive, Renewal). */
+import { aiicoRequest } from './client'
+import type {
+  AiicoFinalizePaymentRequest,
+  AiicoFinalizePaymentResult,
+  AiicoLookup,
+  AiicoMotorScheduleRequest,
+  AiicoMotorScheduleResult,
+  AiicoProduct,
+  AiicoRenewalDetails,
+  AiicoRenewalScheduleRequest,
+  AiicoSubClassCoverEntry,
+  AiicoVehicleDetails,
+} from './types'
+
+export function getProducts(): Promise<AiicoProduct[]> {
+  return aiicoRequest<AiicoProduct[]>('/api/services/app/ProductService/GetProducts')
+}
+
+export function getProductSubClassCoverTypes(productId: string): Promise<AiicoSubClassCoverEntry[]> {
+  return aiicoRequest<AiicoSubClassCoverEntry[]>('/api/services/app/ProductService/GetProductSubClassCoverTypes', {
+    query: { productId },
+  })
+}
+
+export function getTitles(): Promise<AiicoLookup[]> {
+  return aiicoRequest<AiicoLookup[]>('/api/services/app/UtilitiyService/GetTitles')
+}
+
+export function getGenders(): Promise<AiicoLookup[]> {
+  return aiicoRequest<AiicoLookup[]>('/api/services/app/UtilitiyService/GetGenders')
+}
+
+export function getBodyTypes(): Promise<string[]> {
+  return aiicoRequest<string[]>('/api/services/app/UtilitiyService/GetBodyTypes')
+}
+
+export function getVehicleDetails(numberPlate: string): Promise<AiicoVehicleDetails> {
+  return aiicoRequest<AiicoVehicleDetails>('/api/services/app/MotorProductService/GetVehicleDetails', {
+    query: { numberPlate },
+  })
+}
+
+export function getColorList(): Promise<string[]> {
+  return aiicoRequest<string[]>('/api/services/app/UtilitiyService/GetColorList')
+}
+
+export function getManufactureYears(): Promise<string[]> {
+  return aiicoRequest<string[]>('/api/services/app/UtilityService/GetManufactureYear')
+}
+
+export function getVehicleMakes(makeYear: string): Promise<string[]> {
+  return aiicoRequest<string[]>('/api/services/app/UtilityService/GetVehicleMake', { query: { makeYear } })
+}
+
+export function getVehicleMakeModels(vehicleMake: string, vehicleYear: string): Promise<string[]> {
+  return aiicoRequest<string[]>('/api/services/app/UtilityService/GetVehicleMakeModel', {
+    query: { VehicleMake: vehicleMake, VehicleYear: vehicleYear },
+  })
+}
+
+/** Third Party only — fixed-rate lookup by body type. */
+export function computeThirdPartyMotorPremium(bodyType: string): Promise<number> {
+  return aiicoRequest<number>('/api/services/app/MotorProductService/ComputeThirdPartyMotorPremium', {
+    method: 'POST',
+    query: { bodyType },
+  })
+}
+
+/** Shared by both Third Party and Comprehensive — the payload shape differs per line, see mappers.ts. */
+export function postMotorSchedule(payload: AiicoMotorScheduleRequest): Promise<AiicoMotorScheduleResult> {
+  return aiicoRequest<AiicoMotorScheduleResult>('/api/services/app/MotorProductService/PostMotorSchedule', {
+    method: 'POST',
+    body: payload as unknown as Record<string, unknown>,
+  })
+}
+
+/** Shared across Third Party, Comprehensive, and Renewal — call after the customer has actually paid. */
+export function finalizePartnerPayment(payload: AiicoFinalizePaymentRequest): Promise<AiicoFinalizePaymentResult> {
+  return aiicoRequest<AiicoFinalizePaymentResult>('/api/services/app/PartnerService/FinalizePartnerPayment', {
+    method: 'POST',
+    body: payload as unknown as Record<string, unknown>,
+  })
+}
+
+export function getAutoRenewalDetails(policyNo: string): Promise<AiicoRenewalDetails> {
+  return aiicoRequest<AiicoRenewalDetails>('/api/services/app/MotorProductService/GetAutoRenewalDetails', {
+    query: { policyNo },
+  })
+}
+
+export function postMotorRenewalSchedule(payload: AiicoRenewalScheduleRequest): Promise<AiicoMotorScheduleResult> {
+  return aiicoRequest<AiicoMotorScheduleResult>('/api/services/app/MotorProductService/PostMotorRenewalSchedule', {
+    method: 'POST',
+    body: payload as unknown as Record<string, unknown>,
+  })
+}
