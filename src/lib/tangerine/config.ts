@@ -46,3 +46,8 @@ export function cloudinaryCloudName(): string | undefined {
 export function cloudinaryUploadPreset(): string | undefined {
   return process.env.CLOUDINARY_UPLOAD_PRESET?.trim() || undefined
 }
+
+/** True only when both the API credentials and the image-hosting step submission depends on are set. */
+export function tangerineConfigured(): boolean {
+  return Boolean(tangerineAuthHeader() && cloudinaryCloudName() && cloudinaryUploadPreset())
+}

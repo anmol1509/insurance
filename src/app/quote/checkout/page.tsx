@@ -17,6 +17,7 @@ import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
 import { submitAiicoMotorApplication } from '@/lib/aiico/browser'
 import { toAiicoCustomer, toAiicoVehicle } from '@/lib/aiico/fromQuoteStore'
 import { AIICO_DOCUMENT_SLOTS } from '@/lib/aiico/documents'
+import { fetchMotorInsurerStatus, motorInsurerKeyFor } from '@/lib/motorInsurerStatus'
 import { collectDocumentFiles } from '@/store/documentFiles'
 import {
   confirmPayloftTransfer,
@@ -535,11 +536,30 @@ export default function CheckoutPage() {
     await finishAfterPaymentApproved(result.approvalCode ?? String(result.transactionId))
   }
 
+  /**
+   * Authoritative, last-moment check — MotorPlanSelect already hides plans
+   * for unconfigured insurers, but that's a best-effort UX filter, not a
+   * guarantee (stale cached selection, a race with credentials changing).
+   * This runs fresh, right before any money moves, so a customer can never
+   * be charged for a policy the platform then can't submit.
+   */
+  async function verifySelectedInsurerAvailable() {
+    if (!selectedPlan) return
+    const key = motorInsurerKeyFor(selectedPlan)
+    if (!key) return
+
+    const status = await fetchMotorInsurerStatus().catch(() => null)
+    if (status && !status[key]) {
+      throw new Error(`${selectedPlan.insurer} isn't available for new policies right now. Please go back and choose a different plan.`)
+    }
+  }
+
   async function handlePay() {
     if (!validate()) return
     setSubmitError(null)
     setPaying(true)
     try {
+      await verifySelectedInsurerAvailable()
       if (payMethod === 'bank') await handleBankTransferStep()
       else await handleDirectPay()
     } catch (error) {

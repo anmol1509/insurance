@@ -6,6 +6,7 @@ import { Star, Check, X, ChevronDown, ChevronUp, Plus, ArrowLeftRight } from 'lu
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import type { MotorPlan } from '@/lib/motorPlans'
 import { cheapestCoverPrice, extractMotorProducts } from '@/lib/fortis/catalog'
+import { fetchMotorInsurerStatus, isMotorPlanAvailable, type MotorInsurerStatus } from '@/lib/motorInsurerStatus'
 
 function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
@@ -35,6 +36,7 @@ export default function MotorPlanSelect() {
   const [sortBy, setSortBy] = useState<SortKey>('popular')
   const [featureFilters, setFeatureFilters] = useState<string[]>([])
   const [fortisCatalogPrices, setFortisCatalogPrices] = useState<Record<string, number>>({})
+  const [insurerStatus, setInsurerStatus] = useState<MotorInsurerStatus | null>(null)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [showCompareModal, setShowCompareModal] = useState(false)
 
@@ -54,6 +56,8 @@ export default function MotorPlanSelect() {
         setFortisCatalogPrices(prices)
       })
       .catch(() => {})
+
+    fetchMotorInsurerStatus().then(setInsurerStatus).catch(() => {})
   }, [])
 
   function toggleFeature(f: string) {
@@ -68,7 +72,9 @@ export default function MotorPlanSelect() {
     )
   }
 
-  const filtered = MOTOR_PLANS.filter((p) => p.coverType === coverType)
+  const filtered = MOTOR_PLANS
+    .filter((p) => p.coverType === coverType)
+    .filter((p) => isMotorPlanAvailable(p, insurerStatus))
   const basePrice = coverType === 'comprehensive' && carValue > 0
     ? Math.round(carValue * 0.05)
     : 20000

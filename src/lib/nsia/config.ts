@@ -26,6 +26,10 @@ export function nsiaToken(): string | undefined {
   return process.env.NSIA_ACCESS_TOKEN?.trim() || undefined
 }
 
+export function nsiaConfigured(): boolean {
+  return Boolean(nsiaToken())
+}
+
 /** Timeouts recommended by the integration guide (section 14), in milliseconds. */
 export const NSIA_TIMEOUTS = {
   get: 30_000,
