@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Shield, Lock, ChevronDown, ChevronUp, Check, CreditCard, Building2, Smartphone, X } from 'lucide-react'
@@ -17,7 +17,7 @@ import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
 import { submitAiicoMotorApplication } from '@/lib/aiico/browser'
 import { toAiicoCustomer, toAiicoVehicle } from '@/lib/aiico/fromQuoteStore'
 import { aiicoDocumentSlots } from '@/lib/aiico/documents'
-import { fetchMotorInsurerStatus, motorInsurerKeyFor } from '@/lib/motorInsurerStatus'
+import { fetchMotorInsurerStatus, isMotorPlanDemo, motorInsurerKeyFor } from '@/lib/motorInsurerStatus'
 import { collectDocumentFiles } from '@/store/documentFiles'
 import {
   confirmPayloftTransfer,
@@ -227,6 +227,16 @@ export default function CheckoutPage() {
   // the order and requests a virtual account; a second click, after the
   // customer has actually sent the money, confirms it.
   const [payloftOrderId, setPayloftOrderId] = useState<number | null>(null)
+  const [isDemoInsurer, setIsDemoInsurer] = useState(false)
+
+  useEffect(() => {
+    if (!selectedPlan) return
+    fetchMotorInsurerStatus()
+      .then(({ demo }) => setIsDemoInsurer(isMotorPlanDemo(selectedPlan, demo)))
+      .catch(() => {})
+    // Only the plan id actually changes this, and MOTOR_PLANS lookups are stable by id.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPlan?.id])
   const [transferAccount, setTransferAccount] = useState<TransferAccount | null>(null)
 
   function switchPayMethod(next: PayMethod) {
@@ -549,8 +559,8 @@ export default function CheckoutPage() {
     const key = motorInsurerKeyFor(selectedPlan)
     if (!key) return
 
-    const status = await fetchMotorInsurerStatus().catch(() => null)
-    if (status && !status[key]) {
+    const result = await fetchMotorInsurerStatus().catch(() => null)
+    if (result && !result.status[key]) {
       throw new Error(`${selectedPlan.insurer} isn't available for new policies right now. Please go back and choose a different plan.`)
     }
   }
@@ -810,6 +820,21 @@ export default function CheckoutPage() {
                 ))}
               </div>
             </div>
+
+            {isDemoInsurer && (
+              <div
+                role="alert"
+                className="rounded-2xl border-2 px-4 py-3"
+                style={{ borderColor: '#DC2626', backgroundColor: '#FEF2F2' }}
+              >
+                <p className="font-sans font-bold text-[12px]" style={{ color: '#DC2626' }}>
+                  Demo mode — this is not a real policy
+                </p>
+                <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                  {`${planInsurer} isn't connected with real credentials yet. Paying below simulates the flow only — no certificate is issued and no policy is submitted to the insurer.`}
+                </p>
+              </div>
+            )}
 
             <motion.button type="button" onClick={handlePay} disabled={paying}
               whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}

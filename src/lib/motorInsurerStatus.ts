@@ -34,11 +34,18 @@ export function isMotorPlanAvailable(plan: MotorPlan, status: MotorInsurerStatus
   return status[key]
 }
 
-export async function fetchMotorInsurerStatus(): Promise<MotorInsurerStatus> {
+/** True when a plan's insurer is only "available" via a demo-mode fallback, not real credentials — never submitted for real. */
+export function isMotorPlanDemo(plan: MotorPlan, demo: MotorInsurerStatus | null): boolean {
+  const key = motorInsurerKeyFor(plan)
+  if (!key || !demo) return false
+  return demo[key]
+}
+
+export async function fetchMotorInsurerStatus(): Promise<{ status: MotorInsurerStatus; demo: MotorInsurerStatus }> {
   const response = await fetch('/api/motor/insurer-status')
   const body = await response.json().catch(() => null)
   if (!response.ok || !body?.success) {
     throw new Error(body?.error ?? `Request failed (${response.status})`)
   }
-  return body.data as MotorInsurerStatus
+  return { status: body.data as MotorInsurerStatus, demo: body.demo as MotorInsurerStatus }
 }

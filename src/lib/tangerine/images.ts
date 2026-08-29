@@ -6,17 +6,18 @@
  * Server-only.
  */
 import { proxyFetch } from '@/lib/proxyFetch'
-import { cloudinaryCloudName, cloudinaryUploadPreset } from './config'
+import { cloudinaryCloudName, cloudinaryUploadPreset, tangerineDemoMode } from './config'
 import { TangerineError } from './client'
 
 export function imageHostingConfigured(): boolean {
-  return Boolean(cloudinaryCloudName() && cloudinaryUploadPreset())
+  return Boolean(cloudinaryCloudName() && cloudinaryUploadPreset()) || tangerineDemoMode()
 }
 
 export async function uploadVehicleImage(file: File): Promise<string> {
   const cloudName = cloudinaryCloudName()
   const preset = cloudinaryUploadPreset()
   if (!cloudName || !preset) {
+    if (tangerineDemoMode()) return `https://demo.shopinsurance.com.ng/mock-uploads/${encodeURIComponent(file.name)}`
     throw new TangerineError(
       'Image hosting is not configured. Set CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET.',
       503

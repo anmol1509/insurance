@@ -3,7 +3,7 @@
  * Server-only — see `client.ts`.
  */
 import { NsiaError, nsiaRequest } from './client'
-import { NSIA_TIMEOUTS } from './config'
+import { NSIA_TIMEOUTS, nsiaDemoMode } from './config'
 import type {
   NsiaDropdown,
   NsiaFieldMap,
@@ -26,6 +26,8 @@ import type {
  * `"User not Found"`).
  */
 export async function checkUser(email: string): Promise<NsiaInsuredClient | null> {
+  // Demo mode always profiles fresh — see createProfile below.
+  if (nsiaDemoMode()) return null
   try {
     const { data } = await nsiaRequest<NsiaInsuredClient | string>(
       '/insured-client/check-userdetails',
@@ -41,6 +43,16 @@ export async function checkUser(email: string): Promise<NsiaInsuredClient | null
 
 /** Section 5.2 — creates the insured client and returns the new profile. */
 export async function createProfile(payload: NsiaProfilePayload): Promise<NsiaInsuredClient> {
+  if (nsiaDemoMode()) {
+    return {
+      insuredId: Date.now() % 1_000_000,
+      firstName: payload.firstname,
+      surname: payload.surname,
+      email: payload.email,
+      mobilePhone: payload.mobilePhone,
+      address: payload.address,
+    }
+  }
   const { data } = await nsiaRequest<NsiaInsuredClient>(
     '/account/profiling-insured-client',
     { method: 'POST', json: payload, anonymous: true }
@@ -138,6 +150,14 @@ export async function submitProduct(
   fields: NsiaFieldMap,
   uploads: NsiaUpload[]
 ): Promise<NsiaSubmissionResponse> {
+  if (nsiaDemoMode()) {
+    const ref = Date.now().toString().slice(-8)
+    return {
+      policyNumber: `DEMO-NSIA-${ref}`,
+      certOrDocNo: `DEMO-CERT-${ref}`,
+      message: 'Demo mode: this policy was simulated and was never submitted to NSIA.',
+    }
+  }
   const { data } = await nsiaRequest<NsiaSubmissionResponse>(SUBMISSION_PATHS[product], {
     method: 'POST',
     form: buildSubmissionForm(fields, uploads),

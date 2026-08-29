@@ -26,8 +26,23 @@ export function nsiaToken(): string | undefined {
   return process.env.NSIA_ACCESS_TOKEN?.trim() || undefined
 }
 
-export function nsiaConfigured(): boolean {
+function nsiaRealCredsPresent(): boolean {
   return Boolean(nsiaToken())
+}
+
+/**
+ * Explicit opt-in for demoing the flow before real NSIA credentials exist —
+ * every NSIA call is simulated with fabricated data instead of hitting the
+ * real API. Never overrides real credentials when both are set, and must
+ * never be enabled on the production site customers actually use: a demo
+ * "policy" is never submitted to NSIA and issues no real cover.
+ */
+export function nsiaDemoMode(): boolean {
+  return process.env.NSIA_DEMO_MODE?.trim().toLowerCase() === 'true' && !nsiaRealCredsPresent()
+}
+
+export function nsiaConfigured(): boolean {
+  return nsiaRealCredsPresent() || nsiaDemoMode()
 }
 
 /** Timeouts recommended by the integration guide (section 14), in milliseconds. */

@@ -6,7 +6,7 @@ import { toTangerineDate } from '@/lib/tangerine/mappers'
 import { TANGERINE_DOCUMENT_SLOTS } from '@/lib/tangerine/documents'
 import { tangerineErrorResponse } from '@/lib/tangerine/http'
 import { tangerineCustomerSchema, tangerineMotorSchema, fieldErrors } from '@/lib/tangerine/schemas'
-import { tangerineUserId } from '@/lib/tangerine/config'
+import { tangerineDemoMode, tangerineUserId } from '@/lib/tangerine/config'
 import { TangerineError } from '@/lib/tangerine/client'
 import { validateFileBasics } from '@/lib/nsia/files'
 import type { TangerineImageUrls } from '@/lib/tangerine/types'
@@ -96,8 +96,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pr
     )
   }
 
-  const userId = tangerineUserId()
-  if (!userId) {
+  if (!tangerineUserId() && !tangerineDemoMode()) {
     return NextResponse.json(
       { success: false, error: 'Tangerine integration is not configured.' },
       { status: 503 }

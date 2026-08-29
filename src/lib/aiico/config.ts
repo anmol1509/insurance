@@ -31,8 +31,23 @@ export function aiicoBearerToken(): string | undefined {
   return process.env.AIICO_BEARER_TOKEN?.trim() || undefined
 }
 
-export function isAiicoConfigured(): boolean {
+function aiicoRealCredsPresent(): boolean {
   return Boolean(aiicoBaseUrl() && aiicoBearerToken())
+}
+
+/**
+ * Explicit opt-in for demoing the flow before real AIICO credentials exist
+ * — every AIICO call is simulated with fabricated data instead of hitting
+ * the real API. Never overrides real credentials when both are set, and
+ * must never be enabled on the production site customers actually use: a
+ * demo "policy" is never submitted to AIICO and issues no real cover.
+ */
+export function aiicoDemoMode(): boolean {
+  return process.env.AIICO_DEMO_MODE?.trim().toLowerCase() === 'true' && !aiicoRealCredsPresent()
+}
+
+export function isAiicoConfigured(): boolean {
+  return aiicoRealCredsPresent() || aiicoDemoMode()
 }
 
 export const AIICO_TIMEOUT_MS = 30_000

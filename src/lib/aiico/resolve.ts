@@ -9,7 +9,15 @@
  */
 import { AiicoError } from './client'
 import { getBodyTypes, getColorList, getGenders, getTitles, getVehicleMakeModels, getVehicleMakes } from './api'
+import { aiicoDemoMode } from './config'
 import type { AiicoLookup } from './types'
+
+/**
+ * Demo mode resolves everything to a fabricated id/value instead of
+ * matching against AIICO's real master data — a real lookup would still
+ * need a real API to fetch the candidate list from, and matching against a
+ * static fake list would fail for whatever text a customer actually types.
+ */
 
 function normalise(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
@@ -36,11 +44,13 @@ function requireMatch<T>(match: T | undefined, kind: string, query: string): T {
 }
 
 export async function resolveTitleId(titleName: string): Promise<string> {
+  if (aiicoDemoMode()) return 'DEMO-TITLE'
   const titles = await getTitles()
   return requireMatch(findBestMatch(titles, titleName, (t: AiicoLookup) => t.name), 'title', titleName).id
 }
 
 export async function resolveGenderId(genderName: string): Promise<string> {
+  if (aiicoDemoMode()) return 'DEMO-GENDER'
   const genders = await getGenders()
   return requireMatch(findBestMatch(genders, genderName, (g: AiicoLookup) => g.name), 'gender', genderName).id
 }
@@ -52,6 +62,7 @@ const BODY_TYPE_KEYWORDS: Record<string, string> = {
 
 /** AIICO's body types are a fixed 4-item enum; our "vehicle type" field is a broader freeform bucket. */
 export async function resolveBodyType(vehicleType: string): Promise<string> {
+  if (aiicoDemoMode()) return 'DEMO-BODY-TYPE'
   const bodyTypes = await getBodyTypes()
   const target = normalise(vehicleType)
 
@@ -69,6 +80,7 @@ export async function resolveBodyType(vehicleType: string): Promise<string> {
 }
 
 export async function resolveColor(colorName: string): Promise<string> {
+  if (aiicoDemoMode()) return 'DEMO-COLOR'
   const colors = await getColorList()
   return requireMatch(findBestMatch(colors, colorName, (c) => c), 'colour', colorName)
 }
@@ -82,6 +94,7 @@ export async function resolveVehicleMakeModel(
   makeModel: string,
   manufactureYear: string
 ): Promise<{ make: string; model: string }> {
+  if (aiicoDemoMode()) return { make: makeModel, model: makeModel }
   const makes = await getVehicleMakes(manufactureYear)
   const trimmed = makeModel.trim()
   const sortedMakes = [...makes].sort((a, b) => b.length - a.length)

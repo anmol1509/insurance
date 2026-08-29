@@ -11,7 +11,18 @@ import type {
   TangerineVehicleMake,
   TangerineVehicleModel,
 } from './types'
-import type { TangerineLine } from './config'
+import { tangerineDemoMode, type TangerineLine } from './config'
+
+/** A fabricated but well-formed policy response for demo mode — see the module comment in resolve.ts. */
+function mockPolicyResponse(): TangerinePolicyResponse {
+  const ref = Date.now().toString().slice(-8)
+  return {
+    Status: 'Successful',
+    Message: 'Demo mode: this policy was simulated and was never submitted to Tangerine.',
+    PolicyNo: `DEMO-TAN-${ref}`,
+    TransactionReferenceNo: `DEMO-TXN-${ref}`,
+  }
+}
 
 /** Endpoint filenames differ slightly (and confusingly) between the two product lines. */
 const PATHS = {
@@ -96,6 +107,7 @@ export interface TangerineValuationLimits {
 
 /** Comprehensive only — 3rd party cover has no vehicle valuation. */
 export async function getValuationLimits(): Promise<TangerineValuationLimits> {
+  if (tangerineDemoMode()) return { lower: 0, upper: Number.MAX_SAFE_INTEGER }
   const data = await tangerineRequest<
     { LowerValuationLimit: string; UpperValuationLimit: string } & { Status: 'Successful' | 'Failed' }
   >('comprehensive', PATHS.comprehensive.valuationLimits, {})
@@ -123,6 +135,7 @@ export async function confirmPolicyNumber(
 export async function generateComprehensivePolicy(
   request: Omit<TangerineComprehensivePolicyRequest, 'UserID'>
 ): Promise<TangerinePolicyResponse> {
+  if (tangerineDemoMode()) return mockPolicyResponse()
   return tangerineRequest<TangerinePolicyResponse>(
     'comprehensive', PATHS.comprehensive.generate, request as unknown as Record<string, unknown>
   )
@@ -132,6 +145,7 @@ export async function generateComprehensivePolicy(
 export async function generateThirdPartyPolicy(
   request: Omit<TangerineThirdPartyPolicyRequest, 'UserID'>
 ): Promise<TangerinePolicyResponse> {
+  if (tangerineDemoMode()) return mockPolicyResponse()
   return tangerineRequest<TangerinePolicyResponse>(
     'thirdparty', PATHS.thirdparty.generate, request as unknown as Record<string, unknown>
   )

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { fortisConfigured } from '@/lib/fortis/config'
-import { nsiaConfigured } from '@/lib/nsia/config'
-import { tangerineConfigured } from '@/lib/tangerine/config'
-import { isAiicoConfigured } from '@/lib/aiico/config'
+import { nsiaConfigured, nsiaDemoMode } from '@/lib/nsia/config'
+import { tangerineConfigured, tangerineDemoMode } from '@/lib/tangerine/config'
+import { isAiicoConfigured, aiicoDemoMode } from '@/lib/aiico/config'
 
 /**
  * `GET /api/motor/insurer-status` — which Motor insurers actually have
@@ -23,6 +23,14 @@ export async function GET() {
       nsia: nsiaConfigured(),
       tangerine: tangerineConfigured(),
       aiico: isAiicoConfigured(),
+    },
+    // Which of the above are only "configured" via a demo-mode fallback,
+    // not real credentials — the UI must make this obvious to the customer.
+    demo: {
+      fortis: false,
+      nsia: nsiaDemoMode(),
+      tangerine: tangerineDemoMode(),
+      aiico: aiicoDemoMode(),
     },
   })
 }

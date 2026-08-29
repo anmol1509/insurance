@@ -7,8 +7,16 @@
  */
 import { TangerineError } from './client'
 import { getEngineCapacityCodes, getLGACodes, getStateCodes, getVehicleColours, getVehicleMakeCodes, getVehicleModelCodes } from './api'
-import type { TangerineLine } from './config'
+import { tangerineDemoMode, type TangerineLine } from './config'
 import type { TangerineVehicleMake } from './types'
+
+/**
+ * Demo mode resolves everything to a fabricated code instead of matching
+ * against Tangerine's real master data — a real lookup would still need a
+ * real API to fetch the candidate list from, and matching against a static
+ * fake list would fail for whatever vehicle/location text a customer
+ * actually types.
+ */
 
 /** British/American spelling variants our local colour names don't share with Tangerine's. */
 const COLOUR_SYNONYMS: Record<string, string> = { gray: 'grey' }
@@ -53,6 +61,9 @@ export async function resolveVehicleCodes(
   line: TangerineLine,
   makeModel: string
 ): Promise<{ makeCode: string; modelCode: string; makeName: string; modelName: string }> {
+  if (tangerineDemoMode()) {
+    return { makeCode: 'DEMO-MAKE', modelCode: 'DEMO-MODEL', makeName: makeModel, modelName: makeModel }
+  }
   const [makes, models] = await Promise.all([getVehicleMakeCodes(line), getVehicleModelCodes(line)])
 
   const trimmed = makeModel.trim()
@@ -76,6 +87,7 @@ export async function resolveVehicleCodes(
 }
 
 export async function resolveColourCode(line: TangerineLine, colourName: string): Promise<string> {
+  if (tangerineDemoMode()) return 'DEMO-COLOUR'
   const colours = await getVehicleColours(line)
   const query = COLOUR_SYNONYMS[colourName.trim().toLowerCase()] ?? colourName
   const match = findBestMatch(colours, query, (c) => c.ColourName)
@@ -99,6 +111,7 @@ const CC_BUCKET_MIDPOINT_LITRES: Record<string, number> = {
 }
 
 export async function resolveEngineCapacityCode(line: TangerineLine, ccBucket: string): Promise<string> {
+  if (tangerineDemoMode()) return 'DEMO-CC'
   const litres = CC_BUCKET_MIDPOINT_LITRES[ccBucket]
   if (litres == null) {
     throw new TangerineError(`Unrecognised engine capacity "${ccBucket}".`, 400)
@@ -122,6 +135,7 @@ export async function resolveEngineCapacityCode(line: TangerineLine, ccBucket: s
 }
 
 export async function resolveStateCode(line: TangerineLine, stateName: string): Promise<{ code: string; name: string }> {
+  if (tangerineDemoMode()) return { code: 'DEMO-STATE', name: stateName }
   const states = await getStateCodes(line)
   const match = findBestMatch(states, stateName, (s) => s.StateName)
   const resolved = requireMatch(match, 'state', stateName)
@@ -130,6 +144,7 @@ export async function resolveStateCode(line: TangerineLine, stateName: string): 
 
 /** LGA names repeat across states, so the match is scoped to the resolved state code. */
 export async function resolveLgaCode(line: TangerineLine, stateCode: string, lgaName: string): Promise<string> {
+  if (tangerineDemoMode()) return 'DEMO-LGA'
   const lgas = await getLGACodes(line)
   const inState = lgas.filter((l) => l.StateCode === stateCode)
   const match = findBestMatch(inState, lgaName, (l) => l.LGAName)

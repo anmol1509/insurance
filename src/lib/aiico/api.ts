@@ -1,5 +1,6 @@
 /** Typed wrappers for every AIICO Motor endpoint documented so far (Third Party, Comprehensive, Renewal). */
 import { aiicoRequest } from './client'
+import { aiicoDemoMode } from './config'
 import type {
   AiicoFinalizePaymentRequest,
   AiicoFinalizePaymentResult,
@@ -68,7 +69,28 @@ export function computeThirdPartyMotorPremium(bodyType: string): Promise<number>
 }
 
 /** Shared by both Third Party and Comprehensive — the payload shape differs per line, see mappers.ts. */
-export function postMotorSchedule(payload: AiicoMotorScheduleRequest): Promise<AiicoMotorScheduleResult> {
+export async function postMotorSchedule(payload: AiicoMotorScheduleRequest): Promise<AiicoMotorScheduleResult> {
+  if (aiicoDemoMode()) {
+    return {
+      regNo: payload.regNo,
+      make: payload.make,
+      model: payload.model,
+      bodyType: payload.bodyType,
+      engineNo: payload.engineNo,
+      chasisNo: payload.chasisNo,
+      color: payload.color,
+      transactionRef: `DEMO-TXN-${Date.now().toString().slice(-8)}`,
+      premiumAmount: 20_000,
+      vehicleAmount: payload.vehicleAmount ?? 0,
+      productId: payload.productId,
+      subclassSectCovtypeId: payload.subclassSectCovtypeId,
+      wefDt: payload.wefDt,
+      wetDt: payload.wetDt,
+      grossPremium: 20_000,
+      commission: 0,
+      isQuote: false,
+    }
+  }
   return aiicoRequest<AiicoMotorScheduleResult>('/api/services/app/MotorProductService/PostMotorSchedule', {
     method: 'POST',
     body: payload as unknown as Record<string, unknown>,
@@ -76,7 +98,27 @@ export function postMotorSchedule(payload: AiicoMotorScheduleRequest): Promise<A
 }
 
 /** Shared across Third Party, Comprehensive, and Renewal — call after the customer has actually paid. */
-export function finalizePartnerPayment(payload: AiicoFinalizePaymentRequest): Promise<AiicoFinalizePaymentResult> {
+export async function finalizePartnerPayment(payload: AiicoFinalizePaymentRequest): Promise<AiicoFinalizePaymentResult> {
+  if (aiicoDemoMode()) {
+    const ref = Date.now().toString().slice(-8)
+    return {
+      fullName: '',
+      agentName: null,
+      policies: [`DEMO-AIICO-${ref}`],
+      clientEmail: '',
+      clientPhoneNumber: '',
+      wef: '',
+      wet: '',
+      totalAmount: String(payload.amountPaid),
+      printPolicyUrl: null,
+      printReceiptUrl: null,
+      hash: `DEMO-${ref}`,
+      responseMessage: 'Demo mode: this policy was simulated and was never submitted to AIICO.',
+      responseCode: null,
+      polledToTQ: false,
+      isLoan: false,
+    }
+  }
   return aiicoRequest<AiicoFinalizePaymentResult>('/api/services/app/PartnerService/FinalizePartnerPayment', {
     method: 'POST',
     body: payload as unknown as Record<string, unknown>,

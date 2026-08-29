@@ -47,7 +47,23 @@ export function cloudinaryUploadPreset(): string | undefined {
   return process.env.CLOUDINARY_UPLOAD_PRESET?.trim() || undefined
 }
 
-/** True only when both the API credentials and the image-hosting step submission depends on are set. */
-export function tangerineConfigured(): boolean {
+function tangerineRealCredsPresent(): boolean {
   return Boolean(tangerineAuthHeader() && cloudinaryCloudName() && cloudinaryUploadPreset())
+}
+
+/**
+ * Explicit opt-in for demoing the flow before real Tangerine/Cloudinary
+ * credentials exist — every Tangerine call and vehicle-photo upload is
+ * simulated instead of hitting the real APIs. Never overrides real
+ * credentials when both are set, and must never be enabled on the
+ * production site customers actually use: a demo "policy" is never
+ * submitted to Tangerine and issues no real cover.
+ */
+export function tangerineDemoMode(): boolean {
+  return process.env.TANGERINE_DEMO_MODE?.trim().toLowerCase() === 'true' && !tangerineRealCredsPresent()
+}
+
+/** True when both the API credentials and the image-hosting step submission depends on are set, or demo mode is on. */
+export function tangerineConfigured(): boolean {
+  return tangerineRealCredsPresent() || tangerineDemoMode()
 }

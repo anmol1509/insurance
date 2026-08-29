@@ -6,7 +6,7 @@ import { Star, Check, X, ChevronDown, ChevronUp, Plus, ArrowLeftRight } from 'lu
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import type { MotorPlan } from '@/lib/motorPlans'
 import { cheapestCoverPrice, extractMotorProducts } from '@/lib/fortis/catalog'
-import { fetchMotorInsurerStatus, isMotorPlanAvailable, type MotorInsurerStatus } from '@/lib/motorInsurerStatus'
+import { fetchMotorInsurerStatus, isMotorPlanAvailable, isMotorPlanDemo, type MotorInsurerStatus } from '@/lib/motorInsurerStatus'
 
 function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
@@ -37,6 +37,7 @@ export default function MotorPlanSelect() {
   const [featureFilters, setFeatureFilters] = useState<string[]>([])
   const [fortisCatalogPrices, setFortisCatalogPrices] = useState<Record<string, number>>({})
   const [insurerStatus, setInsurerStatus] = useState<MotorInsurerStatus | null>(null)
+  const [insurerDemo, setInsurerDemo] = useState<MotorInsurerStatus | null>(null)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [showCompareModal, setShowCompareModal] = useState(false)
 
@@ -57,7 +58,9 @@ export default function MotorPlanSelect() {
       })
       .catch(() => {})
 
-    fetchMotorInsurerStatus().then(setInsurerStatus).catch(() => {})
+    fetchMotorInsurerStatus()
+      .then(({ status, demo }) => { setInsurerStatus(status); setInsurerDemo(demo) })
+      .catch(() => {})
   }, [])
 
   function toggleFeature(f: string) {
@@ -163,6 +166,7 @@ export default function MotorPlanSelect() {
           plan={plan}
           price={getPrice(plan)}
           selected={motorData.selectedUnderwriter === plan.id}
+          isDemo={isMotorPlanDemo(plan, insurerDemo)}
           inCompare={compareIds.includes(plan.id)}
           compareDisabled={compareIds.length >= 3 && !compareIds.includes(plan.id)}
           index={i}
@@ -237,11 +241,12 @@ export default function MotorPlanSelect() {
 }
 
 function PlanCard({
-  plan, price, selected, inCompare, compareDisabled, index, onSelect, onToggleCompare,
+  plan, price, selected, isDemo, inCompare, compareDisabled, index, onSelect, onToggleCompare,
 }: {
   plan: typeof MOTOR_PLANS[number]
   price: number
   selected: boolean
+  isDemo: boolean
   inCompare: boolean
   compareDisabled: boolean
   index: number
@@ -278,9 +283,18 @@ function PlanCard({
             >
               {COVER_LABELS[plan.coverType]}
             </span>
-            {plan.badge && (
+            {plan.badge && !isDemo && (
               <span className="font-sans font-semibold text-[11px] px-2.5 py-1 rounded-full bg-[var(--green-50)] text-[var(--green-700)] border border-[var(--green-100)]">
                 {plan.badge}
+              </span>
+            )}
+            {isDemo && (
+              <span
+                className="font-sans font-bold text-[11px] px-2.5 py-1 rounded-full text-white"
+                style={{ backgroundColor: '#DC2626' }}
+                title="This insurer isn't configured with real credentials yet — selecting this plan simulates a policy and issues no real cover."
+              >
+                Demo — not a real policy
               </span>
             )}
             {selected && (
