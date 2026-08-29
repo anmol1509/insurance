@@ -3,14 +3,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Shield, FileText, Users, BarChart2, Building2, Menu, X, LogOut, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Shield, FileText, Users, BarChart2, Building2, Menu, X, LogOut, ChevronRight, Target, RefreshCw } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import Logo from '@/components/ui/Logo'
 
 const NAV = [
   { label: 'Overview',     href: '/admin',            icon: LayoutDashboard },
+  { label: 'Leads & Quotes', href: '/admin/leads',    icon: Target },
   { label: 'Claims Queue', href: '/admin/claims',     icon: FileText },
   { label: 'Policies',     href: '/admin/policies',   icon: Shield },
+  { label: 'Renewals',     href: '/admin/renewals',   icon: RefreshCw },
   { label: 'Insurers',     href: '/admin/insurers',   icon: Building2 },
   { label: 'Users',        href: '/admin/users',      icon: Users },
   { label: 'Reports',      href: '/admin/reports',    icon: BarChart2 },
