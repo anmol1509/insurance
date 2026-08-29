@@ -1,11 +1,12 @@
 /**
- * Which documents the motor flow asks for. Every insurer this platform
- * actually integrates with (NSIA, Tangerine, AIICO) names its own slots
- * from its own documented API; Fortis's documented payload has no
- * document/image fields at all, so it asks for none. The generic fallback
- * below only ever applies to the handful of catalog-only plans that have
- * no live backend, since there is no fifth insurer to guess requirements
- * for.
+ * Which documents the motor flow asks for. Every plan in the catalog is
+ * one of the four insurers this platform actually integrates with — NSIA,
+ * Tangerine, and AIICO each name their own slots from their own documented
+ * API; Fortis's documented payload has no document/image fields at all, so
+ * it asks for none. The generic fallback below is only ever reached before
+ * a plan has been chosen (Step 4), to keep the step count stable while
+ * `selectedUnderwriter` is still null — it's never actually shown to a
+ * customer.
  */
 import { MOTOR_PLANS } from './motorPlans'
 import { documentSlotsFor } from './nsia/documents'
@@ -20,7 +21,7 @@ export interface MotorDocSlot {
   required: boolean
 }
 
-/** Used only for catalog-only plans with no live insurer backend (e.g. FGI, SUNU, Leadway). */
+/** Used only before a plan is selected — see the module comment above. */
 export const GENERIC_MOTOR_DOC_SLOTS: MotorDocSlot[] = [
   { key: 'vehicle_license',    label: 'Vehicle License (Registration Certificate)', required: true },
   { key: 'proof_of_ownership', label: 'Proof of Ownership (Vehicle Particulars)',   required: true },
