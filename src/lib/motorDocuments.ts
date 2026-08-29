@@ -88,3 +88,10 @@ export function requiredMotorDocKeys(motorData: MotorData): string[] {
     .filter((slot) => slot.required)
     .map((slot) => slot.key)
 }
+
+/** Slot keys that are a photo ID (or similar identity document), across every insurer's own naming. */
+const IDENTITY_DOC_KEYS = new Set(['MeansOfIdentification', 'identification', 'drivers_license'])
+
+export function isIdentityDocKey(key: string): boolean {
+  return IDENTITY_DOC_KEYS.has(key)
+}

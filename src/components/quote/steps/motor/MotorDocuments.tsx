@@ -2,22 +2,29 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import DocumentUploadZone from '@/components/ui/DocumentUploadZone'
-import { CheckCircle2, ShieldCheck } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
-import { aiicoLineFor, motorDocSlots, tangerineLineFor } from '@/lib/motorDocuments'
+import { aiicoLineFor, isIdentityDocKey, motorDocSlots, tangerineLineFor } from '@/lib/motorDocuments'
 import { validateUpload } from '@/lib/nsia/files'
 import {
   getDocumentFile,
   putDocumentFile,
   removeDocumentFile,
 } from '@/store/documentFiles'
+import { extractMotorDetails } from '@/lib/motorExtraction'
 import TangerineMotorDetails from './TangerineMotorDetails'
 import AiicoMotorDetails from './AiicoMotorDetails'
+
+type ExtractionStatus = 'idle' | 'reading' | 'done' | 'error'
 
 export default function MotorDocuments() {
   const { motorData, updateMotor } = useQuoteStore()
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [extraction, setExtraction] = useState<{ status: ExtractionStatus; filledCount: number }>({
+    status: 'idle',
+    filledCount: 0,
+  })
 
   const plan = MOTOR_PLANS.find((p) => p.id === motorData.selectedUnderwriter)
   const isNsia = plan?.nsia === true
@@ -76,6 +83,42 @@ export default function MotorDocuments() {
         [key]: { name: file.name, size: file.size, status: 'uploaded' },
       },
     })
+
+    if (isIdentityDocKey(key)) {
+      void runExtraction({ ...motorData.uploadedDocs, [key]: { name: file.name, size: file.size, status: 'uploaded' } })
+    }
+  }
+
+  /**
+   * Reads every document uploaded so far (not just the ID) and pre-fills
+   * whatever "Your details" fields the customer hasn't already typed
+   * themselves — never overwrites a field that already has a value.
+   */
+  async function runExtraction(uploadedDocs: typeof motorData.uploadedDocs) {
+    const files = Object.keys(uploadedDocs)
+      .map((k) => getDocumentFile(k))
+      .filter((f): f is File => f instanceof File)
+    if (files.length === 0) return
+
+    setExtraction({ status: 'reading', filledCount: 0 })
+    const extracted = await extractMotorDetails(files)
+    if (!extracted) {
+      setExtraction({ status: 'error', filledCount: 0 })
+      return
+    }
+
+    const current = useQuoteStore.getState().motorData
+    const patch: Partial<typeof current> = {}
+    if (extracted.fullName && !current.fullName) patch.fullName = extracted.fullName
+    if (extracted.dateOfBirth && !current.dateOfBirth) patch.dateOfBirth = extracted.dateOfBirth
+    if (extracted.nin && !current.nin) patch.nin = extracted.nin
+    if (extracted.gender && !current.gender) patch.gender = extracted.gender
+    if (extracted.residentialAddress && !current.residentialAddress) patch.residentialAddress = extracted.residentialAddress
+    if (extracted.residentialState && !current.residentialState) patch.residentialState = extracted.residentialState
+
+    const filledCount = Object.keys(patch).length
+    if (filledCount > 0) updateMotor(patch)
+    setExtraction({ status: 'done', filledCount })
   }
 
   function handleRemove(key: string) {
@@ -164,6 +207,28 @@ export default function MotorDocuments() {
           Accepted formats: PDF, JPG, PNG (max 5 MB each). Drag &amp; drop supported.
         </p>
       </div>
+
+      <AnimatePresence>
+        {extraction.status !== 'idle' && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl border overflow-hidden"
+            style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-100)' }}
+          >
+            <Sparkles className="w-4 h-4 shrink-0" style={{ color: 'var(--motor-600)' }} />
+            <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+              {extraction.status === 'reading' && 'Reading your documents to pre-fill your details…'}
+              {extraction.status === 'done' && extraction.filledCount > 0 &&
+                `We've pre-filled ${extraction.filledCount} detail${extraction.filledCount === 1 ? '' : 's'} from your documents — you can still edit them on the next step.`}
+              {extraction.status === 'done' && extraction.filledCount === 0 &&
+                "We couldn't find any new details to pre-fill from your documents — no problem, just fill them in on the next step."}
+              {extraction.status === 'error' && "We couldn't read your documents automatically — no problem, just fill your details in on the next step."}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {tangerineLine && <TangerineMotorDetails />}
       {aiicoLine && <AiicoMotorDetails />}
