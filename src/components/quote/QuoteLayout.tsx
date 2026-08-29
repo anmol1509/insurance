@@ -21,6 +21,8 @@ interface QuoteLayoutProps {
   nextLabel?: string
   nextDisabled?: boolean
   planSelect?: boolean
+  /** Overrides the default step list — used when a step is skipped (e.g. no documents needed) so the sidebar/count renumber correctly instead of showing a gap. */
+  stepsOverride?: readonly { id: number; label: string }[]
   children: React.ReactNode
 }
 
@@ -54,10 +56,12 @@ export default function QuoteLayout({
   nextLabel,
   nextDisabled,
   planSelect,
+  stepsOverride,
   children,
 }: QuoteLayoutProps) {
   const router = useRouter()
   const config = PRODUCT_CONFIG[product]
+  const visibleSteps = stepsOverride ?? PRODUCT_STEPS[product]
 
   const progressPct = (currentStep / totalSteps) * 100
 
@@ -73,7 +77,7 @@ export default function QuoteLayout({
             </span>
             <span className="text-[var(--text-subtle)] hidden sm:inline">·</span>
             <span className="font-sans font-semibold text-[13px] sm:hidden" style={{ color: config.color }}>
-              {PRODUCT_STEPS[product][currentStep - 1]?.label}
+              {visibleSteps[currentStep - 1]?.label}
             </span>
             <span className="font-sans font-semibold text-[13px] hidden sm:inline" style={{ color: config.color }}>
               Step {currentStep}/{totalSteps}
@@ -116,13 +120,13 @@ export default function QuoteLayout({
                     {config.label}
                   </p>
                   <p className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
-                    Quick quote · {PRODUCT_STEPS[product].length} steps
+                    Quick quote · {visibleSteps.length} steps
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-col">
-                {PRODUCT_STEPS[product].map((step, i) => {
+                {visibleSteps.map((step, i) => {
                   const stepNum = i + 1
                   const stepLabel = step.label
                   const state =

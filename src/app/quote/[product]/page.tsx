@@ -4,7 +4,7 @@ import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
-import { requiredMotorDocKeys, tangerineLineFor } from '@/lib/motorDocuments'
+import { motorDocSlots, requiredMotorDocKeys, tangerineLineFor } from '@/lib/motorDocuments'
 import { requiredSlotsFor } from '@/lib/nsia/documents'
 
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
@@ -65,12 +65,35 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   const { steps, setActiveProduct, setStep, motorData, medicalData, marineData, personalAccidentData } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
-  const totalSteps = PRODUCT_STEPS[typedProduct].length
   const StepComponent = STEP_COMPONENTS[typedProduct][currentStep - 1]
 
   useEffect(() => {
     setActiveProduct(typedProduct)
   }, [typedProduct, setActiveProduct])
+
+  /**
+   * Motor's Documents step (raw step 5) has nothing to show for an insurer
+   * whose API takes no documents (e.g. Fortis) — rather than making the
+   * customer click through an empty step, it's skipped entirely and every
+   * step after it is renumbered so the sidebar/progress never show a gap.
+   */
+  const MOTOR_DOCS_RAW_STEP = 5
+  function isMotorStepActive(raw: number): boolean {
+    if (raw === MOTOR_DOCS_RAW_STEP) return motorDocSlots(motorData).length > 0
+    return true
+  }
+  const motorRawSteps = PRODUCT_STEPS.motor.map((_, i) => i + 1)
+  const motorActiveRaw = motorRawSteps.filter(isMotorStepActive)
+
+  const displaySteps = typedProduct === 'motor'
+    ? motorActiveRaw.map((raw) => PRODUCT_STEPS.motor[raw - 1])
+    : PRODUCT_STEPS[typedProduct]
+  const totalSteps = displaySteps.length
+  const displayCurrentStep = typedProduct === 'motor'
+    ? Math.max(motorActiveRaw.indexOf(currentStep) + 1, 1)
+    : currentStep
+  /** The true last step never gets skipped (only an interior step can be), so this stays a plain raw comparison. */
+  const rawTotalSteps = PRODUCT_STEPS[typedProduct].length
 
   // The required set depends on the plan chosen at step 4 — NSIA asks for more.
   const REQUIRED_MOTOR_DOCS = requiredMotorDocKeys(motorData)
@@ -108,30 +131,39 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     ))
 
   function goNext() {
-    if (currentStep === totalSteps) {
+    if (currentStep === rawTotalSteps) {
       if (nextDisabled) return
       router.push('/quote/checkout')
       return
     }
-    setStep(typedProduct, currentStep + 1)
+    let next = currentStep + 1
+    if (typedProduct === 'motor') {
+      while (next <= rawTotalSteps && !isMotorStepActive(next)) next++
+    }
+    setStep(typedProduct, next)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function goBack() {
-    setStep(typedProduct, currentStep - 1)
+    let prev = currentStep - 1
+    if (typedProduct === 'motor') {
+      while (prev >= 1 && !isMotorStepActive(prev)) prev--
+    }
+    setStep(typedProduct, Math.max(prev, 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
     <QuoteLayout
       product={typedProduct}
-      currentStep={currentStep}
+      currentStep={displayCurrentStep}
       totalSteps={totalSteps}
       stepTitle={stepConfig?.title ?? ''}
       stepSub={stepConfig?.sub ?? ''}
       onBack={currentStep > 1 ? goBack : undefined}
       onNext={goNext}
-      isFinalStep={currentStep === totalSteps}
+      isFinalStep={currentStep === rawTotalSteps}
+      stepsOverride={typedProduct === 'motor' ? displaySteps : undefined}
       nextDisabled={nextDisabled}
       planSelect={(typedProduct === 'motor' && currentStep === 4) || (typedProduct === 'medical' && currentStep === 3)}
     >
