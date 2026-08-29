@@ -1,131 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { proxyFetch } from '@/lib/proxyFetch'
+import { loginAndGetCatalog, submitMotorRequest } from '@/lib/fortis/api'
+import { cheapestCoverPrice, extractMotorProducts, findMotorProduct } from '@/lib/fortis/catalog'
+import { fortisErrorResponse } from '@/lib/fortis/http'
+import { toFortisRequestPayload } from '@/lib/fortis/mappers'
+import { fortisSubmitSchema } from '@/lib/fortis/schemas'
 
-const FORTIS_BASE = 'https://jjmgloballtd.com/coreinsurance/api'
-
-async function getToken(): Promise<string> {
-  const res = await proxyFetch(`${FORTIS_BASE}/external-api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      client_id: process.env.FORTIS_CLIENT_ID,
-      client_secret: process.env.FORTIS_CLIENT_SECRET,
-    }),
-    signal: AbortSignal.timeout(8000),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Auth failed (${res.status}): ${text.slice(0, 100)}`)
-  }
-  const data = await res.json()
-  return data.token ?? data.access_token ?? data.data?.token
-}
-
-async function getCatalog(token: string) {
-  const res = await proxyFetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
-    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
-    signal: AbortSignal.timeout(8000),
-  })
-  if (!res.ok) throw new Error(`Catalog failed (${res.status})`)
-  return res.json()
-}
-
-export async function POST(req: NextRequest) {
+/**
+ * Guide section 4 — POST /external-api/motor/requests.
+ *
+ * Per the docs, this writes to a temporary review table, not the live
+ * policy workflow — Fortis's internal team processes it manually from
+ * there. The reference this returns confirms receipt, not an issued policy.
+ */
+export async function POST(request: NextRequest) {
+  let body: unknown
   try {
-    const { motorData, policyHolder } = await req.json()
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ success: false, error: 'Expected a JSON body.' }, { status: 400 })
+  }
 
-    const token = await getToken()
+  const parsed = fortisSubmitSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: 'Some details are missing or invalid.' }, { status: 400 })
+  }
+  const { motorData, policyHolder } = parsed.data
 
-    const catalog = await getCatalog(token)
+  try {
+    const { token, catalog } = await loginAndGetCatalog()
+    const products = extractMotorProducts(catalog)
 
-    // Flatten products from various response shapes
-    const products: any[] =
-      catalog.data?.products ?? catalog.products ?? catalog.data ?? []
+    const isComprehensive = motorData.coverType === 'comprehensive'
+    const targetProduct = findMotorProduct(products, isComprehensive)
+    const productId = targetProduct?.id
+    const coverId = targetProduct?.covers?.[0]?.id
 
-    const coverType: string = motorData?.coverType ?? 'tpo'
-    const isComprehensive = coverType === 'comprehensive'
-
-    // Pick product matching cover type; fall back to first available
-    const targetProduct =
-      products.find((p: any) =>
-        isComprehensive
-          ? /comprehensive/i.test(p.name ?? '')
-          : /third.?party|tpo/i.test(p.name ?? '')
-      ) ?? products[0]
-
-    const product_id: number = targetProduct?.id
-    const covers: any[] = targetProduct?.covers ?? []
-    const cover_id: number = covers[0]?.id
-
-    if (!product_id || !cover_id) {
+    if (!productId || !coverId) {
       return NextResponse.json(
-        { error: 'No matching product/cover found in catalog', catalog },
+        { success: false, error: 'No matching motor product/cover found in the Fortis catalog.' },
         { status: 422 }
       )
     }
 
-    const nameParts = (policyHolder?.fullName ?? 'Customer').trim().split(/\s+/)
-    const firstName = nameParts[0]
-    const lastName = nameParts.slice(1).join(' ') || firstName
-    const policyNo = `EXT-${Date.now().toString(36).toUpperCase()}`
-
-    const payload = {
-      product_id,
-      cover_id,
-      policy_no: policyNo,
-      customer_name: policyHolder?.fullName ?? 'Customer',
-      email: policyHolder?.email ?? '',
-      phone: policyHolder?.phone ?? '',
-      policy_details: [
-        {
-          firstName,
-          lastName,
-          email: policyHolder?.email ?? '',
-          phoneno: policyHolder?.phone ?? '',
-          address1: motorData?.residentialAddress || 'Nigeria',
-          city: motorData?.residentialState || 'Lagos',
-          state: motorData?.residentialState || 'Lagos',
-          country: 'Nigeria',
-          registrationNo: motorData?.registrationNumber ?? '',
-          model: motorData?.vehicleMakeModel ?? '',
-          color: motorData?.vehicleColour ?? '',
-          year: String(motorData?.yearOfManufacture ?? new Date().getFullYear()),
-          engineNumber: motorData?.engineCapacity ?? '',
-          chasisNumber: motorData?.chassisVIN ?? '',
-          policyVariant: isComprehensive ? 'Comprehensive' : 'Third Party',
-          vehiclePrice: String(motorData?.carValue ?? 0),
-        },
-      ],
-    }
-
-    const submitRes = await proxyFetch(`${FORTIS_BASE}/external-api/motor/requests`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(10000),
-    })
-
-    const result = await submitRes.json()
-
-    if (!submitRes.ok) {
-      return NextResponse.json(
-        { error: result.message ?? 'Submission failed', detail: result },
-        { status: submitRes.status }
-      )
-    }
+    const payload = toFortisRequestPayload(motorData, policyHolder, productId, coverId)
+    const result = await submitMotorRequest(token, payload)
 
     return NextResponse.json({
       success: true,
-      reference: result.data?.request?.external_reference ?? policyNo,
-      status: result.data?.request?.status ?? 'received',
-      product_id,
-      cover_id,
+      reference: result.data?.request.external_reference ?? payload.policy_no,
+      status: result.data?.request.status ?? 'received',
+      product_id: productId,
+      cover_id: coverId,
+      // A cheapest-cover estimate for the chosen product, for callers that
+      // want a price without a second catalog round trip.
+      estimated_price: cheapestCoverPrice(targetProduct),
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (error) {
+    return fortisErrorResponse(error)
   }
 }

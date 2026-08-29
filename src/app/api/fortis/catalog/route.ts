@@ -1,37 +1,13 @@
 import { NextResponse } from 'next/server'
-import { proxyFetch } from '@/lib/proxyFetch'
+import { loginAndGetCatalog } from '@/lib/fortis/api'
+import { fortisErrorResponse } from '@/lib/fortis/http'
 
-const FORTIS_BASE = 'https://jjmgloballtd.com/coreinsurance/api'
-
-async function getToken(): Promise<string> {
-  const res = await proxyFetch(`${FORTIS_BASE}/external-api/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      client_id: process.env.FORTIS_CLIENT_ID,
-      client_secret: process.env.FORTIS_CLIENT_SECRET,
-    }),
-    signal: AbortSignal.timeout(8000),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Auth failed (${res.status}): ${text.slice(0, 100)}`)
-  }
-  const data = await res.json()
-  return data.token ?? data.access_token ?? data.data?.token
-}
-
+/** Guide section 3 — GET /external-api/motor/catalog, scoped to the motor product family. */
 export async function GET() {
   try {
-    const token = await getToken()
-    const res = await proxyFetch(`${FORTIS_BASE}/external-api/motor/catalog`, {
-      headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
-      signal: AbortSignal.timeout(8000),
-    })
-    if (!res.ok) throw new Error(`Catalog failed (${res.status})`)
-    const catalog = await res.json()
+    const { catalog } = await loginAndGetCatalog()
     return NextResponse.json({ success: true, catalog })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
+  } catch (error) {
+    return fortisErrorResponse(error)
   }
 }

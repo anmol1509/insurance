@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Star, Check, X, ChevronDown, ChevronUp, Plus, ArrowLeftRight } from 'lucide-react'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import type { MotorPlan } from '@/lib/motorPlans'
+import { cheapestCoverPrice, extractMotorProducts } from '@/lib/fortis/catalog'
 
 function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
@@ -42,15 +43,13 @@ export default function MotorPlanSelect() {
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (!data?.success) return
-        const products: any[] = data.catalog?.data?.products ?? data.catalog?.products ?? data.catalog?.data ?? []
+        const products = extractMotorProducts(data)
         const prices: Record<string, number> = {}
-        products.forEach((p: any) => {
-          const covers: any[] = p.covers ?? []
-          const raw = covers[0]?.price ?? covers[0]?.premium ?? covers[0]?.amount
-          const num = raw != null ? Number(raw) : NaN
-          if (isNaN(num) || num <= 0) return
-          if (/comprehensive/i.test(p.name ?? '')) prices['fortis-comp'] = num
-          else if (/third.?party|tpo/i.test(p.name ?? '')) prices['fortis-tpo'] = num
+        products.forEach((p) => {
+          const price = cheapestCoverPrice(p)
+          if (price == null) return
+          if (/comprehensive/i.test(p.name ?? '')) prices['fortis-comp'] = price
+          else if (/third.?party|tpo/i.test(p.name ?? '')) prices['fortis-tpo'] = price
         })
         setFortisCatalogPrices(prices)
       })
