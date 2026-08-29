@@ -62,14 +62,22 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
-  const { steps, setActiveProduct, setStep, motorData, medicalData, marineData, personalAccidentData } = useQuoteStore()
+  const { steps, setActiveProduct, setStep, resetQuote, motorData, medicalData, marineData, personalAccidentData } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const StepComponent = STEP_COMPONENTS[typedProduct][currentStep - 1]
 
+  /**
+   * This route never changes URL between steps (they're all client-side
+   * state), so a mount here only ever happens when the customer actually
+   * (re)opens the flow — a fresh link click, a browser refresh, or the back
+   * button — never mid-flow. Always start those over at step 1 with a clean
+   * form rather than resuming stale progress from a previous visit.
+   */
   useEffect(() => {
     setActiveProduct(typedProduct)
-  }, [typedProduct, setActiveProduct])
+    resetQuote(typedProduct)
+  }, [typedProduct, setActiveProduct, resetQuote])
 
   /**
    * Motor's Documents step (raw step 5) has nothing to show for an insurer
