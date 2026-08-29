@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, ChevronDown, Car, Heart, Plane, Building2, Ship, HeartPulse, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check } from 'lucide-react'
+import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -20,8 +20,9 @@ const products = [
   { name: 'Medical',  href: '/medical',  quoteHref: '/quote/medical',  color: '#059669', icon: Heart,     from: '₦45,000/yr', desc: 'HMO & health plans' },
   { name: 'Travel',   href: '/travel',   quoteHref: '/quote/travel',   color: '#D97706', icon: Plane,     from: '₦12,000/yr', desc: 'Single & multi-trip' },
   { name: 'Business', href: '/business', quoteHref: '/quote/business', color: '#7C3AED', icon: Building2, from: '₦60,000/yr', desc: 'Property & liability' },
-  { name: 'Marine',   href: '/marine',   quoteHref: '/quote/marine',   color: '#2563EB', icon: Ship,       from: '₦10,000/yr', desc: 'Cargo in transit' },
-  { name: 'Personal Accident', href: '/personal-accident', quoteHref: '/quote/personal-accident', color: '#E11D48', icon: HeartPulse, from: '₦5,000/yr', desc: 'Death & disability cover' },
+  // Marine and Personal Accident are built (NSIA-backed, full quote flows at
+  // /marine and /personal-accident) but hidden from navigation for now — not
+  // currently offered. Re-add here to bring them back.
 ]
 
 const renewalLinks = [
