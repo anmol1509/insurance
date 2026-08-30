@@ -4,7 +4,8 @@ import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import { PRODUCT_STEPS } from '@/lib/constants'
-import { motorDocSlots, requiredMotorDocKeys, tangerineLineFor } from '@/lib/motorDocuments'
+import { motorDocSlots } from '@/lib/motorDocuments'
+import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
 import { requiredSlotsFor } from '@/lib/nsia/documents'
 
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
@@ -103,24 +104,14 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   /** The true last step never gets skipped (only an interior step can be), so this stays a plain raw comparison. */
   const rawTotalSteps = PRODUCT_STEPS[typedProduct].length
 
-  // The required set depends on the plan chosen at step 4 — NSIA asks for more.
-  const REQUIRED_MOTOR_DOCS = requiredMotorDocKeys(motorData)
   const nextDisabled =
     (typedProduct === 'motor' && (
       (currentStep === 1 && !motorData.vehicleMakeModel) ||
       (currentStep === 2 && (!motorData.vehicleMakeModel.trim() || !motorData.vehicleType || !motorData.yearOfManufacture || !motorData.useType)) ||
       (currentStep === 3 && (!motorData.coverType || (motorData.coverType === 'comprehensive' && !(motorData.carValue && motorData.carValue > 0)))) ||
       (currentStep === 4 && !motorData.selectedUnderwriter) ||
-      (currentStep === 5 && (
-        REQUIRED_MOTOR_DOCS.some((k) => !motorData.uploadedDocs[k]) ||
-        (tangerineLineFor(motorData.selectedUnderwriter) !== null && (
-          !motorData.lgaOfResidence.trim() ||
-          !motorData.vehicleRegistrationDate ||
-          (motorData.coverType === 'comprehensive' && !(motorData.mileageKm != null && motorData.mileageKm >= 0)) ||
-          (motorData.isBusinessPolicy && !motorData.tin.trim())
-        ))
-      )) ||
-      (currentStep === 6 && (!motorData.fullName.trim() || !motorData.email.includes('@') || motorData.phone.replace(/\D/g, '').length < 11 || !motorData.reviewConfirmed))
+      (currentStep === 5 && motorStep5Missing(motorData).length > 0) ||
+      (currentStep === 6 && (motorStep6Missing(motorData).length > 0 || !motorData.reviewConfirmed))
     )) ||
     (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter) ||
     (typedProduct === 'marine' && (
