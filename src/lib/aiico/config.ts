@@ -56,6 +56,8 @@ export const AIICO_TIMEOUT_MS = 30_000
 export const AIICO_PRODUCT_IDS = {
   motorThirdParty: 'fef672bd-faf1-e711-a2c0-005056a02281',
   motorComprehensive: 'f1326cce-47e7-e711-a2be-005056a02281',
+  /** Single "Travel" product covering all five travel variants (Africa, Gold, Premium, Schengen, Schengen Plus). */
+  travel: 'cb00e3f3-9feb-e711-a2be-005056a02281',
 } as const
 
 export const AIICO_SUBCLASS_COVER_IDS = {

@@ -7,6 +7,7 @@ import {
   getProducts,
   getProductSubClassCoverTypes,
   getTitles,
+  getTravelSubClassCoverTypes,
   getVehicleMakes,
   getVehicleMakeModels,
 } from '@/lib/aiico/api'
@@ -18,10 +19,11 @@ import { aiicoErrorResponse } from '@/lib/aiico/http'
  * `GET /api/aiico/dropdowns?name=makes&year=2006`
  * `GET /api/aiico/dropdowns?name=models&make=ACURA&year=2006`
  * `GET /api/aiico/dropdowns?name=subclass-covers&productId=...`
+ * `GET /api/aiico/dropdowns?name=travel-subclass-covers`
  */
 
-type DropdownName = 'titles' | 'genders' | 'body-types' | 'colors' | 'years' | 'makes' | 'models' | 'products' | 'subclass-covers'
-const DROPDOWN_NAMES: DropdownName[] = ['titles', 'genders', 'body-types', 'colors', 'years', 'makes', 'models', 'products', 'subclass-covers']
+type DropdownName = 'titles' | 'genders' | 'body-types' | 'colors' | 'years' | 'makes' | 'models' | 'products' | 'subclass-covers' | 'travel-subclass-covers'
+const DROPDOWN_NAMES: DropdownName[] = ['titles', 'genders', 'body-types', 'colors', 'years', 'makes', 'models', 'products', 'subclass-covers', 'travel-subclass-covers']
 
 /** These lists barely change; cache for an hour to avoid refetching on every step of the flow. */
 const CACHE_TTL_MS = 60 * 60 * 1000
@@ -81,6 +83,7 @@ export async function GET(request: NextRequest) {
             if (!productId) throw Object.assign(new Error('A "productId" parameter is required for "subclass-covers".'), { status: 400 })
             return [name, await cached(`subclass-covers:${productId}`, () => getProductSubClassCoverTypes(productId))]
           }
+          case 'travel-subclass-covers': return [name, await cached('travel-subclass-covers', getTravelSubClassCoverTypes)]
         }
       })
     )

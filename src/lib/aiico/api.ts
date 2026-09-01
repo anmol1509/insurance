@@ -24,6 +24,11 @@ export function getProductSubClassCoverTypes(productId: string): Promise<AiicoSu
   })
 }
 
+/** The five Travel variants (Africa, Gold, Premium, Schengen, Schengen Plus) with their benefits. */
+export function getTravelSubClassCoverTypes(): Promise<AiicoSubClassCoverEntry[]> {
+  return aiicoRequest<AiicoSubClassCoverEntry[]>('/api/services/app/ProductService/GetTravelSubClassCoverTypes')
+}
+
 export function getTitles(): Promise<AiicoLookup[]> {
   return aiicoRequest<AiicoLookup[]>('/api/services/app/UtilitiyService/GetTitles')
 }

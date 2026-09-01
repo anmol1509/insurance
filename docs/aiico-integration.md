@@ -2,9 +2,16 @@
 
 Backend integration for AIICO's partner API. AIICO's own docs cover six
 products (Motor, Travel, Personal Accident, Home Content, Domestic Travel,
-Life Payments); only **Motor** — Private Motor Third Party, Private Motor
-Comprehensive, and Motor Renewal — has been documented and integrated so
-far. This file will grow as the remaining products are shared.
+Life Payments); **Motor** — Private Motor Third Party, Private Motor
+Comprehensive, and Motor Renewal — is fully integrated (wired into the
+quote flow, see below). **Travel** so far has only one documented endpoint,
+`GetTravelSubClassCoverTypes` (the five variants: Africa, Gold, Premium,
+Schengen, Schengen Plus), which is implemented but not yet wired into the
+Travel quote flow — that flow (`src/components/quote/steps/travel/*`)
+still uses a client-side mock premium calculator, since no
+`PostTravelSchedule`-equivalent (or premium computation) endpoint has been
+shared yet. This file will grow as the remaining Travel endpoints and
+products are shared.
 
 ## Status: wired into the Motor quote flow
 
@@ -72,6 +79,7 @@ All under `{BaseUrl}/api/services/app/...`:
 | --- | --- | --- |
 | `getProducts` | GET `ProductService/GetProducts` | All AIICO products, not just motor. |
 | `getProductSubClassCoverTypes` | GET `ProductService/GetProductSubClassCoverTypes?productId=` | Cover types + benefits for a product. |
+| `getTravelSubClassCoverTypes` | GET `ProductService/GetTravelSubClassCoverTypes` | The five Travel variants (Africa, Gold, Premium, Schengen, Schengen Plus) with their benefits — same envelope shape as `getProductSubClassCoverTypes`, no `productId` needed. |
 | `getTitles` / `getGenders` / `getBodyTypes` / `getColorList` / `getManufactureYears` | GET `UtilitiyService`/`UtilityService/*` | Static lookup lists (note: the docs themselves misspell `UtilitiyService` for some and use `UtilityService` for others — preserved exactly as documented). |
 | `getVehicleDetails` | GET `MotorProductService/GetVehicleDetails?numberPlate=` | AutoReg plate lookup. |
 | `getVehicleMakes` | GET `UtilityService/GetVehicleMake?makeYear=` | Cascading: makes available for a manufacture year. |
@@ -95,6 +103,7 @@ so that constant should be revisited once the full cover list is confirmed.
 - `GET /dropdowns?name=titles,genders,body-types,colors,years` — cached master data, 1 hour TTL.
 - `GET /dropdowns?name=makes&year=` / `?name=models&make=&year=` — cascading vehicle lookups.
 - `GET /dropdowns?name=subclass-covers&productId=`
+- `GET /dropdowns?name=travel-subclass-covers`
 - `GET /vehicle-lookup?plate=`
 - `GET /premium?bodyType=` — Third Party fixed rate.
 - `GET /renewal?policyNo=`
