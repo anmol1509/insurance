@@ -28,7 +28,7 @@ interface Renewal {
 }
 
 const PAGE_SIZE = 5
-const TODAY = new Date('2026-08-29')
+const TODAY = new Date()
 
 function daysUntil(dateStr: string): number {
   const diff = new Date(dateStr).getTime() - TODAY.getTime()
@@ -44,11 +44,11 @@ const INITIAL_RENEWALS: Renewal[] = [
     reminders: [], status: 'pending' },
   { id: 'RNW-483', ref: 'SI-2025-033218', customer: 'Fatima Bello', productType: 'business', name: 'Okonkwo & Sons Office', insurer: 'NSIA Insurance', premium: 95_000, expiryDate: '2026-09-14',
     reminders: [], status: 'pending' },
-  { id: 'RNW-476', ref: 'SI-2025-051009', customer: 'Tunde Fashola', productType: 'motor', name: 'Toyota Hilux 2021', insurer: 'Fortis Global', premium: 61_000, expiryDate: '2026-09-20',
+  { id: 'RNW-476', ref: 'SI-2025-051009', customer: 'Tunde Fashola', productType: 'motor', name: 'Toyota Hilux 2021', insurer: 'Fortis Global Insurance', premium: 61_000, expiryDate: '2026-09-20',
     reminders: [], status: 'pending' },
   { id: 'RNW-460', ref: 'SI-2025-029341', customer: 'Amara Osei', productType: 'medical', name: 'Individual Standard Plan', insurer: 'Hygeia HMO', premium: 98_000, expiryDate: '2026-09-24',
     reminders: [], status: 'pending' },
-  { id: 'RNW-441', ref: 'SI-2025-018820', customer: 'Grace Umeh', productType: 'motor', name: 'Honda CR-V 2019', insurer: 'Tangerine Motor', premium: 78_000, expiryDate: '2026-08-25',
+  { id: 'RNW-441', ref: 'SI-2025-018820', customer: 'Grace Umeh', productType: 'motor', name: 'Honda CR-V 2019', insurer: 'Tangerine Insurance', premium: 78_000, expiryDate: '2026-08-25',
     reminders: [{ at: '2026-08-11', channel: 'SMS' }, { at: '2026-08-18', channel: 'Email' }, { at: '2026-08-24', channel: 'Call' }], status: 'lapsed' },
   { id: 'RNW-432', ref: 'SI-2025-009911', customer: 'Segun Alabi', productType: 'motor', name: 'Mercedes C200 2020', insurer: 'AIICO Insurance', premium: 145_000, expiryDate: '2026-08-20',
     reminders: [{ at: '2026-08-06', channel: 'SMS' }, { at: '2026-08-13', channel: 'Email' }], status: 'renewed' },

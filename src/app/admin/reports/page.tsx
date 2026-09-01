@@ -30,11 +30,10 @@ const PERIODS: { key: Period; label: string; slice: number }[] = [
 ]
 
 const TOP_INSURERS = [
-  { name: 'Leadway Assurance', policies: 312, premium: 28400000 },
-  { name: 'Hygeia HMO',        policies: 218, premium: 19800000 },
-  { name: 'AXA Mansard',       policies: 187, premium: 14200000 },
-  { name: 'NSIA Insurance',    policies: 143, premium: 11600000 },
-  { name: 'Cornerstone Ins',   policies: 98,  premium: 7800000 },
+  { name: 'NSIA Insurance',            policies: 342, premium: 29400000 },
+  { name: 'Tangerine Insurance',       policies: 268, premium: 21800000 },
+  { name: 'AIICO Insurance',           policies: 198, premium: 16200000 },
+  { name: 'Fortis Global Insurance',   policies: 121, premium: 9600000 },
 ]
 
 const REVENUE_BY_PRODUCT = [

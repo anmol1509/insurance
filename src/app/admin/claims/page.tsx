@@ -82,7 +82,7 @@ const INITIAL_CLAIMS: Claim[] = [
     documents: ['Police report.pdf', 'Investigation findings.pdf'],
     timeline: [
       { date: '2025-03-15', event: 'Claim submitted', done: true },
-      { date: '2025-03-16', event: 'Acknowledged by Fortis Global', done: true },
+      { date: '2025-03-16', event: 'Acknowledged by Fortis Global Insurance', done: true },
       { date: '2025-03-25', event: 'Investigation completed', done: true },
       { date: '2025-03-29', event: 'Claim rejected — policy lapsed', done: true },
     ] },

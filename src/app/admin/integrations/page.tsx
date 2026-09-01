@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CheckCircle2, AlertTriangle, XCircle, ExternalLink, FlaskConical } from 'lucide-react'
 import Drawer from '@/components/admin/Drawer'
+import { initialsFor } from '@/lib/initials'
 
 type InsurerKey = 'nsia' | 'tangerine' | 'aiico' | 'fortis'
 
@@ -188,12 +189,6 @@ const INTEGRATIONS: Integration[] = [
 ]
 
 /** "NSIA Insurance" -> "NS" (keep an all-caps acronym intact) rather than "NI" (first letter of each word). */
-function initialsFor(name: string): string {
-  const first = name.split(' ')[0]
-  if (first.length >= 2 && first === first.toUpperCase()) return first.slice(0, 2)
-  return name.split(' ').map((w) => w[0]).join('').slice(0, 2)
-}
-
 type LiveStatus = Record<InsurerKey, boolean>
 
 function StatusBadge({ configured, demo }: { configured: boolean | null; demo: boolean | null }) {

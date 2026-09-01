@@ -16,9 +16,7 @@ import {
 import type { PolicyInput, PolicyRecord, PolicyProductType, PolicyStatus } from '@/lib/db/policies'
 
 const INSURERS = [
-  'Leadway Assurance', 'AXA Mansard', 'Hygeia HMO', 'AIICO Insurance',
-  'Coronation Insurance', 'NSIA Insurance', 'Tangerine Insurance',
-  'Fortis Global Insurance', 'Cornerstone Insurance', 'Custodian Investment',
+  'NSIA Insurance', 'Tangerine Insurance', 'AIICO Insurance', 'Fortis Global Insurance',
 ]
 
 const PRODUCT_TYPES: PolicyProductType[] = ['motor', 'medical', 'travel', 'business', 'marine', 'personal-accident']

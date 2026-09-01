@@ -74,9 +74,9 @@ const ALERTS = [
     icon: '🔵',
     borderColor: '#0284C7',
     bg: '#F0F9FF',
-    text: 'New insurer onboarding pending — Cornerstone Insurance awaiting document check',
-    action: 'Review →',
-    href: '/admin/insurers',
+    text: 'Some motor insurers are running in demo mode pending real API credentials',
+    action: 'Check integrations →',
+    href: '/admin/integrations',
   },
 ]
 
