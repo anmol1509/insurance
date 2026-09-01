@@ -6,11 +6,14 @@ Life Payments); **Motor** — Private Motor Third Party, Private Motor
 Comprehensive, and Motor Renewal — is fully integrated (wired into the
 quote flow, see below). **Travel** so far has only one documented endpoint,
 `GetTravelSubClassCoverTypes` (the five variants: Africa, Gold, Premium,
-Schengen, Schengen Plus), which is implemented but not yet wired into the
-Travel quote flow — that flow (`src/components/quote/steps/travel/*`)
-still uses a client-side mock premium calculator, since no
+Schengen, Schengen Plus) — the plan-comparison step (`/quote/result` for
+`activeProduct === 'travel'`) now shows these five real AIICO variants
+(`src/lib/travelPlans.ts`, replacing four previously fabricated
+competitor plans), but pricing is still the client-side mock premium
+calculator and there is no submit step, since no
 `PostTravelSchedule`-equivalent (or premium computation) endpoint has been
-shared yet. This file will grow as the remaining Travel endpoints and
+shared yet — selecting a Travel plan carries only the estimate into
+checkout. This file will grow as the remaining Travel endpoints and
 products are shared.
 
 ## Status: wired into the Motor quote flow

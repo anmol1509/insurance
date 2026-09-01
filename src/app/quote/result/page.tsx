@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation'
 import Logo from '@/components/ui/Logo'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import type { MotorPlan } from '@/lib/motorPlans'
+import { TRAVEL_PLANS } from '@/lib/travelPlans'
 
 type SortKey = 'popular' | 'price' | 'rating'
 
@@ -87,64 +88,6 @@ const MEDICAL_PLANS: Plan[] = [
   },
 ]
 
-const TRAVEL_PLANS: Plan[] = [
-  {
-    id: 'aiico-schengen',
-    name: 'AIICO Schengen Standard',
-    insurer: 'AIICO Insurance',
-    coverType: 'schengen',
-    rating: 4.8,
-    reviews: 1950,
-    badge: 'Most popular',
-    multiplier: 1.0,
-    features: ['€30,000 medical cover', 'Schengen visa compliant', 'Trip cancellation cover', 'Lost baggage up to €500', 'Flight delay compensation', 'Certificate in 5 minutes'],
-    exclusions: ['Pre-existing conditions', 'Adventure sports', 'War zones', 'Intentional self-harm'],
-    claimSettlement: '97%',
-    responseTime: '24 hours',
-    popular: true,
-  },
-  {
-    id: 'nsia-worldwide',
-    name: 'NSIA Worldwide Cover',
-    insurer: 'NSIA Insurance',
-    coverType: 'worldwide',
-    rating: 4.7,
-    reviews: 1320,
-    badge: 'Best value',
-    multiplier: 0.85,
-    features: ['$50,000 medical cover', 'Global coverage incl. USA/Canada', 'Emergency evacuation', 'Personal liability cover', 'Lost passport assistance', '24/7 emergency helpline'],
-    exclusions: ['Pre-existing conditions', 'Extreme sports', 'Pandemics (optional add-on)', 'Business travel'],
-    claimSettlement: '95%',
-    responseTime: '48 hours',
-  },
-  {
-    id: 'axa-premium-travel',
-    name: 'AXA Travel Premium',
-    insurer: 'AXA Mansard',
-    coverType: 'worldwide',
-    rating: 4.6,
-    reviews: 980,
-    multiplier: 1.22,
-    features: ['€100,000 medical cover', 'Business travel included', 'Cancel for any reason', 'Electronic device cover', 'Emergency dental', 'Concierge service'],
-    exclusions: ['Suicide or self-harm', 'Drug/alcohol related', 'Illegal activities', 'Known events at booking'],
-    claimSettlement: '96%',
-    responseTime: '24 hours',
-  },
-  {
-    id: 'leadway-basic-travel',
-    name: 'Leadway Travel Basic',
-    insurer: 'Leadway Assurance',
-    coverType: 'schengen',
-    rating: 4.4,
-    reviews: 760,
-    multiplier: 0.60,
-    features: ['€30,000 medical cover', 'Schengen visa compliant', 'Emergency hospitalisation', 'Repatriation cover', 'NAICOM licensed'],
-    exclusions: ['Trip cancellation', 'Baggage loss', 'Pre-existing conditions', 'Adventure activities'],
-    claimSettlement: '92%',
-    responseTime: '48 hours',
-  },
-]
-
 const BUSINESS_PLANS: Plan[] = [
   {
     id: 'aiico-business-comp',
@@ -219,19 +162,26 @@ const COVER_TYPE_LABELS: Record<string, string> = {
   schengen: 'Schengen / Europe',
   worldwide: 'Worldwide Cover',
   standard: 'Standard Cover',
+  'travel-africa': 'Africa Travel',
+  'travel-gold': 'Gold Travel',
+  'travel-premium': 'Premium Travel',
+  'travel-schengen': 'Schengen Travel',
+  'travel-schengen-plus': 'Schengen Plus',
 }
 
 const PRODUCT_COVER_TYPES: Record<string, string[]> = {
   motor:    ['comprehensive', 'tpo'],
   medical:  ['individual', 'family', 'premium'],
-  travel:   ['schengen', 'worldwide'],
+  travel:   ['travel-africa', 'travel-gold', 'travel-premium', 'travel-schengen', 'travel-schengen-plus'],
   business: ['standard', 'comprehensive'],
 }
 
 const PRODUCT_FEATURE_FILTERS: Record<string, string[]> = {
   motor:    ['Roadside Assist', 'Towing', 'NIID Registered', 'Windscreen Cover'],
   medical:  ['Maternity Cover', 'Dental & Optical', 'International Cover', 'Teleconsultation'],
-  travel:   ['Trip Cancellation', 'Baggage Cover', 'Emergency Evacuation', 'Flight Delay'],
+  // AIICO's Travel benefits are shared across all five variants, so a
+  // feature filter here wouldn't actually narrow anything.
+  travel:   [],
   business: ['Fire Cover', 'Burglary Cover', 'Public Liability', 'Business Interruption'],
 }
 
