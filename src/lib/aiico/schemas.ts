@@ -57,6 +57,16 @@ export const aiicoRenewalSubmitSchema = z.object({
   payment: aiicoPaymentSchema,
 })
 
+export const aiicoLifeRenewalSubmitSchema = z.object({
+  policyNo: z.string().min(1, 'Policy number required'),
+  transactionDate: z.string().min(1, 'Transaction date required'),
+  customerName: z.string().min(1, 'Customer name required'),
+  email: z.string().email('Valid email required'),
+  phone: z.string().min(7, 'Valid phone number required'),
+  amount: z.number().positive(),
+  payment: aiicoPaymentSchema,
+})
+
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const result: Record<string, string> = {}
   for (const issue of error.issues) {

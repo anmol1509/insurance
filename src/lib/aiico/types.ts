@@ -195,3 +195,49 @@ export interface AiicoRenewalScheduleRequest {
   wetDt: string
   oldPolicyNumber: string
 }
+
+export interface AiicoLifePolicyRenewalDetails {
+  isSuccessful: boolean
+  productName: string
+  policyStatus: string
+  policyNumber: string
+  policyCode: string
+  dateOfBirth: string
+  agentName: string
+  agentShortDescription: string
+  clientName: string
+  clientShortDescription: string
+  email: string
+  phone: string
+  effectiveDate: string
+  paidToDate: string
+  maturityDate: string
+  totalPremium: string
+  totalSavings: string
+  paidPremium: string
+  paymentFrequency: string
+  nextInstallmentPremium: string
+  hash: string | null
+}
+
+export interface AiicoLifeRenewalScheduleRequest {
+  policyNo: string
+  transactionDate: string
+  customerName: string
+  email: string
+  phone: string
+  amount: string
+}
+
+export interface AiicoLifeRenewalScheduleResult {
+  policyNo: string
+  transactionDate: string
+  customerName: string
+  email: string
+  phone: string
+  transactionRef: string
+  amount: number
+  policyStatus: string
+  transactionType: string
+  [key: string]: unknown
+}

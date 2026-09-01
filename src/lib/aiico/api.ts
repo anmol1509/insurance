@@ -1,9 +1,12 @@
-/** Typed wrappers for every AIICO Motor endpoint documented so far (Third Party, Comprehensive, Renewal). */
+/** Typed wrappers for every AIICO endpoint documented so far (Motor: Third Party, Comprehensive, Renewal; Life Payments: Renewal). */
 import { aiicoRequest } from './client'
 import { aiicoDemoMode } from './config'
 import type {
   AiicoFinalizePaymentRequest,
   AiicoFinalizePaymentResult,
+  AiicoLifePolicyRenewalDetails,
+  AiicoLifeRenewalScheduleRequest,
+  AiicoLifeRenewalScheduleResult,
   AiicoLookup,
   AiicoMotorScheduleRequest,
   AiicoMotorScheduleResult,
@@ -133,6 +136,19 @@ export function getAutoRenewalDetails(policyNo: string): Promise<AiicoRenewalDet
 
 export function postMotorRenewalSchedule(payload: AiicoRenewalScheduleRequest): Promise<AiicoMotorScheduleResult> {
   return aiicoRequest<AiicoMotorScheduleResult>('/api/services/app/MotorProductService/PostMotorRenewalSchedule', {
+    method: 'POST',
+    body: payload as unknown as Record<string, unknown>,
+  })
+}
+
+export function getLifePolicyRenewalDetails(policyNo: string): Promise<AiicoLifePolicyRenewalDetails> {
+  return aiicoRequest<AiicoLifePolicyRenewalDetails>('/api/services/app/LifeRenewalService/GetLifePolicyRenewalDetails', {
+    query: { policyNo },
+  })
+}
+
+export function postLifeRenewalSchedule(payload: AiicoLifeRenewalScheduleRequest): Promise<AiicoLifeRenewalScheduleResult> {
+  return aiicoRequest<AiicoLifeRenewalScheduleResult>('/api/services/app/LifeRenewalService/PostLifeRenewalSchedule', {
     method: 'POST',
     body: payload as unknown as Record<string, unknown>,
   })

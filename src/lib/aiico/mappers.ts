@@ -2,6 +2,7 @@
 import { AIICO_PRODUCT_IDS, AIICO_SUBCLASS_COVER_IDS } from './config'
 import type {
   AiicoFinalizePaymentRequest,
+  AiicoLifeRenewalScheduleRequest,
   AiicoMotorScheduleRequest,
   AiicoRenewalScheduleRequest,
 } from './types'
@@ -138,6 +139,17 @@ export function toRenewalSchedule(input: {
   wetDt: string
 }): AiicoRenewalScheduleRequest {
   return { ...input }
+}
+
+export function toLifeRenewalSchedule(input: {
+  policyNo: string
+  transactionDate: string
+  customerName: string
+  email: string
+  phone: string
+  amount: number
+}): AiicoLifeRenewalScheduleRequest {
+  return { ...input, amount: String(input.amount) }
 }
 
 /** `MM/DD/YYYY` — the shape used in the Renewal sample payload, distinct from the ISO datetime the New Business endpoints take. */

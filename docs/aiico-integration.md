@@ -2,9 +2,10 @@
 
 Backend integration for AIICO's partner API. AIICO's own docs cover six
 products (Motor, Travel, Personal Accident, Home Content, Domestic Travel,
-Life Payments); only **Motor** — Private Motor Third Party, Private Motor
-Comprehensive, and Motor Renewal — has been documented and integrated so
-far. This file will grow as the remaining products are shared.
+Life Payments); **Motor** (Private Motor Third Party, Private Motor
+Comprehensive, and Motor Renewal) and **Life Payments Renewal** have been
+documented and integrated so far. This file will grow as the remaining
+products are shared.
 
 ## Status: wired into the Motor quote flow
 
@@ -79,8 +80,10 @@ All under `{BaseUrl}/api/services/app/...`:
 | `computeThirdPartyMotorPremium` | POST `MotorProductService/ComputeThirdPartyMotorPremium?bodyType=` | Third Party's fixed rate by body type. |
 | `postMotorSchedule` | POST `MotorProductService/PostMotorSchedule` | Registers the risk; returns `transactionRef` + authoritative `premiumAmount`. Third Party requires `premiumAmount` as input; Comprehensive computes it server-side from `vehicleAmount`. |
 | `finalizePartnerPayment` | POST `PartnerService/FinalizePartnerPayment` | Confirms payment against a `transactionRef`; returns the issued `policies[]` and certificate URL. Shared across Third Party, Comprehensive, and Renewal. |
-| `getAutoRenewalDetails` | GET `MotorProductService/GetAutoRenewalDetails?policyNo=` | Renewal quote for an existing policy. |
+| `getAutoRenewalDetails` | GET `MotorProductService/GetAutoRenewalDetails?policyNo=` | Renewal quote for an existing motor policy. |
 | `postMotorRenewalSchedule` | POST `MotorProductService/PostMotorRenewalSchedule` | Renewal equivalent of `PostMotorSchedule`. |
+| `getLifePolicyRenewalDetails` | GET `LifeRenewalService/GetLifePolicyRenewalDetails?policyNo=` | Renewal quote for an existing life policy (premium, savings, next installment, etc). |
+| `postLifeRenewalSchedule` | POST `LifeRenewalService/PostLifeRenewalSchedule` | Registers the life renewal; returns a `transactionRef` for `FinalizePartnerPayment`. |
 
 ### Fixed IDs
 
@@ -97,9 +100,11 @@ so that constant should be revisited once the full cover list is confirmed.
 - `GET /dropdowns?name=subclass-covers&productId=`
 - `GET /vehicle-lookup?plate=`
 - `GET /premium?bodyType=` — Third Party fixed rate.
-- `GET /renewal?policyNo=`
+- `GET /renewal?policyNo=` — motor renewal quote.
+- `GET /life-renewal?policyNo=` — life policy renewal quote.
 - `POST /submit/motor` — multipart/form-data: a `payload` field of `{ line: 'third-party'|'comprehensive', wefDt, wetDt, customer, vehicle, payment }` (plain text — resolved against AIICO's vocabulary server-side) plus files under `vehicle_license`, `identification`, `proof_of_ownership`, and optionally `utility_bill`. Runs `PostMotorSchedule` then `FinalizePartnerPayment` in one call — **call only after payment has been collected**, since `payment.amountPaid` must match what was actually charged.
-- `POST /submit/motor-renewal` — same two-call pattern for renewals (plain JSON body, no documents involved).
+- `POST /submit/motor-renewal` — same two-call pattern for motor renewals (plain JSON body, no documents involved).
+- `POST /submit/life-renewal` — same two-call pattern for life renewals: JSON body `{ policyNo, transactionDate, customerName, email, phone, amount, payment }`, running `PostLifeRenewalSchedule` then `FinalizePartnerPayment` — **call only after payment has been collected**.
 
 ## Verification
 
