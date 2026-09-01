@@ -169,6 +169,16 @@ const COVER_TYPE_LABELS: Record<string, string> = {
   'travel-schengen-plus': 'Schengen Plus',
 }
 
+/**
+ * The compact "COVER" stat on each card just takes the label's first word
+ * — cheap and fine except where two labels share that first word (e.g.
+ * "Schengen Travel" vs "Schengen Plus" both start with "Schengen"). Only
+ * needs an override where that collision actually happens.
+ */
+const COVER_TYPE_SHORT_LABELS: Record<string, string> = {
+  'travel-schengen-plus': 'Schengen Plus',
+}
+
 const PRODUCT_COVER_TYPES: Record<string, string[]> = {
   motor:    ['comprehensive', 'tpo'],
   medical:  ['individual', 'family', 'premium'],
@@ -269,7 +279,7 @@ function PlanCard({
           {[
             { label: 'CLAIM SETTLEMENT', value: plan.claimSettlement },
             { label: 'RESPONSE TIME', value: plan.responseTime },
-            { label: 'COVER', value: COVER_TYPE_LABELS[plan.coverType].split(' ')[0] },
+            { label: 'COVER', value: COVER_TYPE_SHORT_LABELS[plan.coverType] ?? COVER_TYPE_LABELS[plan.coverType].split(' ')[0] },
             { label: 'NAICOM', value: 'Licensed' },
           ].map(({ label, value }) => (
             <div key={label}>
