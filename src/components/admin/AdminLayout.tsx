@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Shield, FileText, Users, BarChart2, Building2, Menu, X, LogOut, ChevronRight, Target, RefreshCw, Plug } from 'lucide-react'
+import { LayoutDashboard, Shield, FileText, Users, BarChart2, Building2, Menu, X, LogOut, ChevronRight, Target, RefreshCw, Plug, UserCog } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import Logo from '@/components/ui/Logo'
 
@@ -15,6 +15,7 @@ const NAV = [
   { label: 'Renewals',     href: '/admin/renewals',   icon: RefreshCw },
   { label: 'Insurers',     href: '/admin/insurers',   icon: Building2 },
   { label: 'Integrations', href: '/admin/integrations', icon: Plug },
+  { label: 'Staff',        href: '/admin/agents',     icon: UserCog },
   { label: 'Users',        href: '/admin/users',      icon: Users },
   { label: 'Reports',      href: '/admin/reports',    icon: BarChart2 },
 ]

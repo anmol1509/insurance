@@ -34,5 +34,19 @@ export async function ensureSchema(): Promise<void> {
   await sql`CREATE INDEX IF NOT EXISTS policies_status_idx ON policies (status)`
   await sql`CREATE INDEX IF NOT EXISTS policies_policy_number_idx ON policies (policy_number)`
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS agents (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      phone TEXT,
+      role TEXT NOT NULL DEFAULT 'sales',
+      active BOOLEAN NOT NULL DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS agents_active_idx ON agents (active)`
+
   ensured = true
 }

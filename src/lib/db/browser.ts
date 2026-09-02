@@ -1,5 +1,6 @@
 /** Browser-side helpers for the admin policies dashboard. */
 import type { PolicyInput, PolicyRecord } from './policies'
+import type { AgentInput, AgentRecord } from './agents'
 
 export interface AdminApiError {
   error: string
@@ -78,4 +79,39 @@ export async function lookupTangerinePolicy(input: {
   })
   const body = await readJson<{ result: TangerineLookupResult }>(response)
   return body.result
+}
+
+export async function fetchAgents(filters: { active?: boolean; search?: string } = {}): Promise<AgentRecord[]> {
+  const params = new URLSearchParams()
+  if (filters.active !== undefined) params.set('active', String(filters.active))
+  if (filters.search) params.set('search', filters.search)
+
+  const response = await fetch(`/api/admin/agents?${params.toString()}`)
+  const body = await readJson<{ agents: AgentRecord[] }>(response)
+  return body.agents
+}
+
+export async function createAgentRecord(input: AgentInput): Promise<AgentRecord> {
+  const response = await fetch('/api/admin/agents', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ agent: AgentRecord }>(response)
+  return body.agent
+}
+
+export async function updateAgentRecord(id: string, input: Partial<AgentInput>): Promise<AgentRecord> {
+  const response = await fetch(`/api/admin/agents/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ agent: AgentRecord }>(response)
+  return body.agent
+}
+
+export async function deleteAgentRecord(id: string): Promise<void> {
+  const response = await fetch(`/api/admin/agents/${id}`, { method: 'DELETE' })
+  await readJson<{ success: true }>(response)
 }

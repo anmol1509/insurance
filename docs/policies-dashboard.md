@@ -89,3 +89,27 @@ worth knowing if these routes are ever called from outside that page.
   are not yet connected.
 - **Lookup is Tangerine-only**, because it's the only partner API among the
   three that documents one.
+
+## Staff & Agents (`/admin/agents`)
+
+Same Postgres database, a separate `agents` table (see `db/schema.sql`).
+Added because the "Assign to" dropdown on `/admin/leads` (and the
+department-based one on `/admin/claims`) used to be a hardcoded array of
+sample names with no persistence — clicking a name only changed local
+React state, saved nowhere, gone on refresh.
+
+- `/admin/agents` — add, edit, deactivate, or remove staff (name, email,
+  phone, role: sales/support/claims/admin).
+- `GET/POST /api/admin/agents`, `GET/PATCH/DELETE /api/admin/agents/{id}` —
+  same shape and same `503` fallback as the policies routes above when
+  `POSTGRES_URL` isn't set.
+- `/admin/leads`'s "Assign to" list now fetches active agents from this
+  table on load; if the database isn't configured (or the call fails) it
+  falls back to the original sample names so the page still works in demo
+  mode.
+- **Still not fully wired**: leads and claims themselves are still mock
+  in-memory data, not a database table, so an assignment still only lives
+  in that page's local state until leads/claims get their own real table —
+  this pass only makes the *list of people* real, not the assignment
+  record itself. `/admin/claims`'s assignment is by department, not named
+  staff, and wasn't changed.

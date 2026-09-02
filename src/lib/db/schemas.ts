@@ -22,6 +22,18 @@ export const createPolicySchema = z.object({
 
 export const updatePolicySchema = createPolicySchema.partial()
 
+export const agentRoleSchema = z.enum(['sales', 'support', 'claims', 'admin'])
+
+export const createAgentSchema = z.object({
+  name: z.string().min(1, 'Name required'),
+  email: z.string().email('Valid email required'),
+  phone: z.string().optional().or(z.literal('')),
+  role: agentRoleSchema.default('sales'),
+  active: z.boolean().default(true),
+})
+
+export const updateAgentSchema = createAgentSchema.partial()
+
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const result: Record<string, string> = {}
   for (const issue of error.issues) {

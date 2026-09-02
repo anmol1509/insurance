@@ -30,3 +30,20 @@ CREATE TABLE IF NOT EXISTS policies (
 CREATE INDEX IF NOT EXISTS policies_product_type_idx ON policies (product_type);
 CREATE INDEX IF NOT EXISTS policies_status_idx ON policies (status);
 CREATE INDEX IF NOT EXISTS policies_policy_number_idx ON policies (policy_number);
+
+-- Staff/agents this platform owns — the "Assign to" list on Leads and
+-- Claims used to be a hardcoded array of sample names with no persistence.
+-- This is a real table so assignment can point at an actual member of staff.
+
+CREATE TABLE IF NOT EXISTS agents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  phone TEXT,
+  role TEXT NOT NULL DEFAULT 'sales',
+  active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS agents_active_idx ON agents (active);

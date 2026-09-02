@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, X, ChevronDown, Phone, Mail, Search, ArrowUpDown, Send } from 'lucide-react'
 import { formatNaira } from '@/lib/formatters'
@@ -7,6 +7,7 @@ import Badge from '@/components/ui/Badge'
 import { PRODUCT_COLORS } from '@/lib/mockData'
 import Drawer from '@/components/admin/Drawer'
 import Pagination from '@/components/admin/Pagination'
+import { fetchAgents } from '@/lib/db/browser'
 
 type Status = 'new' | 'contacted' | 'quoted' | 'converted' | 'lost'
 type StatusFilter = 'all' | Status
@@ -29,7 +30,8 @@ interface Lead {
   notes: Note[]
 }
 
-const AGENTS = ['Chidinma Eze', 'Bayo Adekunle', 'Grace Umeh', 'Segun Alabi', 'Sales Team (unassigned pool)']
+/** Used until /admin/agents has real staff in the database — see the Staff & Agents dashboard page. */
+const FALLBACK_AGENTS = ['Chidinma Eze', 'Bayo Adekunle', 'Grace Umeh', 'Segun Alabi', 'Sales Team (unassigned pool)']
 const PAGE_SIZE = 5
 
 const INITIAL_LEADS: Lead[] = [
@@ -67,7 +69,7 @@ const FILTERS: { key: StatusFilter; label: string }[] = [
   { key: 'lost', label: 'Lost' },
 ]
 
-function AssignDropdown({ lead, onAssign }: { lead: Lead; onAssign: (agent: string | null) => void }) {
+function AssignDropdown({ lead, agents, onAssign }: { lead: Lead; agents: string[]; onAssign: (agent: string | null) => void }) {
   const [open, setOpen] = useState(false)
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -91,7 +93,7 @@ function AssignDropdown({ lead, onAssign }: { lead: Lead; onAssign: (agent: stri
                   <X className="w-3.5 h-3.5" /> Unassign
                 </button>
               )}
-              {AGENTS.map((agent) => (
+              {agents.map((agent) => (
                 <button key={agent} type="button" onClick={() => { onAssign(agent); setOpen(false) }}
                   className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left font-sans text-[13px] hover:bg-[var(--surface-raised)] transition-colors"
                   style={{ color: lead.assignedTo === agent ? 'var(--green-700)' : 'var(--text-primary)' }}>
@@ -107,8 +109,9 @@ function AssignDropdown({ lead, onAssign }: { lead: Lead; onAssign: (agent: stri
   )
 }
 
-function LeadDrawerContent({ lead, onAssign, onStatus, onAddNote }: {
+function LeadDrawerContent({ lead, agents, onAssign, onStatus, onAddNote }: {
   lead: Lead
+  agents: string[]
   onAssign: (agent: string | null) => void
   onStatus: (status: Status) => void
   onAddNote: (text: string) => void
@@ -159,7 +162,7 @@ function LeadDrawerContent({ lead, onAssign, onStatus, onAddNote }: {
 
       <div>
         <p className="font-sans font-bold text-[11px] uppercase tracking-[0.06em] mb-2" style={{ color: 'var(--text-subtle)' }}>Assigned to</p>
-        <AssignDropdown lead={lead} onAssign={onAssign} />
+        <AssignDropdown lead={lead} agents={agents} onAssign={onAssign} />
       </div>
 
       <div>
@@ -212,6 +215,15 @@ export default function AdminLeadsPage() {
   const [sortDesc, setSortDesc] = useState(true)
   const [page, setPage] = useState(1)
   const [openLead, setOpenLead] = useState<Lead | null>(null)
+  const [agentNames, setAgentNames] = useState<string[]>(FALLBACK_AGENTS)
+
+  useEffect(() => {
+    fetchAgents({ active: true })
+      .then((rows) => {
+        if (rows.length > 0) setAgentNames(rows.map((a) => a.name))
+      })
+      .catch(() => { /* no database configured yet — keep the fallback names */ })
+  }, [])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -332,7 +344,7 @@ export default function AdminLeadsPage() {
                 <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-primary)' }}>{formatNaira(lead.estimatedPremium)}</p>
                 <p className="font-sans text-[12px]" style={{ color: 'var(--text-secondary)' }}>{lead.source}</p>
                 <Badge variant={STATUS_VARIANT[lead.status]}>{STATUS_LABEL[lead.status]}</Badge>
-                <AssignDropdown lead={lead} onAssign={(agent) => updateAssignment(lead.id, agent)} />
+                <AssignDropdown lead={lead} agents={agentNames} onAssign={(agent) => updateAssignment(lead.id, agent)} />
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <a href={`tel:${lead.phone.replace(/\s/g, '')}`} title={lead.phone}
                     className="w-8 h-8 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--green-50)]"
@@ -375,6 +387,7 @@ export default function AdminLeadsPage() {
         {openLead && (
           <LeadDrawerContent
             lead={openLead}
+            agents={agentNames}
             onAssign={(agent) => updateAssignment(openLead.id, agent)}
             onStatus={(status) => updateStatus(openLead.id, status)}
             onAddNote={(text) => addNote(openLead.id, text)}
