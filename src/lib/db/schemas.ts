@@ -34,6 +34,42 @@ export const createAgentSchema = z.object({
 
 export const updateAgentSchema = createAgentSchema.partial()
 
+export const leadProductTypeSchema = z.enum(['motor', 'medical', 'travel', 'business'])
+export const leadStatusSchema = z.enum(['new', 'contacted', 'quoted', 'converted', 'lost'])
+
+export const createLeadSchema = z.object({
+  name: z.string().min(1, 'Name required'),
+  phone: z.string().min(7, 'Valid phone number required'),
+  email: z.string().email('Valid email required'),
+  productType: leadProductTypeSchema,
+  summary: z.string().optional().or(z.literal('')),
+  estimatedPremium: z.number().nonnegative(),
+  source: z.string().min(1, 'Source required'),
+  status: leadStatusSchema.default('new'),
+  assignedTo: z.string().nullable().optional(),
+})
+
+export const updateLeadSchema = createLeadSchema.partial()
+
+export const addLeadNoteSchema = z.object({
+  text: z.string().min(1, 'Note text required'),
+})
+
+export const claimStatusSchema = z.enum(['submitted', 'under_review', 'approved', 'settled', 'rejected'])
+
+export const createClaimSchema = z.object({
+  claimantName: z.string().min(1, 'Claimant name required'),
+  policyNumber: z.string().min(1, 'Policy number required'),
+  claimType: z.string().min(1, 'Claim type required'),
+  amount: z.number().nonnegative(),
+  claimDate: z.string().optional().or(z.literal('')),
+  status: claimStatusSchema.default('submitted'),
+  assignedTo: z.string().nullable().optional(),
+  description: z.string().optional().or(z.literal('')),
+})
+
+export const updateClaimSchema = createClaimSchema.partial()
+
 export function fieldErrors(error: z.ZodError): Record<string, string> {
   const result: Record<string, string> = {}
   for (const issue of error.issues) {

@@ -47,3 +47,55 @@ CREATE TABLE IF NOT EXISTS agents (
 );
 
 CREATE INDEX IF NOT EXISTS agents_active_idx ON agents (active);
+
+-- Leads/Quotes and the Claims queue this platform owns. Both used to be a
+-- hardcoded in-memory array on their admin page — every status change,
+-- assignment, and note lived only in that browser tab's React state and
+-- was gone on refresh. These are real tables now; `code` is the
+-- human-readable id shown in the UI (LD-3021, CLM-2025-0921), assigned
+-- automatically from a sequence so it's still unique under concurrent
+-- inserts.
+
+CREATE SEQUENCE IF NOT EXISTS leads_code_seq START 3022;
+
+CREATE TABLE IF NOT EXISTS leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT NOT NULL UNIQUE DEFAULT ('LD-' || nextval('leads_code_seq')::text),
+  name TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL,
+  product_type TEXT NOT NULL,
+  summary TEXT,
+  estimated_premium NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  source TEXT NOT NULL DEFAULT 'manual',
+  status TEXT NOT NULL DEFAULT 'new',
+  assigned_to TEXT,
+  notes JSONB NOT NULL DEFAULT '[]',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS leads_status_idx ON leads (status);
+CREATE INDEX IF NOT EXISTS leads_created_at_idx ON leads (created_at DESC);
+
+CREATE SEQUENCE IF NOT EXISTS claims_code_seq START 922;
+
+CREATE TABLE IF NOT EXISTS claims (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code TEXT NOT NULL UNIQUE DEFAULT ('CLM-' || to_char(now(), 'YYYY') || '-' || lpad(nextval('claims_code_seq')::text, 4, '0')),
+  claimant_name TEXT NOT NULL,
+  policy_number TEXT NOT NULL,
+  claim_type TEXT NOT NULL,
+  amount NUMERIC(14, 2) NOT NULL DEFAULT 0,
+  claim_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  status TEXT NOT NULL DEFAULT 'submitted',
+  assigned_to TEXT,
+  description TEXT,
+  timeline JSONB NOT NULL DEFAULT '[]',
+  documents JSONB NOT NULL DEFAULT '[]',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS claims_status_idx ON claims (status);
+CREATE INDEX IF NOT EXISTS claims_claim_date_idx ON claims (claim_date DESC);

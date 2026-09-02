@@ -48,5 +48,49 @@ export async function ensureSchema(): Promise<void> {
   `
   await sql`CREATE INDEX IF NOT EXISTS agents_active_idx ON agents (active)`
 
+  await sql`CREATE SEQUENCE IF NOT EXISTS leads_code_seq START 3022`
+  await sql`
+    CREATE TABLE IF NOT EXISTS leads (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      code TEXT NOT NULL UNIQUE DEFAULT ('LD-' || nextval('leads_code_seq')::text),
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT NOT NULL,
+      product_type TEXT NOT NULL,
+      summary TEXT,
+      estimated_premium NUMERIC(14, 2) NOT NULL DEFAULT 0,
+      source TEXT NOT NULL DEFAULT 'manual',
+      status TEXT NOT NULL DEFAULT 'new',
+      assigned_to TEXT,
+      notes JSONB NOT NULL DEFAULT '[]',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS leads_status_idx ON leads (status)`
+  await sql`CREATE INDEX IF NOT EXISTS leads_created_at_idx ON leads (created_at DESC)`
+
+  await sql`CREATE SEQUENCE IF NOT EXISTS claims_code_seq START 922`
+  await sql`
+    CREATE TABLE IF NOT EXISTS claims (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      code TEXT NOT NULL UNIQUE DEFAULT ('CLM-' || to_char(now(), 'YYYY') || '-' || lpad(nextval('claims_code_seq')::text, 4, '0')),
+      claimant_name TEXT NOT NULL,
+      policy_number TEXT NOT NULL,
+      claim_type TEXT NOT NULL,
+      amount NUMERIC(14, 2) NOT NULL DEFAULT 0,
+      claim_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      status TEXT NOT NULL DEFAULT 'submitted',
+      assigned_to TEXT,
+      description TEXT,
+      timeline JSONB NOT NULL DEFAULT '[]',
+      documents JSONB NOT NULL DEFAULT '[]',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS claims_status_idx ON claims (status)`
+  await sql`CREATE INDEX IF NOT EXISTS claims_claim_date_idx ON claims (claim_date DESC)`
+
   ensured = true
 }

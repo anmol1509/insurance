@@ -1,6 +1,8 @@
 /** Browser-side helpers for the admin policies dashboard. */
 import type { PolicyInput, PolicyRecord } from './policies'
 import type { AgentInput, AgentRecord } from './agents'
+import type { LeadInput, LeadRecord } from './leads'
+import type { ClaimInput, ClaimRecord } from './claims'
 
 export interface AdminApiError {
   error: string
@@ -113,5 +115,85 @@ export async function updateAgentRecord(id: string, input: Partial<AgentInput>):
 
 export async function deleteAgentRecord(id: string): Promise<void> {
   const response = await fetch(`/api/admin/agents/${id}`, { method: 'DELETE' })
+  await readJson<{ success: true }>(response)
+}
+
+export async function fetchLeads(filters: { status?: string; search?: string } = {}): Promise<LeadRecord[]> {
+  const params = new URLSearchParams()
+  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
+  if (filters.search) params.set('search', filters.search)
+
+  const response = await fetch(`/api/admin/leads?${params.toString()}`)
+  const body = await readJson<{ leads: LeadRecord[] }>(response)
+  return body.leads
+}
+
+export async function createLeadRecord(input: LeadInput): Promise<LeadRecord> {
+  const response = await fetch('/api/admin/leads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ lead: LeadRecord }>(response)
+  return body.lead
+}
+
+export async function updateLeadRecord(id: string, input: Partial<LeadInput>): Promise<LeadRecord> {
+  const response = await fetch(`/api/admin/leads/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ lead: LeadRecord }>(response)
+  return body.lead
+}
+
+export async function addLeadNoteRecord(id: string, text: string): Promise<LeadRecord> {
+  const response = await fetch(`/api/admin/leads/${id}/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  })
+  const body = await readJson<{ lead: LeadRecord }>(response)
+  return body.lead
+}
+
+export async function deleteLeadRecord(id: string): Promise<void> {
+  const response = await fetch(`/api/admin/leads/${id}`, { method: 'DELETE' })
+  await readJson<{ success: true }>(response)
+}
+
+export async function fetchClaims(filters: { status?: string; search?: string } = {}): Promise<ClaimRecord[]> {
+  const params = new URLSearchParams()
+  if (filters.status && filters.status !== 'all') params.set('status', filters.status)
+  if (filters.search) params.set('search', filters.search)
+
+  const response = await fetch(`/api/admin/claims?${params.toString()}`)
+  const body = await readJson<{ claims: ClaimRecord[] }>(response)
+  return body.claims
+}
+
+export async function createClaimRecord(input: ClaimInput): Promise<ClaimRecord> {
+  const response = await fetch('/api/admin/claims', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ claim: ClaimRecord }>(response)
+  return body.claim
+}
+
+export async function updateClaimRecord(id: string, input: Partial<ClaimInput>): Promise<ClaimRecord> {
+  const response = await fetch(`/api/admin/claims/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  })
+  const body = await readJson<{ claim: ClaimRecord }>(response)
+  return body.claim
+}
+
+export async function deleteClaimRecord(id: string): Promise<void> {
+  const response = await fetch(`/api/admin/claims/${id}`, { method: 'DELETE' })
   await readJson<{ success: true }>(response)
 }

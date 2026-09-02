@@ -103,13 +103,46 @@ React state, saved nowhere, gone on refresh.
 - `GET/POST /api/admin/agents`, `GET/PATCH/DELETE /api/admin/agents/{id}` —
   same shape and same `503` fallback as the policies routes above when
   `POSTGRES_URL` isn't set.
-- `/admin/leads`'s "Assign to" list now fetches active agents from this
-  table on load; if the database isn't configured (or the call fails) it
-  falls back to the original sample names so the page still works in demo
-  mode.
-- **Still not fully wired**: leads and claims themselves are still mock
-  in-memory data, not a database table, so an assignment still only lives
-  in that page's local state until leads/claims get their own real table —
-  this pass only makes the *list of people* real, not the assignment
-  record itself. `/admin/claims`'s assignment is by department, not named
-  staff, and wasn't changed.
+- `/admin/leads`'s "Assign to" list fetches active agents from this table
+  on load; if the database isn't configured (or the call fails) it falls
+  back to the original sample names so the page still works in demo mode.
+- `/admin/claims`'s assignment is by department (`Motor Claims Team`,
+  `Legal Department`, etc.), not named staff, and stayed a fixed list —
+  departments aren't people to manage in a staff directory.
+
+## Leads & Claims (`/admin/leads`, `/admin/claims`)
+
+Same Postgres database, two more tables: `leads` and `claims` (see
+`db/schema.sql`). Both pages used to hold their entire dataset as a
+hardcoded in-memory array — every status change, assignment, and note
+lived only in that browser tab's React state and was gone on refresh, same
+problem the `agents` table above fixed for the assignee list itself.
+
+- `leads` — id, `code` (human id like `LD-3021`, auto-assigned from a
+  sequence), name/phone/email, product type, summary, estimated premium,
+  source, status, `assigned_to` (an agent's name, plain text — not a
+  foreign key, since agents can be renamed or removed independently),
+  and `notes` as a JSONB array of `{ at, text }`.
+- `claims` — id, `code` (`CLM-2025-0921` style, also sequence-assigned),
+  claimant name, policy number, claim type, amount, claim date, status,
+  `assigned_to` (a department name), description, `timeline` (JSONB array
+  of `{ date, event, done }`) and `documents` (JSONB array of filenames).
+  A new claim starts with a single "Claim submitted" timeline entry;
+  there's no UI yet to append further timeline steps or attach real
+  documents — both display only what's already on the record.
+- `GET/POST /api/admin/leads`, `GET/PATCH/DELETE /api/admin/leads/{id}`,
+  `POST /api/admin/leads/{id}/notes` (appends one note); the equivalent
+  `GET/POST /api/admin/claims` and `GET/PATCH/DELETE /api/admin/claims/{id}`
+  — same shape and `503`-when-unconfigured convention as policies/agents.
+- Each page now has an **Add lead** / **Add claim** button, since neither
+  table has any other way to gain rows yet — nothing in the quote flow or
+  a claims-submission form writes here (same gap `source: 'checkout'`
+  notes above for policies).
+- **Demo fallback, unlike Policies and Staff**: if `POSTGRES_URL` isn't
+  set, both pages fall back to their original hardcoded sample rows
+  instead of showing a "not configured" screen, so the dashboards still
+  demo fully out of the box. In that mode every action (status change,
+  assignment, notes, adding a lead/claim) only updates local React state
+  and resets on refresh, exactly like before this change — a small yellow
+  banner on each page says so. Once a database is configured, both pages
+  switch to the real, persisted API automatically.
