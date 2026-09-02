@@ -30,6 +30,21 @@ export default function RenewalsPage() {
         </p>
       </div>
 
+      <Link
+        href="/renewals/life"
+        className="flex items-center gap-4 bg-white rounded-2xl border p-5 mb-5 transition-all hover:-translate-y-px hover:shadow-md"
+        style={{ borderColor: 'var(--border-default)' }}
+      >
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0" style={{ backgroundColor: 'var(--green-50)' }}>
+          💚
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-sans font-semibold text-[14px]" style={{ color: 'var(--text-primary)' }}>Renew a life insurance policy</p>
+          <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Look up your AIICO life policy by number and pay online</p>
+        </div>
+        <ArrowRight className="w-4 h-4 shrink-0" style={{ color: 'var(--text-muted)' }} />
+      </Link>
+
       {/* Search */}
       <div className="relative mb-5">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-muted)' }} />

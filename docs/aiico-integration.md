@@ -106,6 +106,20 @@ so that constant should be revisited once the full cover list is confirmed.
 - `POST /submit/motor-renewal` — same two-call pattern for motor renewals (plain JSON body, no documents involved).
 - `POST /submit/life-renewal` — same two-call pattern for life renewals: JSON body `{ policyNo, transactionDate, customerName, email, phone, amount, payment }`, running `PostLifeRenewalSchedule` then `FinalizePartnerPayment` — **call only after payment has been collected**.
 
+## Life Renewal UI
+
+`/renewals/life` is a standalone, self-service page (linked from `/renewals`)
+— unlike Motor Renewal, which has no UI yet:
+
+1. Customer enters a policy number → `GET /life-renewal` renders the policy's
+   name, status, dates, premiums, and the next installment due.
+2. "Proceed to pay" collects a card and pays the amount through the existing
+   Payloft sandbox flow (`initiatePayloftOrder` → `submitPayloftPayment` →
+   `pollPayloftResult`, the same helpers `quote/checkout` uses).
+3. Once Payloft reports `APPROVED`, the page calls
+   `POST /submit/life-renewal` with the collected details and a masked card
+   reference, then shows the transaction ref and certificate link (if any).
+
 ## Verification
 
 No live credentials were available to test end-to-end. Verified instead

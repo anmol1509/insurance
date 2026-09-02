@@ -138,6 +138,7 @@ const INTEGRATIONS: Integration[] = [
       'A small AIICO-only Title panel feeds GetTitles by name — the only new UI field this integration needed',
       'Vehicle make/model, gender, body type and colour are matched against AIICO’s controlled vocabulary automatically, with no new dropdowns',
       'PostMotorSchedule then FinalizePartnerPayment run back-to-back in one route, called from checkout only after payment is approved',
+      '/renewals/life is a standalone self-service page: look up a life policy by number, review what’s due, pay by card via Payloft, then PostLifeRenewalSchedule → FinalizePartnerPayment run automatically once payment is approved',
     ],
     verification: [
       'Drove /api/aiico/submit/motor directly with a full multipart payload (customer + vehicle + payment + fake images) — validated and resolved correctly end to end',
@@ -149,7 +150,7 @@ const INTEGRATIONS: Integration[] = [
       'No live credentials were available to test a real end-to-end submission',
       'The quote flow doesn’t collect a separate engine number — chassis/VIN is reused as the closest available field',
       'The Comprehensive subclass/cover-type ID is a fixed constant from the docs; AIICO exposes more than one option via GetProductSubClassCoverTypes, to be revisited once the full list is confirmed',
-      'Life Renewal (GetLifePolicyRenewalDetails / PostLifeRenewalSchedule) is implemented but has no UI yet — no renewals-flow page collects a life policy number or displays these details to a customer',
+      'Motor Renewal (GetAutoRenewalDetails / PostMotorRenewalSchedule) still has no UI — only Life Renewal got a self-service page so far',
     ],
     sourceFiles: ['src/lib/aiico/{config,client,api,resolve,documents,mappers,schemas,browser,types}.ts', 'docs/aiico-integration.md'],
   },
