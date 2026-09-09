@@ -18,7 +18,7 @@ const MOCK_LOOKUP: Record<string, {
 type LookupState = 'idle' | 'loading' | 'found' | 'not_found'
 
 export default function MotorStep1() {
-  const { motorData, updateMotor, setStep, motorPrefillPlate, setMotorPrefillPlate } = useQuoteStore()
+  const { motorData, updateMotor, setStep, heroPrefill, setHeroPrefill } = useQuoteStore()
   const [lookupState, setLookupState] = useState<LookupState>('idle')
   const [inputValue, setInputValue] = useState(motorData.registrationNumber)
 
@@ -78,14 +78,14 @@ export default function MotorStep1() {
    */
   const prefillConsumed = useRef(false)
   useEffect(() => {
-    if (prefillConsumed.current || !motorPrefillPlate) return
+    if (prefillConsumed.current || heroPrefill?.product !== 'motor') return
     prefillConsumed.current = true
-    const plate = motorPrefillPlate
-    setMotorPrefillPlate(null)
+    const plate = heroPrefill.value
+    setHeroPrefill(null)
     setInputValue(plate)
     runLookup(plate).then(() => setStep('motor', 2))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [motorPrefillPlate])
+  }, [heroPrefill])
 
   function handleSkip() {
     updateMotor({ registrationNumber: inputValue.trim().toUpperCase() })

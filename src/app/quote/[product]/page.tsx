@@ -3,7 +3,7 @@ import { use, useEffect } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
 import QuoteLayout from '@/components/quote/QuoteLayout'
-import { PRODUCT_STEPS } from '@/lib/constants'
+import { MEDICAL_COVER_OPTIONS, PRODUCT_STEPS } from '@/lib/constants'
 import { motorDocSlots } from '@/lib/motorDocuments'
 import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
 import { requiredSlotsFor } from '@/lib/nsia/documents'
@@ -15,17 +15,20 @@ import MotorPlanSelect from '@/components/quote/steps/motor/MotorPlanSelect'
 import MotorDocuments from '@/components/quote/steps/motor/MotorDocuments'
 import MotorStep4 from '@/components/quote/steps/motor/MotorStep4'
 
+import MedicalCoverFor from '@/components/quote/steps/medical/MedicalCoverFor'
 import MedicalStep1 from '@/components/quote/steps/medical/MedicalStep1'
 import MedicalStep2 from '@/components/quote/steps/medical/MedicalStep2'
 import MedicalPlanSelect from '@/components/quote/steps/medical/MedicalPlanSelect'
 import MedicalStep3 from '@/components/quote/steps/medical/MedicalStep3'
 import MedicalReview from '@/components/quote/steps/medical/MedicalReview'
 
+import TravelDestination from '@/components/quote/steps/travel/TravelDestination'
 import TravelStep1 from '@/components/quote/steps/travel/TravelStep1'
 import TravelStep2 from '@/components/quote/steps/travel/TravelStep2'
 import TravelStep3 from '@/components/quote/steps/travel/TravelStep3'
 import TravelReview from '@/components/quote/steps/travel/TravelReview'
 
+import BusinessTypeStep from '@/components/quote/steps/business/BusinessTypeStep'
 import BusinessStep1 from '@/components/quote/steps/business/BusinessStep1'
 import BusinessStep2 from '@/components/quote/steps/business/BusinessStep2'
 import BusinessStep3 from '@/components/quote/steps/business/BusinessStep3'
@@ -49,9 +52,9 @@ type Product = (typeof VALID_PRODUCTS)[number]
 
 const STEP_COMPONENTS: Record<Product, React.ComponentType[]> = {
   motor:    [MotorStep1,    MotorStep2,    MotorStep3,    MotorPlanSelect,   MotorDocuments, MotorStep4],
-  medical:  [MedicalStep1,  MedicalStep2,  MedicalPlanSelect, MedicalStep3, MedicalReview],
-  travel:   [TravelStep1,   TravelStep2,   TravelStep3,   TravelReview],
-  business: [BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
+  medical:  [MedicalCoverFor, MedicalStep1, MedicalStep2, MedicalPlanSelect, MedicalStep3, MedicalReview],
+  travel:   [TravelDestination, TravelStep1, TravelStep2, TravelStep3, TravelReview],
+  business: [BusinessTypeStep, BusinessStep1, BusinessStep2, BusinessStep3, BusinessStep4, BusinessReview],
   marine:   [MarineStep1, MarineStep2, MarineStep3, MarineDocuments, MarineReview],
   'personal-accident': [PersonalAccidentStep1, PersonalAccidentStep2, PersonalAccidentStep3, PersonalAccidentDocuments, PersonalAccidentReview],
 }
@@ -63,7 +66,11 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   if (!VALID_PRODUCTS.includes(product as Product)) notFound()
 
   const typedProduct = product as Product
-  const { steps, setActiveProduct, setStep, resetQuote, motorData, medicalData, marineData, personalAccidentData } = useQuoteStore()
+  const {
+    steps, setActiveProduct, setStep, resetQuote,
+    heroPrefill, setHeroPrefill, updateMedical, updateTravel, updateBusiness,
+    motorData, medicalData, travelData, businessData, marineData, personalAccidentData,
+  } = useQuoteStore()
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const StepComponent = STEP_COMPONENTS[typedProduct][currentStep - 1]
@@ -78,6 +85,26 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   useEffect(() => {
     setActiveProduct(typedProduct)
     resetQuote(typedProduct)
+
+    /**
+     * Step 1 of every flow asks exactly what the homepage quick-quote widget
+     * asks, so when the customer already answered it there, apply the answer
+     * and open on step 2 rather than asking again. Motor is the exception:
+     * its plate needs a registry lookup first, so MotorStep1 runs that and
+     * advances itself once the vehicle comes back.
+     */
+    const prefill = useQuoteStore.getState().heroPrefill
+    if (!prefill || prefill.product !== typedProduct || typedProduct === 'motor') return
+    setHeroPrefill(null)
+    if (typedProduct === 'medical') {
+      const option = MEDICAL_COVER_OPTIONS.find((o) => o.value === prefill.value)
+      if (!option) return
+      updateMedical({ coverFor: option.value, planType: option.planType, numberOfLives: option.lives })
+    }
+    if (typedProduct === 'travel')   updateTravel({ destination: prefill.value })
+    if (typedProduct === 'business') updateBusiness({ businessType: prefill.value })
+    setStep(typedProduct, 2)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typedProduct, setActiveProduct, resetQuote])
 
   /**
@@ -113,7 +140,12 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       (currentStep === 5 && motorStep5Missing(motorData).length > 0) ||
       (currentStep === 6 && (motorStep6Missing(motorData).length > 0 || !motorData.reviewConfirmed))
     )) ||
-    (typedProduct === 'medical' && currentStep === 3 && !medicalData.selectedUnderwriter) ||
+    (typedProduct === 'medical' && (
+      (currentStep === 1 && !medicalData.coverFor) ||
+      (currentStep === 4 && !medicalData.selectedUnderwriter)
+    )) ||
+    (typedProduct === 'travel'   && currentStep === 1 && !travelData.destination) ||
+    (typedProduct === 'business' && currentStep === 1 && !businessData.businessType) ||
     (typedProduct === 'marine' && (
       (currentStep === 1 && (!marineData.cargoCategory || !marineData.cargoDescription.trim() || !(marineData.sumInsured && marineData.sumInsured > 0) || !marineData.voyageFrom.trim() || !marineData.voyageTo.trim())) ||
       (currentStep === 2 && !marineData.coverType) ||
@@ -164,7 +196,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       isFinalStep={currentStep === rawTotalSteps}
       stepsOverride={typedProduct === 'motor' ? displaySteps : undefined}
       nextDisabled={nextDisabled}
-      planSelect={(typedProduct === 'motor' && currentStep === 4) || (typedProduct === 'medical' && currentStep === 3)}
+      planSelect={(typedProduct === 'motor' && currentStep === 4) || (typedProduct === 'medical' && currentStep === 4)}
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>

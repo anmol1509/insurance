@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
+import { BUSINESS_TYPES, MEDICAL_COVER_OPTIONS, TRAVEL_DESTINATIONS } from '@/lib/constants'
 import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
 
 const fadeUp = {
@@ -33,24 +34,24 @@ const LIVE_POLICIES = [
   { product: 'Health', city: 'Enugu', time: '13 min ago' },
 ]
 
-const COVERAGE_OPTIONS = ['Just me', 'Me + spouse', 'Family (3–5)', 'Family (6+)']
-const BUSINESS_TYPES  = ['Retail / Shop', 'Restaurant / Food', 'Construction', 'Tech / Agency', 'Manufacturing', 'Other']
-const DESTINATIONS    = ['United Kingdom', 'United States', 'Schengen (Europe)', 'Canada', 'UAE / Dubai', 'Other destination']
-
 export default function HeroSection() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabKey>('motor')
   const [plateNum,  setPlateNum]  = useState('')
-  const setMotorPrefillPlate = useQuoteStore((s) => s.setMotorPrefillPlate)
+  const [coverFor,  setCoverFor]  = useState('')
+  const [destination, setDestination] = useState('')
+  const [businessType, setBusinessType] = useState('')
+  const setHeroPrefill = useQuoteStore((s) => s.setHeroPrefill)
 
   /**
-   * A plate typed here is all step 1 of the motor flow asks for, so hand it
-   * over and let that flow run the registry lookup and drop the customer
-   * straight on step 2 (vehicle details) instead of re-typing it.
+   * Each tab asks exactly what step 1 of its flow asks, so hand the answer
+   * over and let the flow open on step 2 instead of asking a second time.
+   * Motor's plate still goes through the registry lookup on the way.
    */
-  function startMotorQuote() {
-    setMotorPrefillPlate(plateNum.trim() ? plateNum.trim().toUpperCase() : null)
-    router.push('/quote/motor')
+  function startQuote(product: TabKey, value: string) {
+    const answer = value.trim()
+    setHeroPrefill(answer ? { product, value: answer } : null)
+    router.push(`/quote/${product}`)
   }
 
   const tab = TABS.find((t) => t.key === activeTab)!
@@ -148,7 +149,7 @@ export default function HeroSection() {
                           placeholder="Plate number (e.g. LAG-123-AA) — optional"
                           value={plateNum}
                           onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
-                          onKeyDown={(e) => e.key === 'Enter' && startMotorQuote()}
+                          onKeyDown={(e) => e.key === 'Enter' && startQuote('motor', plateNum.toUpperCase())}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
                           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,211,102,0.15)' }}
@@ -157,7 +158,7 @@ export default function HeroSection() {
                       </div>
                       <button
                         type="button"
-                        onClick={startMotorQuote}
+                        onClick={() => startQuote('motor', plateNum.toUpperCase())}
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--motor-600)' }}
                       >
@@ -171,18 +172,20 @@ export default function HeroSection() {
                       <div className="flex-1 relative">
                         <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
                         <select
+                          value={coverFor}
+                          onChange={(e) => setCoverFor(e.target.value)}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
                           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--medical-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(5,150,105,0.1)' }}
                           onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
                         >
                           <option value="">Who needs cover?</option>
-                          {COVERAGE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                          {MEDICAL_COVER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label} · {o.sub}</option>)}
                         </select>
                       </div>
                       <button
                         type="button"
-                        onClick={() => router.push('/quote/medical')}
+                        onClick={() => startQuote('medical', coverFor)}
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--medical-600)' }}
                       >
@@ -196,18 +199,20 @@ export default function HeroSection() {
                       <div className="flex-1 relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
                         <select
+                          value={destination}
+                          onChange={(e) => setDestination(e.target.value)}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
                           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--travel-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(217,119,6,0.1)' }}
                           onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
                         >
                           <option value="">Where are you travelling?</option>
-                          {DESTINATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                          {TRAVEL_DESTINATIONS.map((d) => <option key={d.value} value={d.value}>{d.label} · {d.sub}</option>)}
                         </select>
                       </div>
                       <button
                         type="button"
-                        onClick={() => router.push('/quote/travel')}
+                        onClick={() => startQuote('travel', destination)}
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--travel-600)' }}
                       >
@@ -221,6 +226,8 @@ export default function HeroSection() {
                       <div className="flex-1 relative">
                         <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
                         <select
+                          value={businessType}
+                          onChange={(e) => setBusinessType(e.target.value)}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
                           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--business-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)' }}
@@ -232,7 +239,7 @@ export default function HeroSection() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => router.push('/quote/business')}
+                        onClick={() => startQuote('business', businessType)}
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--business-600)' }}
                       >

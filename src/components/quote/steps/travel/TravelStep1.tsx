@@ -5,15 +5,6 @@ import RadioCard from '@/components/ui/RadioCard'
 import NINField from '@/components/ui/NINField'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 
-const destinations = [
-  { id: 'schengen',    label: 'Schengen',     sub: 'EU / Europe' },
-  { id: 'uk',          label: 'UK',           sub: 'United Kingdom' },
-  { id: 'usa_canada',  label: 'USA / Canada', sub: 'North America' },
-  { id: 'africa',      label: 'Africa',       sub: 'African countries' },
-  { id: 'asia',        label: 'Asia',         sub: 'Asia-Pacific' },
-  { id: 'worldwide',   label: 'Worldwide',    sub: 'Any destination' },
-]
-
 const tripTypes = [
   { id: 'single' as const, label: 'Single Trip', sub: 'One journey' },
   { id: 'multi_annual' as const, label: 'Multi-Trip Annual', sub: 'Unlimited trips in 12 months' },
@@ -94,26 +85,6 @@ export default function TravelStep1() {
           />
         </div>
       )}
-
-      {/* Destination */}
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Destination / Region <span className="text-[var(--error)]">*</span>
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {destinations.map((d) => (
-            <RadioCard
-              key={d.id}
-              label={d.label}
-              priceHint={d.sub}
-              selected={travelData.destination === d.id}
-              onClick={() => updateTravel({ destination: d.id })}
-              productColor="var(--travel-600)"
-              productColorBg="var(--travel-50)"
-            />
-          ))}
-        </div>
-      </div>
 
       {/* Trip type */}
       <div>

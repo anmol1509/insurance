@@ -73,7 +73,7 @@ export default function MedicalPlanSelect() {
     updateMedical({ selectedUnderwriter: plan.id })
     setCalculatedPremium(getPrice(plan), {})
     setTimeout(() => {
-      setStep('medical', 4)
+      setStep('medical', 5)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }, 350)
   }

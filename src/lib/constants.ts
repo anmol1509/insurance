@@ -86,6 +86,32 @@ export const BENEFICIARY_RELATIONSHIPS = [
   'Spouse', 'Child', 'Parent', 'Sibling', 'Other next of kin',
 ]
 
+/**
+ * The single question each product's quick-quote widget asks on the homepage,
+ * and the first step of the flow itself — shared so an answer given on the
+ * homepage maps straight onto the flow's data and is never asked twice.
+ */
+export const MEDICAL_COVER_OPTIONS = [
+  { value: 'individual', label: 'Just me',          sub: '1 life',    planType: 'individual', lives: 1 },
+  { value: 'couple',     label: 'Me + spouse',      sub: '2 lives',   planType: 'family',     lives: 2 },
+  { value: 'family',     label: 'Family',           sub: '3–6 lives', planType: 'family',     lives: 4 },
+  { value: 'group',      label: 'Group / company',  sub: '7+ lives',  planType: 'group',      lives: 7 },
+] as const
+
+export const TRAVEL_DESTINATIONS = [
+  { value: 'schengen',   label: 'Schengen',     sub: 'EU / Europe' },
+  { value: 'uk',         label: 'United Kingdom', sub: 'UK only' },
+  { value: 'usa_canada', label: 'USA / Canada', sub: 'North America' },
+  { value: 'africa',     label: 'Africa',       sub: 'African countries' },
+  { value: 'asia',       label: 'Asia',         sub: 'Asia-Pacific & Middle East' },
+  { value: 'worldwide',  label: 'Worldwide',    sub: 'Any destination' },
+] as const
+
+export const BUSINESS_TYPES = [
+  'Retail / Trading', 'Manufacturing', 'Food & Hospitality', 'Professional Services',
+  'Construction', 'Technology', 'Healthcare', 'Education', 'Logistics / Transport', 'Other',
+] as const
+
 export const PRODUCT_STEPS = {
   motor: [
     { id: 1, label: 'Your car',        title: 'Find your car',                  sub: 'Enter your registration plate to auto-fill your vehicle details.' },
@@ -96,24 +122,27 @@ export const PRODUCT_STEPS = {
     { id: 6, label: 'Your details',    title: 'Your personal information',      sub: 'Complete your KYC details and review your quote before submitting.' },
   ],
   medical: [
-    { id: 1, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },
-    { id: 2, label: 'Health details', title: 'Health information',              sub: 'Help us understand your health profile.' },
-    { id: 3, label: 'Choose plan',    title: 'Compare & choose a plan',         sub: 'Pick the health insurer and cover that best suits your needs.' },
-    { id: 4, label: 'Coverage',       title: 'Additional coverage options',     sub: 'Select extra benefits and riders for your policy.' },
-    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+    { id: 1, label: 'Who needs cover', title: 'Who needs cover?',               sub: 'Tell us who the policy is for — you can change this later.' },
+    { id: 2, label: 'Personal info',  title: 'Your personal details',           sub: 'Basic information to set up your policy.' },
+    { id: 3, label: 'Health details', title: 'Health information',              sub: 'Help us understand your health profile.' },
+    { id: 4, label: 'Choose plan',    title: 'Compare & choose a plan',         sub: 'Pick the health insurer and cover that best suits your needs.' },
+    { id: 5, label: 'Coverage',       title: 'Additional coverage options',     sub: 'Select extra benefits and riders for your policy.' },
+    { id: 6, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
   ],
   travel: [
-    { id: 1, label: 'Traveller info', title: 'Your travel details',             sub: 'Tell us about the traveller(s).' },
-    { id: 2, label: 'Trip details',   title: 'Trip & coverage options',         sub: 'Dates, destination and cover.' },
-    { id: 3, label: 'Health info',    title: 'Health declaration',              sub: 'A few health questions required by the insurer.' },
-    { id: 4, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+    { id: 1, label: 'Destination',    title: 'Where are you travelling?',       sub: 'Pick the region you are travelling to — you can change this later.' },
+    { id: 2, label: 'Traveller info', title: 'Your travel details',             sub: 'Tell us about the traveller(s).' },
+    { id: 3, label: 'Trip details',   title: 'Trip & coverage options',         sub: 'Dates, destination and cover.' },
+    { id: 4, label: 'Health info',    title: 'Health declaration',              sub: 'A few health questions required by the insurer.' },
+    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
   ],
   business: [
-    { id: 1, label: 'Business info',  title: 'Business details',                sub: 'Tell us about your business.' },
-    { id: 2, label: 'Coverage',       title: 'Select your covers',              sub: 'Your premium updates live as you add covers.' },
-    { id: 3, label: 'Risk details',   title: 'Risk assessment',                 sub: 'A few questions about your premises and operations.' },
-    { id: 4, label: 'Contact info',   title: 'Director / contact details',      sub: 'KYC information for the authorised signatory.' },
-    { id: 5, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
+    { id: 1, label: 'Business type',  title: 'What type of business?',          sub: 'Pick the closest match — you can change this later.' },
+    { id: 2, label: 'Business info',  title: 'Business details',                sub: 'Tell us about your business.' },
+    { id: 3, label: 'Coverage',       title: 'Select your covers',              sub: 'Your premium updates live as you add covers.' },
+    { id: 4, label: 'Risk details',   title: 'Risk assessment',                 sub: 'A few questions about your premises and operations.' },
+    { id: 5, label: 'Contact info',   title: 'Director / contact details',      sub: 'KYC information for the authorised signatory.' },
+    { id: 6, label: 'Review',         title: 'Review your details',             sub: 'Check everything is correct before getting your quote.' },
   ],
   marine: [
     { id: 1, label: 'Shipment',       title: 'Cargo & shipment details',        sub: 'Tell us what is being shipped and how.' },

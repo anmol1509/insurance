@@ -7,11 +7,6 @@ import { NIGERIAN_STATES } from '@/lib/constants'
 
 const stateOptions = NIGERIAN_STATES.map((s) => ({ value: s, label: s }))
 
-const businessTypes = [
-  'Retail / Trading', 'Manufacturing', 'Food & Hospitality', 'Professional Services',
-  'Construction', 'Technology', 'Healthcare', 'Education', 'Logistics / Transport', 'Other',
-]
-
 const businessSizes = [
   { id: 'small' as const,  label: 'Small',  sub: '1–50 employees' },
   { id: 'medium' as const, label: 'Medium', sub: '51–250 employees' },
@@ -50,26 +45,15 @@ export default function BusinessStep1() {
         />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-5">
-        <Select
-          label="Business Type"
-          required
-          options={businessTypes.map((t) => ({ value: t, label: t }))}
-          value={businessData.businessType}
-          onChange={(v) => updateBusiness({ businessType: v })}
-          placeholder="Select business type"
-          productColor="var(--business-600)"
-        />
-        <Select
-          label="Annual Revenue"
-          required
-          options={revenueRanges}
-          value={businessData.annualRevenue}
-          onChange={(v) => updateBusiness({ annualRevenue: v })}
-          placeholder="Select revenue range"
-          productColor="var(--business-600)"
-        />
-      </div>
+      <Select
+        label="Annual Revenue"
+        required
+        options={revenueRanges}
+        value={businessData.annualRevenue}
+        onChange={(v) => updateBusiness({ annualRevenue: v })}
+        placeholder="Select revenue range"
+        productColor="var(--business-600)"
+      />
 
       <Input
         label="Number of Employees"

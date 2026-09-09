@@ -9,12 +9,6 @@ import { OCCUPATIONS } from '@/lib/constants'
 
 const occupationOptions = OCCUPATIONS.map((o) => ({ value: o, label: o }))
 
-const planTypes = [
-  { id: 'individual' as const, label: 'Individual', sub: '1 person' },
-  { id: 'family' as const, label: 'Family', sub: '2–6 lives' },
-  { id: 'group' as const, label: 'Group', sub: '7+ lives' },
-]
-
 export default function MedicalStep1() {
   const { medicalData, updateMedical } = useQuoteStore()
   const isGroup = medicalData.planType === 'group'
@@ -106,26 +100,6 @@ export default function MedicalStep1() {
           placeholder="e.g. Professional, Manual, Clerical"
           productColor="var(--medical-600)"
         />
-      </div>
-
-      {/* Plan type */}
-      <div>
-        <p className="font-sans font-semibold text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-          Plan type <span className="text-[var(--error)]">*</span>
-        </p>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {planTypes.map((p) => (
-            <RadioCard
-              key={p.id}
-              label={p.label}
-              priceHint={p.sub}
-              selected={medicalData.planType === p.id}
-              onClick={() => updateMedical({ planType: p.id })}
-              productColor="var(--medical-600)"
-              productColorBg="var(--medical-50)"
-            />
-          ))}
-        </div>
       </div>
 
       <AnimatePresence>

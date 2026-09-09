@@ -2,9 +2,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Shield, Lock, Zap, X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
+import { X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
-import StepCircle from '@/components/ui/StepCircle'
 import { PRODUCT_STEPS } from '@/lib/constants'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
@@ -21,7 +20,7 @@ interface QuoteLayoutProps {
   nextLabel?: string
   nextDisabled?: boolean
   planSelect?: boolean
-  /** Overrides the default step list — used when a step is skipped (e.g. no documents needed) so the sidebar/count renumber correctly instead of showing a gap. */
+  /** Overrides the default step list — used when a step is skipped (e.g. no documents needed) so the step count renumbers correctly instead of showing a gap. */
   stepsOverride?: readonly { id: number; label: string }[]
   children: React.ReactNode
 }
@@ -103,86 +102,9 @@ export default function QuoteLayout({
       </div>
 
       <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
-      <div className="max-w-[1280px] mx-auto">
+      <div className={`mx-auto ${planSelect ? 'max-w-[1100px]' : 'max-w-[860px]'}`}>
 
-        <div className={`grid gap-8 items-start ${planSelect ? 'lg:grid-cols-[240px_1fr]' : 'lg:grid-cols-[300px_1fr]'}`}>
-          <aside className="hidden lg:block">
-            <div className="sticky top-[4.5rem] bg-white rounded-2xl border border-[var(--border-default)] p-7">
-              <div className="flex items-center gap-3.5 pb-5 border-b border-[var(--border-subtle)]">
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                  style={{ backgroundColor: config.colorBg }}
-                >
-                  {(() => { const Icon = PRODUCT_ICON[product]; return <Icon className="w-5 h-5" style={{ color: config.color }} /> })()}
-                </div>
-                <div>
-                  <p className="font-display font-bold text-[18px]" style={{ color: 'var(--text-primary)' }}>
-                    {config.label}
-                  </p>
-                  <p className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>
-                    Quick quote · {visibleSteps.length} steps
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 flex flex-col">
-                {visibleSteps.map((step, i) => {
-                  const stepNum = i + 1
-                  const stepLabel = step.label
-                  const state =
-                    stepNum < currentStep ? 'completed' : stepNum === currentStep ? 'active' : 'upcoming'
-                  return (
-                    <div
-                      key={step.id}
-                      className="flex gap-3.5 py-3 border-b border-[var(--border-subtle)]"
-                    >
-                      <StepCircle state={state} number={stepNum} productColor={config.color} />
-                      <div className="pt-0.5">
-                        <p
-                          className="font-sans font-bold text-[10px] uppercase tracking-[0.07em]"
-                          style={{
-                            color:
-                              state === 'upcoming' ? 'var(--text-subtle)' : config.color,
-                          }}
-                        >
-                          Step {stepNum}
-                        </p>
-                        <p
-                          className="font-sans font-medium text-sm"
-                          style={{
-                            color:
-                              state === 'active'
-                                ? 'var(--text-primary)'
-                                : 'var(--text-muted)',
-                          }}
-                        >
-                          {stepLabel}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                {[
-                  { Icon: Shield, label: 'NAICOM' },
-                  { Icon: Lock, label: 'SSL Secure' },
-                  { Icon: Zap, label: 'Instant cert' },
-                ].map(({ Icon, label }) => (
-                  <div
-                    key={label}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg font-sans font-medium text-[11px]"
-                    style={{ backgroundColor: 'var(--surface-raised)', color: 'var(--text-secondary)' }}
-                  >
-                    <Icon className="w-3 h-3" />
-                    {label}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </aside>
-
+        <div>
           <main className="min-w-0">
             {planSelect ? (
               <>

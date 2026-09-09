@@ -69,6 +69,8 @@ export interface MedicalData {
   gender: 'male' | 'female' | 'other' | null
   maritalStatus: string
   planType: 'individual' | 'family' | 'group' | null
+  /** Step 1's answer — which MEDICAL_COVER_OPTIONS entry was picked. */
+  coverFor: string
   numberOfLives: number
   phone: string
   email: string
@@ -274,18 +276,27 @@ export interface PersonalAccidentData {
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
+/**
+ * `value` is a motor plate number, a medical cover option, a travel
+ * destination or a business type, depending on `product`.
+ */
+export interface HeroPrefill {
+  product: 'motor' | 'medical' | 'travel' | 'business'
+  value: string
+}
+
 interface QuoteStore {
   activeProduct: Product | null
   setActiveProduct: (p: Product | null) => void
   steps: Record<Product, number>
   setStep: (product: Product, step: number) => void
   /**
-   * Plate number typed into the homepage quick-quote widget, handed to the
-   * motor flow so it can look the vehicle up on arrival instead of asking
-   * for it a second time. Cleared as soon as that flow reads it.
+   * The answer given to the homepage quick-quote widget, handed to the flow
+   * it opens so step 1's question is never asked a second time. Cleared as
+   * soon as that flow reads it.
    */
-  motorPrefillPlate: string | null
-  setMotorPrefillPlate: (plate: string | null) => void
+  heroPrefill: HeroPrefill | null
+  setHeroPrefill: (prefill: HeroPrefill | null) => void
   motorData: MotorData
   medicalData: MedicalData
   travelData: TravelData
@@ -322,7 +333,7 @@ const defaultMotor: MotorData = {
 
 const defaultMedical: MedicalData = {
   fullName: '', dateOfBirth: '', nin: '', occupation: '', gender: null,
-  maritalStatus: '', planType: null, numberOfLives: 1, phone: '', email: '',
+  maritalStatus: '', planType: null, coverFor: '', numberOfLives: 1, phone: '', email: '',
   occupationCategory: '', minAge: null, maxAge: null,
   smokes: false, smokingFrequency: '', drinksAlcohol: false, alcoholFrequency: '',
   preexistingConditions: false, conditions: [], conditionDetails: '',
@@ -398,8 +409,8 @@ export const useQuoteStore = create<QuoteStore>()(
       setActiveProduct: (p) => set({ activeProduct: p }),
       steps: defaultSteps,
       setStep: (product, step) => set((s) => ({ steps: { ...s.steps, [product]: step } })),
-      motorPrefillPlate: null,
-      setMotorPrefillPlate: (plate) => set({ motorPrefillPlate: plate }),
+      heroPrefill: null,
+      setHeroPrefill: (prefill) => set({ heroPrefill: prefill }),
       motorData: defaultMotor,
       medicalData: defaultMedical,
       travelData: defaultTravel,
