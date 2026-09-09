@@ -279,6 +279,13 @@ interface QuoteStore {
   setActiveProduct: (p: Product | null) => void
   steps: Record<Product, number>
   setStep: (product: Product, step: number) => void
+  /**
+   * Plate number typed into the homepage quick-quote widget, handed to the
+   * motor flow so it can look the vehicle up on arrival instead of asking
+   * for it a second time. Cleared as soon as that flow reads it.
+   */
+  motorPrefillPlate: string | null
+  setMotorPrefillPlate: (plate: string | null) => void
   motorData: MotorData
   medicalData: MedicalData
   travelData: TravelData
@@ -391,6 +398,8 @@ export const useQuoteStore = create<QuoteStore>()(
       setActiveProduct: (p) => set({ activeProduct: p }),
       steps: defaultSteps,
       setStep: (product, step) => set((s) => ({ steps: { ...s.steps, [product]: step } })),
+      motorPrefillPlate: null,
+      setMotorPrefillPlate: (plate) => set({ motorPrefillPlate: plate }),
       motorData: defaultMotor,
       medicalData: defaultMedical,
       travelData: defaultTravel,

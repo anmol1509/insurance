@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil } from 'lucide-react'
@@ -18,14 +18,14 @@ const MOCK_LOOKUP: Record<string, {
 type LookupState = 'idle' | 'loading' | 'found' | 'not_found'
 
 export default function MotorStep1() {
-  const { motorData, updateMotor, setStep } = useQuoteStore()
+  const { motorData, updateMotor, setStep, motorPrefillPlate, setMotorPrefillPlate } = useQuoteStore()
   const [lookupState, setLookupState] = useState<LookupState>('idle')
   const [inputValue, setInputValue] = useState(motorData.registrationNumber)
 
-  async function handleLookup() {
-    if (!inputValue.trim()) return
+  async function runLookup(plate: string) {
+    const key = plate.trim().toUpperCase()
+    if (!key) return
     setLookupState('loading')
-    const key = inputValue.trim().toUpperCase()
     updateMotor({ registrationNumber: key })
 
     // Try the real registry lookup (VerifyData) first; fall back to demo data
@@ -62,6 +62,30 @@ export default function MotorStep1() {
     updateMotor(match)
     setLookupState('found')
   }
+
+  function handleLookup() {
+    return runLookup(inputValue)
+  }
+
+  /**
+   * The customer already typed a plate into the homepage quick-quote widget,
+   * so run the lookup for them and hand them straight to step 2 (vehicle
+   * details) rather than making them re-enter and re-submit it here.
+   *
+   * The route resets motorData in its own mount effect, which React runs
+   * after this child effect — the lookup only writes to the store once its
+   * awaits resolve, so the pre-filled details survive that reset.
+   */
+  const prefillConsumed = useRef(false)
+  useEffect(() => {
+    if (prefillConsumed.current || !motorPrefillPlate) return
+    prefillConsumed.current = true
+    const plate = motorPrefillPlate
+    setMotorPrefillPlate(null)
+    setInputValue(plate)
+    runLookup(plate).then(() => setStep('motor', 2))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [motorPrefillPlate])
 
   function handleSkip() {
     updateMotor({ registrationNumber: inputValue.trim().toUpperCase() })

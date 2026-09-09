@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useQuoteStore } from '@/store/quoteStore'
 import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
 
 const fadeUp = {
@@ -40,6 +41,17 @@ export default function HeroSection() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabKey>('motor')
   const [plateNum,  setPlateNum]  = useState('')
+  const setMotorPrefillPlate = useQuoteStore((s) => s.setMotorPrefillPlate)
+
+  /**
+   * A plate typed here is all step 1 of the motor flow asks for, so hand it
+   * over and let that flow run the registry lookup and drop the customer
+   * straight on step 2 (vehicle details) instead of re-typing it.
+   */
+  function startMotorQuote() {
+    setMotorPrefillPlate(plateNum.trim() ? plateNum.trim().toUpperCase() : null)
+    router.push('/quote/motor')
+  }
 
   const tab = TABS.find((t) => t.key === activeTab)!
   const [tickerIdx, setTickerIdx] = useState(0)
@@ -136,6 +148,7 @@ export default function HeroSection() {
                           placeholder="Plate number (e.g. LAG-123-AA) — optional"
                           value={plateNum}
                           onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
+                          onKeyDown={(e) => e.key === 'Enter' && startMotorQuote()}
                           className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
                           onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,211,102,0.15)' }}
@@ -144,7 +157,7 @@ export default function HeroSection() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => router.push('/quote/motor')}
+                        onClick={startMotorQuote}
                         className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
                         style={{ backgroundColor: 'var(--motor-600)' }}
                       >
