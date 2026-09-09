@@ -5,7 +5,7 @@ import { useQuoteStore } from '@/store/quoteStore'
 import { useAuthStore } from '@/store/authStore'
 import { useHydrated } from '@/lib/useHydrated'
 import QuoteLayout from '@/components/quote/QuoteLayout'
-import QuoteAuthGate from '@/components/quote/QuoteAuthGate'
+import QuoteAuthModal from '@/components/quote/QuoteAuthModal'
 import { MEDICAL_COVER_OPTIONS, PRODUCT_STEPS } from '@/lib/constants'
 import { motorDocSlots } from '@/lib/motorDocuments'
 import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
@@ -215,9 +215,11 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   }
 
   if (!hydrated) return <div className="min-h-screen" style={{ backgroundColor: 'var(--page-bg)' }} />
-  if (!user) return <QuoteAuthGate product={typedProduct} />
 
   return (
+    <>
+    {/* The flow renders behind the sign-in popup, which blocks it until verified. */}
+    {!user && <QuoteAuthModal product={typedProduct} />}
     <QuoteLayout
       product={typedProduct}
       currentStep={displayCurrentStep}
@@ -235,5 +237,6 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     >
       {StepComponent && <StepComponent />}
     </QuoteLayout>
+    </>
   )
 }

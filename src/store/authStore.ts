@@ -12,17 +12,20 @@ export interface AuthUser {
   kycStatus: 'verified' | 'pending' | 'unverified'
 }
 
+export type OtpChannel = 'phone' | 'email'
+
 interface AuthStore {
   user: AuthUser | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
   /**
-   * Demo one-time-passcode sign-in used to gate the quote flows. No SMS or
-   * email is actually sent and any 6-digit code is accepted — swap this for
-   * a real OTP provider before launch.
+   * Demo one-time-passcode sign-in used to gate the quote flows. The
+   * customer identifies themselves with a phone number *or* an email, not
+   * both. No SMS or email is actually sent and any 6-digit code is
+   * accepted — swap this for a real OTP provider before launch.
    */
-  requestOtp: (phone: string, email: string) => Promise<{ success: boolean; error?: string }>
-  verifyOtp: (phone: string, email: string, code: string) => Promise<{ success: boolean; error?: string }>
+  requestOtp: (channel: OtpChannel, value: string) => Promise<{ success: boolean; error?: string }>
+  verifyOtp: (channel: OtpChannel, value: string, code: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
@@ -90,30 +93,37 @@ export const useAuthStore = create<AuthStore>()(
         return { success: true }
       },
 
-      requestOtp: async (phone, email) => {
+      requestOtp: async (channel, value) => {
         set({ isLoading: true })
         await new Promise((r) => setTimeout(r, 700))
         set({ isLoading: false })
-        if (phone.replace(/\D/g, '').length < 11) return { success: false, error: 'Enter a valid 11-digit phone number.' }
-        if (!email.includes('@')) return { success: false, error: 'Enter a valid email address.' }
+        if (channel === 'phone' && value.replace(/\D/g, '').length < 10) {
+          return { success: false, error: 'Enter a valid mobile number.' }
+        }
+        if (channel === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+          return { success: false, error: 'Enter a valid email address.' }
+        }
         return { success: true }
       },
 
-      verifyOtp: async (phone, email, code) => {
+      verifyOtp: async (channel, value, code) => {
         set({ isLoading: true })
         await new Promise((r) => setTimeout(r, 800))
         if (!/^\d{6}$/.test(code)) {
           set({ isLoading: false })
           return { success: false, error: 'Enter the 6-digit code we sent you.' }
         }
-        const existing = MOCK_USERS[email.toLowerCase()]
+        const email = channel === 'email' ? value : ''
+        const phone = channel === 'phone' ? value : ''
+        const existing = email ? MOCK_USERS[email.toLowerCase()] : undefined
+        const label = email ? email.split('@')[0].replace(/[._-]+/g, ' ') : phone
         const user: AuthUser = existing ?? {
           id: `usr_${Date.now()}`,
-          name: email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          name: label.replace(/\b\w/g, (c) => c.toUpperCase()),
           email,
           phone,
           role: 'customer',
-          initials: email.slice(0, 2).toUpperCase(),
+          initials: (email || phone).slice(0, 2).toUpperCase(),
           joinedAt: new Date().toISOString().split('T')[0],
           kycStatus: 'pending',
         }
