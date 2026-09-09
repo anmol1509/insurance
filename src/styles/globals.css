@@ -120,6 +120,14 @@ body {
 }
 
 @layer utilities {
+  /* Horizontal step rail scrolls on narrow screens without showing a bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
   .font-display {
     font-family: var(--font-display);
   }

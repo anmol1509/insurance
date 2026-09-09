@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
+import StepRail from '@/components/quote/StepRail'
 import { PRODUCT_STEPS } from '@/lib/constants'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
@@ -20,6 +21,10 @@ interface QuoteLayoutProps {
   nextLabel?: string
   nextDisabled?: boolean
   planSelect?: boolean
+  /** Furthest step reached — the step rail only lets the customer jump to steps at or before it. */
+  maxStep: number
+  /** Jump straight to a step from the rail. */
+  onStepSelect: (step: number) => void
   /** Overrides the default step list — used when a step is skipped (e.g. no documents needed) so the step count renumbers correctly instead of showing a gap. */
   stepsOverride?: readonly { id: number; label: string }[]
   children: React.ReactNode
@@ -55,14 +60,14 @@ export default function QuoteLayout({
   nextLabel,
   nextDisabled,
   planSelect,
+  maxStep,
+  onStepSelect,
   stepsOverride,
   children,
 }: QuoteLayoutProps) {
   const router = useRouter()
   const config = PRODUCT_CONFIG[product]
   const visibleSteps = stepsOverride ?? PRODUCT_STEPS[product]
-
-  const progressPct = (currentStep / totalSteps) * 100
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
@@ -90,15 +95,17 @@ export default function QuoteLayout({
             <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
           </Link>
         </div>
-        <div className="h-1 bg-[var(--border-subtle)]">
-          <motion.div
-            className="h-full"
-            style={{ backgroundColor: config.color }}
-            initial={{ width: '0%' }}
-            animate={{ width: `${progressPct}%` }}
-            transition={{ duration: 0.4 }}
-          />
-        </div>
+      </div>
+
+      <div className="sticky top-14 z-30">
+        <StepRail
+          steps={visibleSteps}
+          currentStep={currentStep}
+          maxStep={maxStep}
+          color={config.color}
+          colorBg={config.colorBg}
+          onSelect={onStepSelect}
+        />
       </div>
 
       <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
@@ -108,23 +115,6 @@ export default function QuoteLayout({
           <main className="min-w-0">
             {planSelect ? (
               <>
-                <div className="flex items-center gap-4 mb-5">
-                  <span
-                    className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
-                    style={{ backgroundColor: config.colorBg, color: config.color }}
-                  >
-                    Step {currentStep} of {totalSteps}
-                  </span>
-                  <div className="flex-1 h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: config.color }}
-                      initial={{ width: '0%' }}
-                      animate={{ width: `${progressPct}%` }}
-                      transition={{ duration: 0.4 }}
-                    />
-                  </div>
-                </div>
                 <div className="mb-5">
                   <h2 className="font-display font-bold text-3xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
                     {stepTitle}
@@ -174,24 +164,6 @@ export default function QuoteLayout({
               </>
             ) : (
               <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
-                <div className="flex items-center gap-4 mb-8">
-                  <span
-                    className="font-sans font-semibold text-xs px-3 py-1.5 rounded-full"
-                    style={{ backgroundColor: config.colorBg, color: config.color }}
-                  >
-                    Step {currentStep} of {totalSteps}
-                  </span>
-                  <div className="flex-1 h-1 bg-[var(--border-subtle)] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: config.color }}
-                      initial={{ width: '0%' }}
-                      animate={{ width: `${progressPct}%` }}
-                      transition={{ duration: 0.4 }}
-                    />
-                  </div>
-                </div>
-
                 <div className="mb-8">
                   <h2
                     className="font-display font-bold text-3xl tracking-tight"

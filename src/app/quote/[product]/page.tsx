@@ -2,7 +2,10 @@
 import { use, useEffect } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import { useQuoteStore } from '@/store/quoteStore'
+import { useAuthStore } from '@/store/authStore'
+import { useHydrated } from '@/lib/useHydrated'
 import QuoteLayout from '@/components/quote/QuoteLayout'
+import QuoteAuthGate from '@/components/quote/QuoteAuthGate'
 import { MEDICAL_COVER_OPTIONS, PRODUCT_STEPS } from '@/lib/constants'
 import { motorDocSlots } from '@/lib/motorDocuments'
 import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
@@ -67,10 +70,18 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
 
   const typedProduct = product as Product
   const {
-    steps, setActiveProduct, setStep, resetQuote,
-    heroPrefill, setHeroPrefill, updateMedical, updateTravel, updateBusiness,
+    steps, maxSteps, setActiveProduct, setStep, resetQuote,
+    setHeroPrefill, updateMedical, updateTravel, updateBusiness,
     motorData, medicalData, travelData, businessData, marineData, personalAccidentData,
   } = useQuoteStore()
+  const user = useAuthStore((s) => s.user)
+  /**
+   * Both stores rehydrate from sessionStorage on the client only, so the
+   * first paint must not decide between the gate and the flow — it would
+   * disagree with the server-rendered markup.
+   */
+  const hydrated = useHydrated()
+
   const currentStep = steps[typedProduct]
   const stepConfig = PRODUCT_STEPS[typedProduct][currentStep - 1]
   const StepComponent = STEP_COMPONENTS[typedProduct][currentStep - 1]
@@ -128,6 +139,10 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   const displayCurrentStep = typedProduct === 'motor'
     ? Math.max(motorActiveRaw.indexOf(currentStep) + 1, 1)
     : currentStep
+  const rawMaxStep = Math.max(maxSteps?.[typedProduct] ?? 1, currentStep)
+  const displayMaxStep = typedProduct === 'motor'
+    ? Math.max(motorActiveRaw.filter((raw) => raw <= rawMaxStep).length, 1)
+    : rawMaxStep
   /** The true last step never gets skipped (only an interior step can be), so this stays a plain raw comparison. */
   const rawTotalSteps = PRODUCT_STEPS[typedProduct].length
 
@@ -175,6 +190,21 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  /**
+   * The rail hands back a *display* step number (motor's skipped Documents
+   * step is not in that list), so map it back onto the raw step the store
+   * keeps. Jumping forward is only offered for steps already reached, and
+   * only while the current step is complete, so a customer can never skip
+   * past a question the flow still needs answered.
+   */
+  function goToStep(display: number) {
+    const raw = typedProduct === 'motor' ? (motorActiveRaw[display - 1] ?? 1) : display
+    if (raw === currentStep) return
+    if (raw > currentStep && nextDisabled) return
+    setStep(typedProduct, raw)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   function goBack() {
     let prev = currentStep - 1
     if (typedProduct === 'motor') {
@@ -183,6 +213,9 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     setStep(typedProduct, Math.max(prev, 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  if (!hydrated) return <div className="min-h-screen" style={{ backgroundColor: 'var(--page-bg)' }} />
+  if (!user) return <QuoteAuthGate product={typedProduct} />
 
   return (
     <QuoteLayout
@@ -196,6 +229,8 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       isFinalStep={currentStep === rawTotalSteps}
       stepsOverride={typedProduct === 'motor' ? displaySteps : undefined}
       nextDisabled={nextDisabled}
+      maxStep={displayMaxStep}
+      onStepSelect={goToStep}
       planSelect={(typedProduct === 'motor' && currentStep === 4) || (typedProduct === 'medical' && currentStep === 4)}
     >
       {StepComponent && <StepComponent />}

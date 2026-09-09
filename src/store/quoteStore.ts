@@ -289,6 +289,8 @@ interface QuoteStore {
   activeProduct: Product | null
   setActiveProduct: (p: Product | null) => void
   steps: Record<Product, number>
+  /** Furthest step reached per product — the step rail only lets the customer jump to steps they have already seen. */
+  maxSteps: Record<Product, number>
   setStep: (product: Product, step: number) => void
   /**
    * The answer given to the homepage quick-quote widget, handed to the flow
@@ -408,7 +410,12 @@ export const useQuoteStore = create<QuoteStore>()(
       activeProduct: null,
       setActiveProduct: (p) => set({ activeProduct: p }),
       steps: defaultSteps,
-      setStep: (product, step) => set((s) => ({ steps: { ...s.steps, [product]: step } })),
+      maxSteps: defaultSteps,
+      setStep: (product, step) => set((s) => ({
+        steps: { ...s.steps, [product]: step },
+        // `?? 1` keeps a session persisted before maxSteps existed from producing NaN.
+        maxSteps: { ...s.maxSteps, [product]: Math.max(s.maxSteps?.[product] ?? 1, step) },
+      })),
       heroPrefill: null,
       setHeroPrefill: (prefill) => set({ heroPrefill: prefill }),
       motorData: defaultMotor,
@@ -432,7 +439,7 @@ export const useQuoteStore = create<QuoteStore>()(
             motorData: defaultMotor, medicalData: defaultMedical,
             travelData: defaultTravel, businessData: defaultBusiness,
             marineData: defaultMarine, personalAccidentData: defaultPersonalAccident,
-            steps: defaultSteps,
+            steps: defaultSteps, maxSteps: defaultSteps,
             calculatedPremium: null, premiumBreakdown: {},
           })
         } else {
@@ -441,7 +448,11 @@ export const useQuoteStore = create<QuoteStore>()(
             travel: { travelData: defaultTravel }, business: { businessData: defaultBusiness },
             marine: { marineData: defaultMarine }, 'personal-accident': { personalAccidentData: defaultPersonalAccident },
           }
-          set((s) => ({ ...resets[product], steps: { ...s.steps, [product]: 1 } }))
+          set((s) => ({
+            ...resets[product],
+            steps: { ...s.steps, [product]: 1 },
+            maxSteps: { ...s.maxSteps, [product]: 1 },
+          }))
         }
       },
     }),

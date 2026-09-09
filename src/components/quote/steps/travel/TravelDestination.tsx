@@ -1,7 +1,13 @@
 'use client'
 import { useQuoteStore } from '@/store/quoteStore'
-import RadioCard from '@/components/ui/RadioCard'
+import ChoiceCard from '@/components/ui/ChoiceCard'
 import { TRAVEL_DESTINATIONS } from '@/lib/constants'
+import { Landmark, Crown, Building2, Sun, Sunrise, Globe2, Plane } from 'lucide-react'
+
+const ICONS = {
+  schengen: Landmark, uk: Crown, usa_canada: Building2,
+  africa: Sun, asia: Sunrise, worldwide: Globe2,
+} as const
 
 /**
  * Step 1 — the same question the homepage quick-quote widget asks, so an
@@ -11,13 +17,14 @@ export default function TravelDestination() {
   const { travelData, updateTravel } = useQuoteStore()
 
   return (
-    <div className="max-w-2xl mx-auto space-y-3">
+    <div className="max-w-2xl mx-auto">
       <div className="grid sm:grid-cols-2 gap-3">
         {TRAVEL_DESTINATIONS.map((d) => (
-          <RadioCard
+          <ChoiceCard
             key={d.value}
+            icon={ICONS[d.value as keyof typeof ICONS]}
             label={d.label}
-            priceHint={d.sub}
+            sub={d.sub}
             selected={travelData.destination === d.value}
             onClick={() => updateTravel({ destination: d.value })}
             productColor="var(--travel-600)"
@@ -25,9 +32,16 @@ export default function TravelDestination() {
           />
         ))}
       </div>
-      <p className="font-sans text-[12px] pt-1 text-center" style={{ color: 'var(--text-muted)' }}>
-        Schengen certificate in 60 seconds · worldwide coverage
-      </p>
+
+      <div
+        className="mt-5 rounded-2xl border px-4 py-3.5 flex items-center gap-3"
+        style={{ backgroundColor: 'var(--travel-50)', borderColor: 'var(--travel-100)' }}
+      >
+        <Plane className="w-5 h-5 shrink-0" style={{ color: 'var(--travel-600)' }} />
+        <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+          Schengen-compliant certificate in 60 seconds · accepted by embassies
+        </p>
+      </div>
     </div>
   )
 }

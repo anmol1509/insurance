@@ -16,6 +16,13 @@ interface AuthStore {
   user: AuthUser | null
   isLoading: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  /**
+   * Demo one-time-passcode sign-in used to gate the quote flows. No SMS or
+   * email is actually sent and any 6-digit code is accepted — swap this for
+   * a real OTP provider before launch.
+   */
+  requestOtp: (phone: string, email: string) => Promise<{ success: boolean; error?: string }>
+  verifyOtp: (phone: string, email: string, code: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>
   logout: () => void
 }
@@ -80,6 +87,37 @@ export const useAuthStore = create<AuthStore>()(
           kycStatus: 'pending',
         }
         set({ user: newUser, isLoading: false })
+        return { success: true }
+      },
+
+      requestOtp: async (phone, email) => {
+        set({ isLoading: true })
+        await new Promise((r) => setTimeout(r, 700))
+        set({ isLoading: false })
+        if (phone.replace(/\D/g, '').length < 11) return { success: false, error: 'Enter a valid 11-digit phone number.' }
+        if (!email.includes('@')) return { success: false, error: 'Enter a valid email address.' }
+        return { success: true }
+      },
+
+      verifyOtp: async (phone, email, code) => {
+        set({ isLoading: true })
+        await new Promise((r) => setTimeout(r, 800))
+        if (!/^\d{6}$/.test(code)) {
+          set({ isLoading: false })
+          return { success: false, error: 'Enter the 6-digit code we sent you.' }
+        }
+        const existing = MOCK_USERS[email.toLowerCase()]
+        const user: AuthUser = existing ?? {
+          id: `usr_${Date.now()}`,
+          name: email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          email,
+          phone,
+          role: 'customer',
+          initials: email.slice(0, 2).toUpperCase(),
+          joinedAt: new Date().toISOString().split('T')[0],
+          kycStatus: 'pending',
+        }
+        set({ user, isLoading: false })
         return { success: true }
       },
 
