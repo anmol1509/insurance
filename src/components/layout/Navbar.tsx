@@ -2,11 +2,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check } from 'lucide-react'
+import { Menu, ChevronDown, Car, Heart, Plane, Building2, X, FileText, Search, HelpCircle, ArrowRight, Globe, Check, User } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/authStore'
+import AccountMenu from '@/components/layout/AccountMenu'
+import { useHydrated } from '@/lib/useHydrated'
 
 const LANGUAGES = [
   { code: 'EN', label: 'English' },
@@ -101,7 +103,8 @@ export default function Navbar() {
   const [selectedLang, setSelectedLang] = useState('EN')
   const pathname = usePathname()
   const router = useRouter()
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
+  const hydrated = useHydrated()
 
   function requireAuth(dest: string) {
     if (!user) {
@@ -233,11 +236,7 @@ export default function Navbar() {
                 </AnimatePresence>
               </div>
 
-              <Link href="/login"
-                className="hidden md:flex h-9 px-4 items-center rounded-full font-sans font-semibold text-[13.5px] transition-all hover:shadow-md bg-[var(--green-700)] hover:bg-[var(--green-600)] text-white"
-              >
-                Login
-              </Link>
+              <AccountMenu />
 
               {/* Get a Quote → dropdown (desktop only — mobile uses bottom nav) */}
               <div className="relative hidden md:block" onMouseEnter={() => setOpenMenu('quote')} onMouseLeave={() => setOpenMenu(null)}>
@@ -338,10 +337,35 @@ export default function Navbar() {
               </div>
 
               <div className="mt-6 px-5 flex flex-col gap-2.5">
-                <Link href="/login" onClick={() => setDrawerOpen(false)}
-                  className="h-12 flex items-center justify-center bg-[var(--green-700)] hover:bg-[var(--green-600)] rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
-                  Login / Sign up
-                </Link>
+                {hydrated && user ? (
+                  <>
+                    <div className="flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ backgroundColor: 'var(--surface-raised)' }}>
+                      <span className="w-9 h-9 rounded-full flex items-center justify-center font-sans font-bold text-[12px] text-white shrink-0" style={{ backgroundColor: 'var(--green-700)' }}>
+                        {user.initials || <User className="w-4 h-4" />}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-sans font-semibold text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>
+                          {user.name || user.phone || user.email}
+                        </p>
+                        <p className="font-sans text-[12px] truncate" style={{ color: 'var(--text-muted)' }}>Signed in</p>
+                      </div>
+                    </div>
+                    <Link href="/dashboard" onClick={() => setDrawerOpen(false)}
+                      className="h-12 flex items-center justify-center bg-[var(--green-700)] hover:bg-[var(--green-600)] rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
+                      My dashboard
+                    </Link>
+                    <button type="button" onClick={() => { logout(); setDrawerOpen(false); router.push('/') }}
+                      className="h-12 flex items-center justify-center rounded-2xl border-[1.5px] font-sans font-semibold text-sm transition-all active:scale-[0.98]"
+                      style={{ borderColor: 'var(--border-medium)', color: 'var(--error)' }}>
+                      Log out
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/login" onClick={() => setDrawerOpen(false)}
+                    className="h-12 flex items-center justify-center bg-[var(--green-700)] hover:bg-[var(--green-600)] rounded-2xl font-sans font-semibold text-sm text-white transition-all active:scale-[0.98]">
+                    Login / Sign up
+                  </Link>
+                )}
               </div>
             </motion.div>
           </>

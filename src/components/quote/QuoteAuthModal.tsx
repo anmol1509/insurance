@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2 } from 'lucide-react'
 import { useAuthStore, type OtpChannel } from '@/store/authStore'
 
 const PRODUCT_CONFIG = {
@@ -35,6 +35,7 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
   const [secondsLeft, setSecondsLeft] = useState(0)
+  const [resent, setResent] = useState(false)
   const boxes = useRef<(HTMLInputElement | null)[]>([])
 
   // The flow behind must not scroll while the popup is up.
@@ -54,11 +55,24 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
 
   async function sendCode() {
     setError('')
+    setResent(false)
     const res = await requestOtp(channel, value)
     if (!res.success) return setError(res.error ?? 'Something went wrong.')
     setStage('otp')
     setSecondsLeft(RESEND_SECONDS)
     setTimeout(() => boxes.current[0]?.focus(), 60)
+  }
+
+  /** Resend clears whatever was typed, restarts the countdown and confirms itself. */
+  async function resendCode() {
+    if (secondsLeft > 0 || isLoading) return
+    setError('')
+    const res = await requestOtp(channel, value)
+    if (!res.success) return setError(res.error ?? 'Something went wrong.')
+    setCode(['', '', '', '', '', ''])
+    setSecondsLeft(RESEND_SECONDS)
+    setResent(true)
+    boxes.current[0]?.focus()
   }
 
   async function submitCode() {
@@ -242,6 +256,18 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                   ))}
                 </div>
 
+                <AnimatePresence>
+                  {resent && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                      className="font-sans font-medium text-[12.5px] flex items-center gap-1.5 mb-3"
+                      style={{ color: config.color }}
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> A new code has been sent to {sentTo}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+
                 <p className="font-sans text-[12px] rounded-xl px-3 py-2.5 mb-3" style={{ backgroundColor: config.colorBg, color: 'var(--text-secondary)' }}>
                   <strong>Demo mode</strong> — no code is actually sent. Enter any 6 digits, e.g. <strong>123456</strong>.
                 </p>
@@ -267,15 +293,22 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Back
                   </button>
-                  <button
-                    type="button"
-                    onClick={sendCode}
-                    disabled={secondsLeft > 0}
-                    className="font-sans font-medium text-[13px] disabled:cursor-not-allowed hover:enabled:underline"
-                    style={{ color: secondsLeft > 0 ? 'var(--text-subtle)' : config.color }}
-                  >
-                    {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : 'Resend code'}
-                  </button>
+                  <span className="font-sans text-[13px] flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                    Didn’t get it?
+                    <button
+                      type="button"
+                      onClick={resendCode}
+                      disabled={secondsLeft > 0 || isLoading}
+                      className="font-sans font-semibold text-[13px] flex items-center gap-1 disabled:cursor-not-allowed hover:enabled:underline"
+                      style={{ color: secondsLeft > 0 ? 'var(--text-subtle)' : config.color }}
+                    >
+                      {secondsLeft > 0 ? (
+                        <><RotateCw className="w-3.5 h-3.5" /> Resend in {secondsLeft}s</>
+                      ) : (
+                        <><RotateCw className="w-3.5 h-3.5" /> Resend OTP</>
+                      )}
+                    </button>
+                  </span>
                 </div>
               </motion.div>
             )}

@@ -123,7 +123,8 @@ export const useAuthStore = create<AuthStore>()(
           email,
           phone,
           role: 'customer',
-          initials: (email || phone).slice(0, 2).toUpperCase(),
+          // No name to abbreviate for a phone-only sign-in; the UI shows a person icon when this is blank.
+          initials: email ? email.slice(0, 2).toUpperCase() : '',
           joinedAt: new Date().toISOString().split('T')[0],
           kycStatus: 'pending',
         }
