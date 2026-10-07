@@ -91,6 +91,12 @@ export interface TangerineThirdPartyPolicyRequest {
   /** '1' = private motor, '2' = commercial, '3' = tricycles */
   PolicyType: '1' | '2' | '3'
   EngineCapacityCode: string
+  /**
+   * The insured's NIN. The 3rd party manual doesn't list it for this endpoint,
+   * but Tangerine's live service rejects the request with "Invalid NIN"
+   * without one (verified against the sandbox, 2026-10-07).
+   */
+  NIN: string
 }
 
 export interface TangerinePolicyResponse extends TangerineEnvelope {

@@ -65,6 +65,19 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pr
   const customer = customerParsed.data
   const motor = motorParsed.data
 
+  // Tangerine rejects a 3rd party policy without the insured's NIN ("Invalid NIN"),
+  // although its manual doesn't list the field — fail here with a clear message instead.
+  if (product === 'thirdparty' && !customer.nin.trim()) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'A NIN is required for 3rd party cover.',
+        fields: { 'customer.nin': 'National Identification Number (NIN) is required.' },
+      },
+      { status: 400 }
+    )
+  }
+
   if (!imageHostingConfigured()) {
     return NextResponse.json(
       { success: false, error: 'Vehicle photo hosting is not configured.' },
@@ -163,6 +176,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ pr
       Email: customer.email,
       PolicyType: policyTypeMap[motor.usageType ?? 'private'],
       EngineCapacityCode: engineCapacityCode,
+      NIN: customer.nin,
     })
     return NextResponse.json(toResponse(result))
   } catch (error) {
