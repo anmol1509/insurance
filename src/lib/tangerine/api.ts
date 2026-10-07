@@ -1,5 +1,6 @@
 /** Typed wrappers for the Tangerine Comprehensive and 3rd Party motor APIs. */
 import { tangerineRequest } from './client'
+import vehicleModels from './data/vehicle-models.json'
 import type {
   TangerineColour,
   TangerineEngineCapacity,
@@ -89,11 +90,29 @@ export async function getVehicleMakeCodes(line: TangerineLine): Promise<Tangerin
 }
 
 /**
+ * Tangerine's model list (~3,000 rows, ~240 KB) takes roughly a minute to
+ * come back and cannot be filtered by make — the manual's request takes only
+ * a UserID — and its own guidance is to "obtain these codes once and store in
+ * a table". Fetched live on every cold start it blew straight through our
+ * request limit, so every Tangerine quote failed at the vehicle lookup.
+ *
+ * The list is therefore stored in `data/vehicle-models.json` and served from
+ * there. Both product lines return an identical list, so `line` is unused.
+ * Refresh the file with `scripts/refresh-tangerine-models.mjs` when Tangerine
+ * adds models; `fetchVehicleModelCodesLive` is what that script mirrors.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getVehicleModelCodes(_line: TangerineLine): Promise<TangerineVehicleModel[]> {
+  return vehicleModels.models
+}
+
+/**
  * The manual's own example mislabels this response's array as
  * `VehicleMakeList` even though its entries are models — kept here, not
  * "corrected", since that's the literal key the live API returns.
+ * Slow (about a minute) — use only to refresh the stored list.
  */
-export async function getVehicleModelCodes(line: TangerineLine): Promise<TangerineVehicleModel[]> {
+export async function fetchVehicleModelCodesLive(line: TangerineLine): Promise<TangerineVehicleModel[]> {
   const data = await tangerineRequest<{ VehicleMakeList: TangerineVehicleModel[] } & { Status: 'Successful' | 'Failed' }>(
     line, PATHS[line].models, {}
   )

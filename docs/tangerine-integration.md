@@ -29,6 +29,31 @@ photo hosting rather than failing partway through.
 
 Both must be reachable from the deployment's outbound network policy.
 
+## Credentials and environments
+
+Tangerine uses the **same endpoint URLs for sandbox/test and live**; which one
+you hit is decided only by the UserID/APIKey pair. The pair issued for
+integration is a *test* pair (policies it creates are not real cover). To go
+live, request live credentials from Tangerine and replace
+`TANGERINE_USER_ID` / `TANGERINE_API_KEY` — no code change. A test pair may
+not be enabled for every product: at the time of writing the Comprehensive
+line's transactional endpoints (e.g. `GetValuationLimits`) answer *"Your
+account is not enabled to transact TangAuto. Contact Tangerine Admin"*, so
+Comprehensive needs enabling by Tangerine before it can be tested.
+
+## The vehicle model list is stored, not fetched
+
+`GetVehicleModelCodes` / `ReturnVehicleModelCodes` returns ~3,000 models
+(~240 KB), takes about a minute, and cannot be filtered by make. The manual
+itself says to obtain the codes once and store them. Fetching it per request
+exceeded our request limit, so every quote failed at the vehicle lookup. The
+list lives in `src/lib/tangerine/data/vehicle-models.json` and both product
+lines (which return an identical list) are served from it. Refresh it with:
+
+```
+node --env-file=.env.local scripts/refresh-tangerine-models.mjs
+```
+
 ## Endpoints exposed by this platform
 
 | Route | Purpose |
