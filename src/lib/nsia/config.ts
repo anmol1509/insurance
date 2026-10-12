@@ -22,12 +22,20 @@ export function nsiaBaseUrl(): string {
   return nsiaEnvironment() === 'live' ? LIVE_BASE : TEST_BASE
 }
 
-export function nsiaToken(): string | undefined {
+/** A fixed bearer token set by hand. NSIA tokens last 24 h, so prefer a login — see ./auth. */
+export function nsiaStaticToken(): string | undefined {
   return process.env.NSIA_ACCESS_TOKEN?.trim() || undefined
 }
 
+/** Email + password the app signs in with to obtain (and renew) its own token. */
+export function nsiaLogin(): { email: string; password: string } | undefined {
+  const email = process.env.NSIA_LOGIN_EMAIL?.trim()
+  const password = process.env.NSIA_LOGIN_PASSWORD
+  return email && password ? { email, password } : undefined
+}
+
 function nsiaRealCredsPresent(): boolean {
-  return Boolean(nsiaToken())
+  return Boolean(nsiaStaticToken() || nsiaLogin())
 }
 
 /**

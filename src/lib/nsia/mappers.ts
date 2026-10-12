@@ -63,7 +63,7 @@ export function toProfilePayload(customer: CustomerInput): NsiaProfilePayload {
 }
 
 /** Identity fields every product submission repeats. */
-function baseFields(customer: CustomerInput, insuredClientId: number): NsiaFieldMap {
+function baseFields(customer: CustomerInput, insuredClientId: string | number): NsiaFieldMap {
   return {
     FirstName: customer.firstName,
     LastName: customer.lastName,
@@ -78,7 +78,7 @@ function baseFields(customer: CustomerInput, insuredClientId: number): NsiaField
 export function toMotorFields(
   customer: CustomerInput,
   motor: MotorInput,
-  insuredClientId: number
+  insuredClientId: string | number
 ): NsiaFieldMap {
   return {
     ...baseFields(customer, insuredClientId),
@@ -102,6 +102,7 @@ export function toMotorFields(
     Year: motor.year,
     VehicleModel: motor.vehicleModel,
     NatureOfUse: motor.natureOfUse,
+    NumberOfSeats: motor.numberOfSeats,
     CoverType: motor.coverType,
     Tracking: motor.tracking ?? 0,
     Premium: motor.premium,
@@ -115,7 +116,7 @@ export function toMotorFields(
 export function toMarineFields(
   customer: CustomerInput,
   marine: MarineInput,
-  insuredClientId: number
+  insuredClientId: string | number
 ): NsiaFieldMap {
   return {
     ...baseFields(customer, insuredClientId),
@@ -140,7 +141,7 @@ export function toMarineFields(
 export function toPersonalAccidentFields(
   customer: CustomerInput,
   cover: PersonalAccidentInput,
-  insuredClientId: number
+  insuredClientId: string | number
 ): NsiaFieldMap {
   return {
     ...baseFields(customer, insuredClientId),
@@ -165,7 +166,7 @@ export function toPersonalAccidentFields(
 export function toPublicLiabilityFields(
   customer: CustomerInput,
   cover: PublicLiabilityInput,
-  insuredClientId: number
+  insuredClientId: string | number
 ): NsiaFieldMap {
   return {
     ...baseFields(customer, insuredClientId),
@@ -187,7 +188,7 @@ export function toPublicLiabilityFields(
 export function toProfessionalIndemnityFields(
   customer: CustomerInput,
   cover: ProfessionalIndemnityInput,
-  insuredClientId: number
+  insuredClientId: string | number
 ): NsiaFieldMap {
   return {
     ...baseFields(customer, insuredClientId),

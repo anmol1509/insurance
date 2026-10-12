@@ -21,9 +21,17 @@ import type {
 /* ------------------------------------------------------------------ */
 
 /**
+ * NSIA answers a lookup for an email it has never seen with HTTP 400 and the
+ * bare text "User not Found" (verified against the test host; the guide
+ * implies a 404). Either means "no such customer — create the profile".
+ */
+function isUserNotFound(error: NsiaError): boolean {
+  return error.status === 404 || (error.status === 400 && /not\s*found/i.test(error.message))
+}
+
+/**
  * Section 5.1. Resolves to the existing client, or `null` when NSIA has no
- * profile for the email (the API answers 404 with the bare string
- * `"User not Found"`).
+ * profile for the email (see `isUserNotFound` for how that is signalled).
  */
 export async function checkUser(email: string): Promise<NsiaInsuredClient | null> {
   // Demo mode always profiles fresh — see createProfile below.
@@ -36,7 +44,7 @@ export async function checkUser(email: string): Promise<NsiaInsuredClient | null
     if (!data || typeof data === 'string') return null
     return data.insuredId ? data : null
   } catch (error) {
-    if (error instanceof NsiaError && error.status === 404) return null
+    if (error instanceof NsiaError && isUserNotFound(error)) return null
     throw error
   }
 }
@@ -53,14 +61,18 @@ export async function createProfile(payload: NsiaProfilePayload): Promise<NsiaIn
       address: payload.address,
     }
   }
-  const { data } = await nsiaRequest<NsiaInsuredClient>(
+  const { data } = await nsiaRequest<NsiaInsuredClient & { insuredClientId?: string | number }>(
     '/account/profiling-insured-client',
     { method: 'POST', json: payload, anonymous: true }
   )
-  if (!data?.insuredId) {
+  // Creating a profile answers with `insuredClientId`; looking one up answers
+  // with `insuredId` — same value, so normalise to the name the rest of the
+  // code uses.
+  const insuredId = data?.insuredId ?? data?.insuredClientId
+  if (!insuredId) {
     throw new NsiaError('NSIA did not return an insuredId for the new profile.', 502, data)
   }
-  return data
+  return { ...data, insuredId }
 }
 
 /**

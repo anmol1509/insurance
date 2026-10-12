@@ -17,7 +17,8 @@ export const NSIA_PRODUCTS: NsiaProduct[] = [
 
 /** Section 5.1 — GET /insured-client/check-userdetails */
 export interface NsiaInsuredClient {
-  insuredId: number
+  /** `"NSIA-98999559"` on the current test host; the v1 guide documented a number. */
+  insuredId: string | number
   firstName?: string
   surname?: string
   /** NSIA returns both spellings; prefer `surname` and fall back to this. */

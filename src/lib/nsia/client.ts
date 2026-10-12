@@ -1,9 +1,10 @@
 /**
- * Server-only: this module reads NSIA_ACCESS_TOKEN. Import it from route
+ * Server-only: this module reads NSIA's credentials. Import it from route
  * handlers only, never from a client component.
  */
 import { proxyFetch } from '@/lib/proxyFetch'
-import { NSIA_TIMEOUTS, nsiaBaseUrl, nsiaToken } from './config'
+import { NSIA_TIMEOUTS, nsiaBaseUrl } from './config'
+import { getNsiaToken, invalidateNsiaToken, nsiaTokenIsRenewable } from './auth'
 
 /** Normalised failure from any NSIA call, safe to map onto an HTTP response. */
 export class NsiaError extends Error {
@@ -95,19 +96,29 @@ export async function nsiaRequest<T>(
     throw new NsiaError('Cannot send a JSON body and a multipart body together', 500)
   }
 
-  const token = nsiaToken()
+  let token: string | undefined
+  try {
+    token = await getNsiaToken()
+  } catch (error) {
+    throw new NsiaError('We could not authenticate with NSIA Insurance.', 502, error)
+  }
   if (!anonymous && !token) {
     throw new NsiaError(
-      'NSIA integration is not configured. Set NSIA_ACCESS_TOKEN.',
+      'NSIA integration is not configured. Set NSIA_LOGIN_EMAIL and NSIA_LOGIN_PASSWORD (or NSIA_ACCESS_TOKEN).',
       503
     )
   }
 
-  const headers: Record<string, string> = { Accept: 'application/json' }
-  if (token) headers.Authorization = `Bearer ${token}`
-  // Content-Type is intentionally omitted for multipart so fetch can append the
-  // boundary itself.
-  if (json !== undefined) headers['Content-Type'] = 'application/json'
+  const buildHeaders = (bearer: string | undefined): Record<string, string> => {
+    const headers: Record<string, string> = { Accept: 'application/json' }
+    if (bearer) headers.Authorization = `Bearer ${bearer}`
+    // Content-Type is intentionally omitted for multipart so fetch can append the
+    // boundary itself.
+    if (json !== undefined) headers['Content-Type'] = 'application/json'
+    return headers
+  }
+  let headers = buildHeaders(token)
+  let reauthenticated = false
 
   const url = buildUrl(path, options.query)
   const timeoutMs = options.timeoutMs ?? defaultTimeout(options)
@@ -123,6 +134,20 @@ export async function nsiaRequest<T>(
       })
 
       const body = await parseBody(res)
+
+      // A renewable token can be revoked or expire early; sign in again once and retry.
+      if (res.status === 401 && token && !reauthenticated && nsiaTokenIsRenewable()) {
+        reauthenticated = true
+        invalidateNsiaToken()
+        try {
+          token = await getNsiaToken()
+          headers = buildHeaders(token)
+          attempt -= 1 // this retry is not a network failure, so it doesn't use up an attempt
+          continue
+        } catch (error) {
+          throw new NsiaError('We could not authenticate with NSIA Insurance.', 502, error)
+        }
+      }
 
       if (!res.ok) {
         throw new NsiaError(

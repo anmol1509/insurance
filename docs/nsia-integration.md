@@ -11,7 +11,8 @@ validate, map field names and forward the request.
 
 | Variable | Required | Default | Notes |
 | --- | --- | --- | --- |
-| `NSIA_ACCESS_TOKEN` | Yes | — | Bearer token issued to your partner account. |
+| `NSIA_LOGIN_EMAIL` / `NSIA_LOGIN_PASSWORD` | One of these or the token | — | The app signs in (`/Account/login`), caches the token and renews it before it expires (`/Account/refresh-token`). NSIA tokens last **24 hours**, so this is the setup that keeps working. |
+| `NSIA_ACCESS_TOKEN` | One of these or a login | — | A fixed bearer token. Wins over a login when set, but a 24 h token pasted here stops working the next day. |
 | `NSIA_ENV` | No | `test` | `live` or `production` switches to the live base URL. |
 | `NSIA_BASE_URL` | No | — | Overrides the base URL entirely; useful for a sandbox. |
 | `FIXIE_URL` | No | — | Existing outbound proxy, reused by this integration. |
@@ -26,6 +27,29 @@ Both hosts must be reachable from the deployment's outbound network policy.
 Without `NSIA_ACCESS_TOKEN` the authenticated endpoints answer `503` with a
 clear message rather than failing obscurely; the two anonymous endpoints
 (customer lookup and profile creation) keep working.
+
+## Behaviour verified against the test host (2026-10-12)
+
+The test host also serves a newer **v2** API (`/api/v2/...`, Swagger at
+`/swagger/index.html`); the `/v1/api/...` paths this integration uses still
+work. Findings from submitting real sandbox policies:
+
+- **Client IDs are text** (`NSIA-98999559`), not numbers. Creating a profile
+  returns it as `insuredClientId`; looking one up returns `insuredId`.
+- **An unknown email answers HTTP 400 `User not Found`** (not 404). Both mean
+  "create the profile".
+- **"Policy created successfully" does not mean the policy exists.** NSIA
+  syncs it to its core system afterwards; check
+  `GET /mobile/policy-sync-status/{policyNo}` (URL-encode the slashes) for
+  `Synced` vs `Failed`. A motor policy without `NumberOfSeats` returned
+  success, then `Failed` with *"SectionField [NumberOfSeats] is required"*.
+  `NumberOfSeats` is now sent; the quote form does not ask for it yet, so 5
+  is assumed.
+- **Duplicate plate and chassis numbers are accepted** and issue a second
+  policy (Tangerine rejects them). Nothing here de-duplicates yet.
+- The v2 `PlateNumberChecks` and `NinDetails` endpoints answered 403 for the
+  test login, and `non-life-motor-price` returned a premium of 0 for every
+  code tried; the code values are undocumented.
 
 ## Endpoints exposed by this platform
 

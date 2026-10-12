@@ -60,7 +60,7 @@ export async function calculateNsiaMarinePremium(request: {
 
 export interface NsiaSubmissionResult {
   product: NsiaProduct
-  insuredId: number
+  insuredId: string | number
   profileCreated: boolean
   policyNumber: string | null
   certOrDocNo: string | null

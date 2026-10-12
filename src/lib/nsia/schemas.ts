@@ -43,6 +43,13 @@ export const motorSchema = z.object({
   engineNo: z.string().default(''),
   registrationNo: z.string().min(1, 'Registration number required'),
   natureOfUse: z.string().default('Private'),
+  /**
+   * NSIA's core system rejects a motor policy without a seat count even though
+   * the API itself answers "created" (policy-sync-status then reports
+   * "SectionField [NumberOfSeats] is required"). The quote form does not ask
+   * yet, so a typical private car's 5 is assumed until it does.
+   */
+  numberOfSeats: z.number().int().min(1).max(100).default(5),
   tracking: money.optional(),
   nameOfAgent: z.string().default(''),
   inspectionVenue: z.string().default(''),

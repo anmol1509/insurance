@@ -35,7 +35,7 @@ import type { NsiaFieldMap, NsiaProduct, NsiaUpload } from '@/lib/nsia/types'
 type FieldBuilder = (
   customer: CustomerInput,
   details: never,
-  insuredClientId: number
+  insuredClientId: string | number
 ) => NsiaFieldMap
 
 const FIELD_BUILDERS: Record<NsiaProduct, FieldBuilder> = {
