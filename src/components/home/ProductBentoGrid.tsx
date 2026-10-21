@@ -80,7 +80,7 @@ export default function ProductBentoGrid() {
         </h2>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         {products.map((p, i) => {
           const Icon = p.icon
           return (
@@ -93,76 +93,20 @@ export default function ProductBentoGrid() {
               viewport={{ once: true, margin: '-60px' }}
               whileHover={{ scale: 1.01, boxShadow: '0 12px 40px rgba(0,0,0,0.07)' }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className={p.large ? 'min-h-[260px]' : 'min-h-[140px]'}
+              className="min-h-[270px]"
             >
               <Link
                 href={p.href}
                 className="block h-full rounded-2xl border border-[var(--border-default)] overflow-hidden cursor-pointer bg-white"
                 style={{ borderLeft: `3px solid ${p.borderColor}` }}
               >
-                {p.large ? (
-                  <div className="flex flex-col h-full p-7">
-                    <Tag variant={p.tag}>{p.tagLabel}</Tag>
-                    <h3 className="font-display font-bold text-2xl mt-3" style={{ color: 'var(--text-primary)' }}>
-                      {p.title}
-                    </h3>
-                    <p className="font-sans font-medium text-[15px] mt-1" style={{ color: p.color }}>
-                      {p.valueProp}
-                    </p>
-                    {p.sub && (
-                      <p className="font-sans text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.sub}</p>
-                    )}
-                    <div className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full border w-fit"
-                      style={{ borderColor: 'var(--border-default)' }}>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M3 7 L6 10 L11 4" stroke={p.borderColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <span className="font-sans font-medium text-xs" style={{ color: p.color }}>{p.featureLabel}</span>
-                    </div>
-
-                    <div className="flex items-end justify-between mt-auto pt-5">
-                      <div
-                        className="w-11 h-11 rounded-full border-[1.5px] flex items-center justify-center shrink-0"
-                        style={{ borderColor: 'var(--border-medium)' }}
-                      >
-                        <ArrowRight className="w-[18px] h-[18px]" style={{ color: 'var(--text-muted)' }} />
-                      </div>
-                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center opacity-10">
-                        <Icon className="w-10 h-10" style={{ color: p.borderColor }} />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center h-full px-7 py-6 gap-4">
-                    <div className="flex-1 min-w-0">
-                      <Tag variant={p.tag}>{p.tagLabel}</Tag>
-                      <h3 className="font-display font-bold text-xl mt-2 leading-tight" style={{ color: 'var(--text-primary)' }}>
-                        {p.title}
-                      </h3>
-                      <p className="font-sans font-medium text-[13px] mt-1" style={{ color: p.color }}>
-                        {p.valueProp}
-                      </p>
-                      <div className="flex items-center gap-3 mt-3">
-                        <div
-                          className="w-9 h-9 rounded-full border-[1.5px] flex items-center justify-center shrink-0"
-                          style={{ borderColor: 'var(--border-medium)' }}
-                        >
-                          <ArrowRight className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-                        </div>
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border"
-                          style={{ borderColor: 'var(--border-default)' }}>
-                          <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                            <path d="M3 7 L6 10 L11 4" stroke={p.borderColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          <span className="font-sans font-medium text-[11px]" style={{ color: p.color }}>{p.featureLabel}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="shrink-0 opacity-10">
-                      <Icon className="w-12 h-12" style={{ color: p.borderColor }} />
-                    </div>
-                  </div>
-                )}
+                <div className="relative flex flex-col h-full min-h-[270px] p-6 overflow-hidden" style={{background:`linear-gradient(145deg, white 40%, ${p.tag==='motor'?'#e9f9ee':p.tag==='medical'?'#eaf5ff':p.tag==='travel'?'#fff5e6':'#f4efff'} 100%)`}}>
+                  <div className="flex items-start justify-between gap-2"><Tag variant={p.tag}>{p.tagLabel}</Tag><span className="rounded-full w-9 h-9 bg-white border border-slate-100 flex items-center justify-center"><ArrowRight className="w-4 h-4 text-slate-700"/></span></div>
+                  <div className="mt-7 mb-5 flex items-center justify-center"><div className="w-24 h-24 rounded-[28px] bg-white/80 border border-white shadow-sm flex items-center justify-center"><Icon className="w-12 h-12" strokeWidth={1.4} style={{color:p.color}}/></div></div>
+                  <h3 className="font-display font-bold text-xl text-slate-900">{p.title}</h3>
+                  <p className="font-sans text-sm mt-1 text-slate-600">{p.valueProp}</p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold mt-4" style={{color:p.color}}><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>{p.featureLabel}</span>
+                </div>
               </Link>
             </motion.div>
           )
