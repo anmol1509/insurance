@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { BUSINESS_TYPES, MEDICAL_COVER_OPTIONS, TRAVEL_DESTINATIONS } from '@/lib/constants'
 import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
-import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
+import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -25,6 +25,14 @@ const TABS = [
 ] as const
 
 type TabKey = 'motor' | 'medical' | 'travel' | 'business'
+
+
+const HERO_COPY: Record<TabKey, { eyebrow: string; title: string; highlight: string; description: string; image: string; imageAlt: string; accent: string; wash: string; benefit: string }> = {
+  motor: { eyebrow: 'Drive with peace of mind', title: 'Drive with complete', highlight: 'confidence.', description: 'Compare motor insurance from trusted insurers and get the coverage that fits your car.', image: '/auth/car-illustration.webp', imageAlt: 'White car with green city illustration', accent: '#087a47', wash: '#eaf8ef', benefit: 'Protection for every journey' },
+  medical: { eyebrow: 'Care that puts you first', title: 'Better health.', highlight: 'Brighter tomorrows.', description: 'Find medical cover for yourself and the people who matter most.', image: '', imageAlt: '', accent: '#1765c1', wash: '#eaf4ff', benefit: 'Care when it matters most' },
+  travel: { eyebrow: 'Go further with confidence', title: 'Explore the world.', highlight: 'Worry-free.', description: 'Compare travel policies for your next adventure, with support wherever you go.', image: '', imageAlt: '', accent: '#bc770c', wash: '#fff5e5', benefit: 'Cover beyond borders' },
+  business: { eyebrow: 'Built for ambitious businesses', title: 'Protect what', highlight: 'you’ve built.', description: 'Find coverage for your premises, people and operations as your business grows.', image: '', imageAlt: '', accent: '#7041b8', wash: '#f3eeff', benefit: 'Your growth deserves protection' },
+}
 
 const LIVE_POLICIES = [
   { product: 'Motor', city: 'Lagos', time: '2 min ago' },
@@ -63,323 +71,47 @@ export default function HeroSection() {
     return () => clearInterval(t)
   }, [])
 
+  const hero = HERO_COPY[activeTab]
   return (
-    <section className="pt-16 pb-10 md:pt-20 md:pb-14" style={{ background: 'linear-gradient(135deg, #022c22 0%, #064e3b 55%, #065f46 100%)' }}>
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-20">
-        <div className="grid lg:grid-cols-[55fr_45fr] gap-10 lg:gap-16 items-center">
-
-          {/* ── Left ── */}
-          <div>
-            {/* Badge */}
-            <motion.div className="flex mb-5" initial="hidden" animate="visible">
-              <motion.span custom={0} variants={fadeUp}
-                className="inline-flex items-center gap-1.5 font-sans font-semibold text-xs px-3.5 py-1.5 rounded-full"
-                style={{ backgroundColor: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.9)' }}>
-                <Trophy className="w-3 h-3" /> Nigeria&apos;s #1 Insurance Platform
-              </motion.span>
-            </motion.div>
-
-            {/* H1 */}
-            <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible" className="mb-4">
-              <h1 className="font-display font-extrabold leading-[1.08] tracking-tight"
-                style={{ fontSize: 'clamp(34px, 4.5vw, 52px)', color: 'white' }}>
-                Buy insurance with{' '}
-                <em className="not-italic font-serif italic" style={{ borderBottom: '2px solid rgba(255,255,255,0.45)', paddingBottom: '2px' }}>confidence.</em>
-                <br />Claim stress free.
-              </h1>
-            </motion.div>
-
-            <motion.p custom={3} variants={fadeUp} initial="hidden" animate="visible"
-              className="font-sans text-[16px] leading-relaxed mb-7 max-w-[460px]"
-              style={{ color: 'rgba(255,255,255,0.72)' }}>
-              Instant quotes from 10+ NAICOM-licensed insurers.
-              Digital certificate in under 3 minutes.
-            </motion.p>
-
-            {/* ── Quick-Quote Widget ── */}
-            <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible"
-              className="rounded-3xl border overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.07)] mb-6"
-              style={{ backgroundColor: 'white', borderColor: 'var(--border-default)' }}>
-
-              {/* Product tabs */}
-              <div className="flex border-b" style={{ borderColor: 'var(--border-subtle)' }}>
-                {TABS.map((t) => {
-                  const active = activeTab === t.key
-                  const Icon = t.icon
-                  return (
-                    <button
-                      key={t.key}
-                      type="button"
-                      onClick={() => setActiveTab(t.key)}
-                      className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 py-3 text-[11px] sm:text-[12px] font-sans font-semibold transition-all relative"
-                      style={{
-                        color: active ? t.color : 'var(--text-muted)',
-                        backgroundColor: active ? t.bg : 'transparent',
-                      }}
-                    >
-                      <Icon className="w-3.5 h-3.5 shrink-0" />
-                      {t.label}
-                      {active && (
-                        <motion.div
-                          layoutId="tab-indicator"
-                          className="absolute bottom-0 left-0 right-0 h-0.5"
-                          style={{ backgroundColor: t.color }}
-                        />
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-
-              {/* Tab body */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.18 }}
-                  className="p-4"
-                >
-                  {activeTab === 'motor' && (
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
-                        <input
-                          type="text"
-                          placeholder="Plate number (e.g. LAG-123-AA) — optional"
-                          value={plateNum}
-                          onChange={(e) => setPlateNum(e.target.value.toUpperCase())}
-                          onKeyDown={(e) => e.key === 'Enter' && startQuote('motor', plateNum.toUpperCase())}
-                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none transition-all"
-                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37,211,102,0.15)' }}
-                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => startQuote('motor', plateNum.toUpperCase())}
-                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
-                        style={{ backgroundColor: 'var(--motor-600)' }}
-                      >
-                        Compare Plans →
-                      </button>
-                    </div>
-                  )}
-                  {activeTab === 'motor' && (
-                    <div className="mt-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => startQuote('motor', NEW_CAR_PREFILL)}
-                        className="font-sans font-semibold text-[12.5px] underline underline-offset-2 hover:opacity-80"
-                        style={{ color: 'var(--motor-600)' }}
-                      >
-                        Brand-new car with no plate yet? Start here →
-                      </button>
-                    </div>
-                  )}
-
-                  {activeTab === 'medical' && (
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
-                        <select
-                          value={coverFor}
-                          onChange={(e) => setCoverFor(e.target.value)}
-                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
-                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--medical-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(5,150,105,0.1)' }}
-                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
-                        >
-                          <option value="">Who needs cover?</option>
-                          {MEDICAL_COVER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label} · {o.sub}</option>)}
-                        </select>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => startQuote('medical', coverFor)}
-                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
-                        style={{ backgroundColor: 'var(--medical-600)' }}
-                      >
-                        Compare Plans →
-                      </button>
-                    </div>
-                  )}
-
-                  {activeTab === 'travel' && (
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
-                        <select
-                          value={destination}
-                          onChange={(e) => setDestination(e.target.value)}
-                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
-                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--travel-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(217,119,6,0.1)' }}
-                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
-                        >
-                          <option value="">Where are you travelling?</option>
-                          {TRAVEL_DESTINATIONS.map((d) => <option key={d.value} value={d.value}>{d.label} · {d.sub}</option>)}
-                        </select>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => startQuote('travel', destination)}
-                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
-                        style={{ backgroundColor: 'var(--travel-600)' }}
-                      >
-                        Compare Plans →
-                      </button>
-                    </div>
-                  )}
-
-                  {activeTab === 'business' && (
-                    <div className="flex gap-2">
-                      <div className="flex-1 relative">
-                        <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 shrink-0" style={{ color: 'var(--text-subtle)' }} />
-                        <select
-                          value={businessType}
-                          onChange={(e) => setBusinessType(e.target.value)}
-                          className="w-full h-11 pl-9 pr-4 rounded-2xl border font-sans text-[13px] outline-none appearance-none cursor-pointer transition-all"
-                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', backgroundColor: 'white' }}
-                          onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--business-600)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)' }}
-                          onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
-                        >
-                          <option value="">What type of business?</option>
-                          {BUSINESS_TYPES.map((b) => <option key={b} value={b}>{b}</option>)}
-                        </select>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => startQuote('business', businessType)}
-                        className="h-11 px-5 rounded-2xl font-sans font-bold text-[13px] text-white shrink-0 transition-all hover:-translate-y-px hover:shadow-md active:scale-95"
-                        style={{ backgroundColor: 'var(--business-600)' }}
-                      >
-                        Compare Plans →
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Tab hint */}
-                  <p className="font-sans text-[11px] mt-2.5 text-center" style={{ color: 'var(--text-subtle)' }}>
-                    {activeTab === 'motor'    && 'Compare 5+ NAICOM-licensed motor insurers instantly'}
-                    {activeTab === 'medical'  && '700+ accredited hospitals · personalised health plans'}
-                    {activeTab === 'travel'   && 'Schengen certificate in 60 seconds · worldwide coverage'}
-                    {activeTab === 'business' && 'Covers premises & staff · tax deductible under CITA'}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-
-            {/* Trust pills */}
-            <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="grid grid-cols-2 gap-x-8 gap-y-2.5 mb-5">
-              {['Instant NIID certificate', 'Claims in 24 hours', 'NAICOM regulated', 'Vetted Underwriters'].map((pill) => (
-                <div key={pill} className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5 L4 7 L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                  <span className="font-sans text-[13px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{pill}</span>
-                </div>
-              ))}
-            </motion.div>
-
-            {/* SICL powered-by strip */}
-            <motion.div
-              custom={6} variants={fadeUp} initial="hidden" animate="visible"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-2xl w-fit"
-              style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.13)' }}
-            >
-              {/* Logo on white pill for visibility */}
-              <div className="px-2.5 py-1.5 rounded-lg shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif"
-                  alt="SICL"
-                  className="h-6 w-auto object-contain"
-                />
-              </div>
-              <div className="h-5 w-px" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
-              <div>
-                <p className="font-sans font-semibold text-[12px]" style={{ color: 'rgba(255,255,255,0.9)' }}>Backed by <strong>Standard Insurance Consultants Ltd</strong></p>
-                <p className="font-sans text-[11px]" style={{ color: 'rgba(255,255,255,0.55)' }}>Since 1980</p>
-              </div>
-            </motion.div>
+    <section className="relative overflow-hidden pt-12 pb-14 lg:pt-16 lg:pb-20" style={{ background: `linear-gradient(110deg, #f7fcf9 0%, ${hero.wash} 100%)` }}>
+      <div className="max-w-[1320px] mx-auto px-5 lg:px-12 relative">
+        <div className="grid lg:grid-cols-[53%_47%] gap-8 lg:gap-4 items-center">
+          <div className="relative z-10">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide bg-white/80 border border-emerald-100 text-emerald-800"><ShieldCheck className="w-4 h-4" /> {hero.eyebrow}</span>
+            <AnimatePresence mode="wait">
+              <motion.div key={activeTab} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} transition={{duration:0.24}}>
+                <h1 className="mt-6 mb-4 font-display font-extrabold tracking-[-0.045em] leading-[1.05] text-[clamp(38px,4.4vw,66px)] text-slate-950">{hero.title}<br/><span style={{color:hero.accent}}>{hero.highlight}</span></h1>
+                <p className="max-w-[525px] mb-8 text-base lg:text-lg leading-relaxed text-slate-600">{hero.description}</p>
+              </motion.div>
+            </AnimatePresence>
           </div>
-
-          {/* ── Right: mini bento (desktop only) ── */}
-          <div className="hidden lg:block">
-            <div className="grid grid-cols-2 gap-3 max-w-[420px]">
-              {TABS.map((card, i) => {
-                const Icon = card.icon
-                const planCounts: Record<TabKey, string> = { motor: '5+ Plans', medical: '8+ Plans', travel: '6+ Plans', business: '4+ Plans' }
-                const subLabels: Record<TabKey, string> = { motor: 'NAICOM licensed', medical: 'accredited hospitals', travel: 'worldwide cover', business: 'flexible cover' }
-                return (
-                  <motion.div
-                    key={card.key}
-                    custom={i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + i * 0.08, duration: 0.4 }}
-                    whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
-                  >
-                    <Link
-                      href={card.href}
-                      className="block relative overflow-hidden rounded-2xl p-5 cursor-pointer"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.13)' }}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                          <Icon className="w-4 h-4" style={{ color: 'white' }} />
-                        </div>
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ border: '1px solid rgba(255,255,255,0.25)' }}>
-                          <ArrowRight className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.7)' }} />
-                        </div>
-                      </div>
-                      <p className="font-sans font-semibold text-xs uppercase tracking-wider mb-1" style={{ color: 'rgba(255,255,255,0.6)' }}>
-                        {card.label} Insurance
-                      </p>
-                      <p className="font-display font-bold text-2xl leading-none" style={{ color: 'white' }}>
-                        {planCounts[card.key as TabKey]}
-                      </p>
-                      <p className="font-sans text-xs mt-1" style={{ color: 'rgba(255,255,255,0.45)' }}>
-                        {subLabels[card.key as TabKey]}
-                      </p>
-                    </Link>
-                  </motion.div>
-                )
-              })}
-            </div>
-
-            {/* Live policy ticker */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mt-4 mx-auto w-fit bg-white rounded-full shadow-md px-4 py-2.5 flex items-center gap-2.5 overflow-hidden"
-              style={{ minWidth: 260 }}
-            >
-              <div className="w-2 h-2 rounded-full animate-pulse shrink-0" style={{ backgroundColor: 'var(--green-500)' }} />
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={tickerIdx}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.3 }}
-                  className="font-sans text-[13px] whitespace-nowrap"
-                  style={{ color: 'var(--text-secondary)' }}
-                >
-                  Policy issued · {LIVE_POLICIES[tickerIdx].product} · {LIVE_POLICIES[tickerIdx].city} · {LIVE_POLICIES[tickerIdx].time}
-                </motion.span>
-              </AnimatePresence>
-            </motion.div>
+          <div className="hidden lg:flex min-h-[315px] items-center justify-center relative" aria-hidden="true">
+            <div className="absolute w-[370px] h-[370px] rounded-full opacity-60" style={{background:hero.wash,border:'32px solid rgba(255,255,255,.45)'}} />
+            <AnimatePresence mode="wait">
+              <motion.div key={activeTab} initial={{opacity:0,x:25,scale:.95}} animate={{opacity:1,x:0,scale:1}} exit={{opacity:0,x:-15}} transition={{duration:.3}} className="relative w-full flex flex-col items-center justify-center">
+                {hero.image ? <img src={hero.image} alt={hero.imageAlt} className="max-h-[310px] w-full object-contain drop-shadow-2xl" /> : <div className="relative w-[300px] h-[245px] rounded-[40px] bg-white/75 shadow-xl flex items-center justify-center border border-white">
+                  {activeTab==='medical' ? <Heart className="w-32 h-32 text-blue-500" strokeWidth={1.1}/> : activeTab==='travel' ? <Plane className="w-32 h-32 text-amber-500" strokeWidth={1.1}/> : <Building2 className="w-32 h-32 text-violet-500" strokeWidth={1.1}/>}
+                </div>}
+                <div className="absolute right-0 top-2 bg-white rounded-2xl shadow-lg border border-slate-100 px-4 py-3 flex items-center gap-3 text-sm font-semibold text-slate-800"><ShieldCheck className="w-5 h-5" style={{color:hero.accent}}/> {hero.benefit}</div>
+              </motion.div>
+            </AnimatePresence>
           </div>
-
         </div>
+        <div className="relative z-20 mt-2 lg:-mt-7 max-w-[950px] rounded-[26px] bg-white border border-slate-200 shadow-[0_22px_65px_rgba(15,61,42,.12)] p-4 sm:p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6" role="tablist" aria-label="Insurance type">
+            {TABS.map(t=>{const Icon=t.icon;return <button key={t.key} type="button" role="tab" aria-selected={activeTab===t.key} onClick={()=>setActiveTab(t.key)} className="rounded-xl flex items-center justify-center gap-2 px-3 py-3 text-sm font-semibold transition-colors border" style={{background:activeTab===t.key?t.bg:'#fff',color:activeTab===t.key?t.color:'#526175',borderColor:activeTab===t.key?t.color:'#e5e7eb'}}><Icon className="w-4 h-4"/>{t.label}</button>})}
+          </div>
+          <div className="flex flex-wrap justify-between items-start gap-3 mb-4"><div><h2 className="text-xl font-bold text-slate-900">Get a {activeTab==='motor'?'car':activeTab==='medical'?'health':activeTab} insurance quote</h2><p className="text-sm text-slate-500 mt-1">A few details are all you need to get started.</p></div><Link href="/login" className="text-xs text-emerald-800 underline underline-offset-4">Retrieve saved quote</Link></div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 min-w-0">
+              {activeTab==='motor' ? <input aria-label="Car registration number" placeholder="Enter car number (e.g. LAG 123 AB) — optional" value={plateNum} onChange={e=>setPlateNum(e.target.value.toUpperCase())} onKeyDown={e=>e.key==='Enter'&&startQuote('motor',plateNum)} className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm text-slate-900 outline-none focus:border-emerald-600"/> : <select aria-label="Quote details" value={activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType} onChange={e=>activeTab==='medical'?setCoverFor(e.target.value):activeTab==='travel'?setDestination(e.target.value):setBusinessType(e.target.value)} className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm text-slate-900 bg-white focus:border-emerald-600"><option value="">{activeTab==='medical'?'Who needs cover?':activeTab==='travel'?'Where are you travelling?':'What type of business?'}</option>{activeTab==='medical'?MEDICAL_COVER_OPTIONS.map(o=><option key={o.value} value={o.value}>{o.label}</option>):activeTab==='travel'?TRAVEL_DESTINATIONS.map(d=><option key={d.value} value={d.value}>{d.label}</option>):BUSINESS_TYPES.map(b=><option key={b} value={b}>{b}</option>)}</select>}
+            </div>
+            <button type="button" onClick={()=>startQuote(activeTab,activeTab==='motor'?plateNum:activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType)} className="h-12 sm:px-8 px-6 rounded-xl font-bold text-white flex items-center justify-center gap-2 hover:brightness-110 transition-all" style={{background:'#07834b'}}>Get Quotes <ArrowRight className="w-4 h-4"/></button>
+          </div>
+          {activeTab==='motor'&&<button type="button" onClick={()=>startQuote('motor',NEW_CAR_PREFILL)} className="mt-3 text-sm font-semibold text-emerald-800 underline underline-offset-2">Brand-new car without a plate? Start here</button>}
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-5 text-xs text-slate-500">{['Instant quotes','Compare trusted insurers','Secure & confidential'].map(x=><span key={x} className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600"/>{x}</span>)}</div>
+        </div>
+        <p className="flex gap-2 items-center text-xs text-slate-600 mt-5"><Sparkles className="w-4 h-4 text-emerald-600"/> Simple insurance. Clear choices. A more confident tomorrow.</p>
       </div>
     </section>
-  )
-}
+  )}
