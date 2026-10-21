@@ -149,7 +149,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   const nextDisabled =
     (typedProduct === 'motor' && (
       (currentStep === 1 && !motorData.vehicleMakeModel) ||
-      (currentStep === 2 && (!motorData.vehicleMakeModel.trim() || !motorData.vehicleType || !motorData.yearOfManufacture || !motorData.useType)) ||
+      (currentStep === 2 && (!motorData.vehicleMakeModel.trim() || !motorData.vehicleType || !motorData.yearOfManufacture || !motorData.useType || !motorData.vehicleColour || !motorData.engineCapacity || motorData.chassisVIN.trim().length < 6)) ||
       (currentStep === 3 && (!motorData.coverType || (motorData.coverType === 'comprehensive' && !(motorData.carValue && motorData.carValue > 0)))) ||
       (currentStep === 4 && !motorData.selectedUnderwriter) ||
       (currentStep === 5 && motorStep5Missing(motorData).length > 0) ||

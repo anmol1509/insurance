@@ -1,5 +1,6 @@
 /** Bridges the quote store onto the payload the Tangerine submit route expects. */
 import type { MotorData } from '@/store/quoteStore'
+import { registrationForInsurer } from '@/lib/motorRegistration'
 
 export interface TangerinePolicyHolderInput {
   fullName: string
@@ -27,7 +28,7 @@ export function toTangerineMotor(motorData: MotorData) {
     state: motorData.residentialState,
     lga: motorData.lgaOfResidence,
     chassisNumber: motorData.chassisVIN,
-    registrationNumber: motorData.registrationNumber,
+    registrationNumber: registrationForInsurer(motorData),
     yearOfMake: motorData.yearOfManufacture ?? new Date().getFullYear(),
     engineCapacity: motorData.engineCapacity,
     valuation: motorData.coverType === 'comprehensive' ? motorData.carValue ?? undefined : undefined,

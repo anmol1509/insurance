@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { BUSINESS_TYPES, MEDICAL_COVER_OPTIONS, TRAVEL_DESTINATIONS } from '@/lib/constants'
+import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
 import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy } from 'lucide-react'
 
 const fadeUp = {
@@ -163,6 +164,18 @@ export default function HeroSection() {
                         style={{ backgroundColor: 'var(--motor-600)' }}
                       >
                         Compare Plans →
+                      </button>
+                    </div>
+                  )}
+                  {activeTab === 'motor' && (
+                    <div className="mt-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => startQuote('motor', NEW_CAR_PREFILL)}
+                        className="font-sans font-semibold text-[12.5px] underline underline-offset-2 hover:opacity-80"
+                        style={{ color: 'var(--motor-600)' }}
+                      >
+                        Brand-new car with no plate yet? Start here →
                       </button>
                     </div>
                   )}

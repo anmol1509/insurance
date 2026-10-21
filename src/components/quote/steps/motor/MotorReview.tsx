@@ -109,7 +109,8 @@ export default function MotorReview() {
           <button type="button" onClick={() => setStep('motor', 1)} className="font-sans font-medium text-[12px] hover:underline" style={{ color: 'var(--motor-600)' }}>Edit</button>
         </div>
         <div className="rounded-2xl border border-[var(--border-default)] px-4 py-1">
-          <Row label="Registration No." value={motorData.registrationNumber} />
+          <Row label="Registration No." value={motorData.isNewCar ? 'New car — awaiting registration' : motorData.registrationNumber} />
+          <Row label="Chassis No." value={motorData.chassisVIN} />
           <Row label="Make & Model" value={motorData.vehicleMakeModel} />
           <Row label="Year" value={motorData.yearOfManufacture} />
           <Row label="Fuel Type" value={motorData.fuelType} />

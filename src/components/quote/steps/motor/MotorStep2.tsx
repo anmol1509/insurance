@@ -2,7 +2,7 @@
 import { useQuoteStore } from '@/store/quoteStore'
 import Select from '@/components/ui/Select'
 import Input from '@/components/ui/Input'
-import { VEHICLE_MAKES, VEHICLE_TYPES } from '@/lib/constants'
+import { ENGINE_CAPACITIES, VEHICLE_COLOURS, VEHICLE_MAKES, VEHICLE_TYPES } from '@/lib/constants'
 import { mergeOptions, useNsiaDropdowns } from '@/lib/nsia/useNsiaDropdowns'
 import { Fuel, Car, Calendar, Briefcase } from 'lucide-react'
 
@@ -14,6 +14,8 @@ const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) => {
 
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'CNG / LPG']
 const typeOptions = VEHICLE_TYPES.map((v) => ({ value: v, label: v }))
+const colourOptions = VEHICLE_COLOURS.map((c) => ({ value: c, label: c }))
+const engineOptions = ENGINE_CAPACITIES.map((c) => ({ value: c, label: c }))
 
 function ChipGroup({
   label, options, selected, onSelect, icon: Icon,
@@ -65,7 +67,9 @@ export default function MotorStep2() {
       >
         <Car className="w-4 h-4 mt-0.5 shrink-0" style={{ color: 'var(--motor-600)' }} />
         <p className="font-sans text-[13px]" style={{ color: 'var(--motor-700)' }}>
-          Details were pre-filled from your registration. Check and edit anything that&apos;s incorrect before continuing.
+          {motorData.isNewCar
+            ? 'Brand-new car — no plate number needed. We\u2019ll cover it using its chassis number, so please fill in the details from your purchase invoice or vehicle papers. Tell us your plate number once it\u2019s registered.'
+            : 'Details were pre-filled from your registration. Check and edit anything that\u2019s incorrect before continuing.'}
         </p>
       </div>
 
@@ -126,12 +130,46 @@ export default function MotorStep2() {
         icon={Fuel}
       />
 
+      {/* Colour, engine size and chassis number — insurers need all three, and only the plate lookup ever filled them */}
+      <div className="grid md:grid-cols-2 gap-5">
+        <Select
+          label="Colour"
+          required
+          options={colourOptions}
+          value={motorData.vehicleColour}
+          onChange={(v) => updateMotor({ vehicleColour: v })}
+          placeholder="Select colour"
+          productColor="var(--motor-600)"
+        />
+        <Select
+          label="Engine size"
+          required
+          options={engineOptions}
+          value={motorData.engineCapacity}
+          onChange={(v) => updateMotor({ engineCapacity: v })}
+          placeholder="Select engine size"
+          productColor="var(--motor-600)"
+        />
+      </div>
+
+      <Input
+        label="Chassis number (VIN)"
+        required
+        value={motorData.chassisVIN}
+        onChange={(e) => updateMotor({ chassisVIN: e.target.value.toUpperCase().replace(/\s+/g, '') })}
+        placeholder="e.g. JT2BF22K1W0084979"
+        hint={motorData.isNewCar
+          ? 'Printed on your purchase invoice and on the windscreen or door pillar. It identifies your car until it has a plate.'
+          : 'Printed on your vehicle licence, the windscreen and the door pillar'}
+        productColor="var(--motor-600)"
+      />
+
       {/* Registration Year */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
           <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-            Year of Registration <span className="text-[var(--error)]">*</span>
+            {motorData.isNewCar ? 'Year of Manufacture' : 'Year of Registration'} <span className="text-[var(--error)]">*</span>
           </p>
         </div>
         <Select
@@ -175,15 +213,17 @@ export default function MotorStep2() {
         </div>
       </div>
 
-      {/* Previous policy expiry */}
-      <Input
-        label="Previous Policy Expiry Date"
-        type="date"
-        value={motorData.previousPolicyExpiry}
-        onChange={(e) => updateMotor({ previousPolicyExpiry: e.target.value })}
-        hint="Optional — helps us find better renewal rates"
-        productColor="var(--motor-600)"
-      />
+      {/* Previous policy expiry — a new car has no previous policy */}
+      {!motorData.isNewCar && (
+        <Input
+          label="Previous Policy Expiry Date"
+          type="date"
+          value={motorData.previousPolicyExpiry}
+          onChange={(e) => updateMotor({ previousPolicyExpiry: e.target.value })}
+          hint="Optional — helps us find better renewal rates"
+          productColor="var(--motor-600)"
+        />
+      )}
     </div>
   )
 }

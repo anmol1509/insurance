@@ -29,7 +29,7 @@ export default function TangerineMotorDetails() {
           productColor="var(--motor-600)"
         />
         <Input
-          label="Vehicle registration date"
+          label={motorData.isNewCar ? 'Date of purchase' : 'Vehicle registration date'}
           required
           type="date"
           value={motorData.vehicleRegistrationDate}

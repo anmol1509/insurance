@@ -3,12 +3,14 @@
  * expects (guide section 4) from our own quote-store shape.
  */
 import type { FortisMotorRequestPayload } from './types'
+import { registrationForInsurer } from '@/lib/motorRegistration'
 
 export interface FortisMotorInput {
   coverType?: 'comprehensive' | 'tpo' | null
   residentialAddress?: string
   residentialState?: string
   registrationNumber?: string
+  isNewCar?: boolean
   vehicleMakeModel?: string
   vehicleColour?: string
   yearOfManufacture?: number | null
@@ -57,7 +59,11 @@ export function toFortisRequestPayload(
         city: motorData.residentialState || 'Lagos',
         state: motorData.residentialState || 'Lagos',
         country: 'Nigeria',
-        registrationNo: motorData.registrationNumber ?? '',
+        registrationNo: registrationForInsurer({
+          registrationNumber: motorData.registrationNumber ?? '',
+          isNewCar: motorData.isNewCar ?? false,
+          chassisVIN: motorData.chassisVIN ?? '',
+        }),
         model: motorData.vehicleMakeModel ?? '',
         color: motorData.vehicleColour ?? '',
         year: String(motorData.yearOfManufacture ?? new Date().getFullYear()),

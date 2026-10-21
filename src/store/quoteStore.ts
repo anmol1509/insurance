@@ -9,6 +9,8 @@ export interface MotorData {
   engineCapacity: string
   vehicleColour: string
   registrationNumber: string
+  /** A brand-new car with no plate yet — insured on its chassis number until registered. */
+  isNewCar: boolean
   chassisVIN: string
   marketValueRange: string
   useType: 'private' | 'commercial' | null
@@ -321,7 +323,7 @@ interface QuoteStore {
 
 const defaultMotor: MotorData = {
   vehicleMakeModel: '', yearOfManufacture: null, vehicleType: '', engineCapacity: '',
-  vehicleColour: '', registrationNumber: '', chassisVIN: '', marketValueRange: '',
+  vehicleColour: '', registrationNumber: '', isNewCar: false, chassisVIN: '', marketValueRange: '',
   useType: null, coverType: null, usageCategory: null, geographicalState: '', accessories: '',
   fuelType: '', vehicleVariant: '', carValue: null, previousPolicyExpiry: '',
   driverAge: null, drivingExperience: '', claimsHistory: false, claimsDetail: '',

@@ -1,5 +1,6 @@
 /** Bridges the quote store onto the plain-text payload the AIICO submit route expects. */
 import type { MotorData } from '@/store/quoteStore'
+import { registrationForInsurer } from '@/lib/motorRegistration'
 
 export interface AiicoPolicyHolderInput {
   fullName: string
@@ -30,7 +31,7 @@ export function toAiicoCustomer(motorData: MotorData, policyHolder: AiicoPolicyH
 export function toAiicoVehicle(motorData: MotorData) {
   return {
     vehicleType: motorData.vehicleType,
-    regNo: motorData.registrationNumber,
+    regNo: registrationForInsurer(motorData),
     yearOfManufacture: String(motorData.yearOfManufacture ?? new Date().getFullYear()),
     vehicleMakeModel: motorData.vehicleMakeModel,
     chassisNo: motorData.chassisVIN,

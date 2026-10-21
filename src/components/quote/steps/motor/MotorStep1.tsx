@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil } from 'lucide-react'
+import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil, Sparkles } from 'lucide-react'
+import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
 import { lookupVehicleByPlate } from '@/lib/verifydata/browser'
 
 const MOCK_LOOKUP: Record<string, {
@@ -82,14 +83,43 @@ export default function MotorStep1() {
     prefillConsumed.current = true
     const plate = heroPrefill.value
     setHeroPrefill(null)
-    setInputValue(plate)
-    runLookup(plate).then(() => setStep('motor', 2))
+    if (plate === NEW_CAR_PREFILL) {
+      // Deferred until every effect of this commit has run: the quote page resets
+      // the form in its own mount effect (which runs after this one) and would
+      // otherwise wipe the new-car choice straight away.
+      queueMicrotask(markNewCar)
+      return
+    }
+    queueMicrotask(() => {
+      setInputValue(plate)
+      runLookup(plate).then(() => setStep('motor', 2))
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [heroPrefill])
 
   function handleSkip() {
     updateMotor({ registrationNumber: inputValue.trim().toUpperCase() })
     setLookupState('found')
+  }
+
+  /**
+   * A brand-new car has no plate to look up, so skip the lookup and go straight
+   * to the details step, where the customer types the car in from their
+   * invoice. Mileage starts at 0 and the year at the current one.
+   */
+  function markNewCar() {
+    updateMotor({
+      isNewCar: true,
+      registrationNumber: '',
+      yearOfManufacture: new Date().getFullYear(),
+      mileageKm: 0,
+    })
+    setStep('motor', 2)
+  }
+
+  function startNewCar() {
+    setInputValue('')
+    markNewCar()
   }
 
   const found = lookupState === 'found'
@@ -193,6 +223,34 @@ export default function MotorStep1() {
                 Enter details manually
               </button>
             </p>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-subtle)' }}>or</span>
+              <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+            </div>
+
+            <button
+              type="button"
+              onClick={startNewCar}
+              className="w-full flex items-center gap-3.5 p-4 rounded-2xl border-2 text-left transition-all hover:-translate-y-px hover:shadow-sm"
+              style={{
+                borderColor: motorData.isNewCar ? 'var(--motor-600)' : 'var(--border-default)',
+                backgroundColor: motorData.isNewCar ? 'var(--motor-50)' : 'white',
+              }}
+            >
+              <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--motor-50)' }}>
+                <Sparkles className="w-5 h-5" style={{ color: 'var(--motor-600)' }} />
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block font-sans font-semibold text-[14px]" style={{ color: 'var(--text-primary)' }}>
+                  Brand-new car — no plate number yet
+                </span>
+                <span className="block font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  Just bought it? We&apos;ll cover it using its chassis number.
+                </span>
+              </span>
+            </button>
           </>
         )}
 

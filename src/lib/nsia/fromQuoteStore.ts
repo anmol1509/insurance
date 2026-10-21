@@ -3,6 +3,7 @@
  * Client-safe: no credentials, no environment access.
  */
 import { VEHICLE_MAKES } from '@/lib/constants'
+import { registrationForInsurer } from '@/lib/motorRegistration'
 import { toIsoDate } from './mappers'
 import type { MarineData, MotorData, PersonalAccidentData } from '@/store/quoteStore'
 
@@ -120,7 +121,7 @@ export function toNsiaMotorDetails(motorData: MotorData, premium: number) {
     color: motorData.vehicleColour,
     chassisNo: motorData.chassisVIN,
     engineNo: motorData.engineCapacity,
-    registrationNo: motorData.registrationNumber,
+    registrationNo: registrationForInsurer(motorData),
     natureOfUse: motorData.useType === 'commercial' ? 'Commercial' : 'Private',
     // Asked on step 5 for NSIA plans; 5 only covers a session saved before the question existed.
     numberOfSeats: motorData.numberOfSeats ?? 5,
