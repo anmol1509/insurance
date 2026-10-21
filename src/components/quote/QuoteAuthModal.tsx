@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2, Zap, FileText, ChevronDown } from 'lucide-react'
 import { useAuthStore, type OtpChannel } from '@/store/authStore'
 
 const PRODUCT_CONFIG = {
@@ -115,13 +115,18 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
     setError('')
   }
 
+  const inputBase = 'w-full h-14 rounded-full border-[1.5px] bg-white font-sans text-[15px] outline-none transition-all'
+  const focusOn = (e: React.FocusEvent<HTMLElement>) => { e.currentTarget.style.borderColor = config.color }
+  const focusOff = (e: React.FocusEvent<HTMLElement>) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }
+  const selected = COUNTRY_CODES.find((c) => c.code === dialCode) ?? COUNTRY_CODES[0]
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop also blocks the flow behind until the customer is verified. */}
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="absolute inset-0 backdrop-blur-[3px]"
-        style={{ backgroundColor: 'rgba(2, 44, 34, 0.55)' }}
+        className="absolute inset-0 backdrop-blur-[6px]"
+        style={{ backgroundColor: 'rgba(2, 44, 34, 0.45)' }}
       />
 
       <motion.div
@@ -131,230 +136,296 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
         role="dialog"
         aria-modal="true"
         aria-label="Verify your contact"
-        className="relative w-full max-w-[420px] bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto"
+        className="relative w-full max-w-[920px] bg-white rounded-[28px] shadow-2xl overflow-hidden max-h-[94vh] overflow-y-auto"
       >
         <button
           type="button"
           onClick={() => router.push('/')}
           aria-label="Close and go back"
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
+          className="absolute top-5 right-5 z-10 w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
         >
-          <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+          <X className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </button>
 
-        <div className="px-6 pt-7 pb-6 sm:px-8">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: config.colorBg }}>
-            {stage === 'identify'
-              ? <Lock className="w-5 h-5" style={{ color: config.color }} />
-              : <ShieldCheck className="w-5 h-5" style={{ color: config.color }} />}
+        <div className="grid md:grid-cols-2 items-center">
+          {/* Left: message + illustration */}
+          <div
+            className="relative px-7 pt-8 pb-2 md:px-10 md:pt-10 md:pb-8 md:self-stretch flex flex-col"
+            style={{ background: `linear-gradient(160deg, ${config.colorBg} 0%, white 55%)` }}
+          >
+            <div className="flex items-center gap-3 mb-5 md:mb-7">
+              <span
+                className="w-14 h-14 rounded-full bg-white flex items-center justify-center shrink-0"
+                style={{ boxShadow: '0 4px 14px rgba(0,0,0,0.08)' }}
+              >
+                {stage === 'identify'
+                  ? <Lock className="w-6 h-6" style={{ color: config.color }} />
+                  : <ShieldCheck className="w-6 h-6" style={{ color: config.color }} />}
+              </span>
+              <span
+                className="px-4 py-1.5 rounded-full font-sans font-semibold text-[13px]"
+                style={{ backgroundColor: config.colorBg, color: 'var(--text-primary)' }}
+              >
+                Secure &amp; Instant
+              </span>
+            </div>
+
+            {stage === 'identify' ? (
+              <>
+                <h2 className="font-display font-bold text-[30px] md:text-[34px] leading-[1.1] tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
+                  Let’s get your<br />
+                  <span style={{ color: config.color }}>{config.label}</span>
+                </h2>
+                <p className="font-sans text-[15px] leading-relaxed max-w-[330px]" style={{ color: 'var(--text-muted)' }}>
+                  {channel === 'phone'
+                    ? 'Enter your mobile number or email — we’ll send a one-time code to confirm it’s you.'
+                    : 'Enter your email or mobile number — we’ll send a one-time code to confirm it’s you.'}
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="font-display font-bold text-[30px] md:text-[34px] leading-[1.1] tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
+                  Verify it’s<br />
+                  <span style={{ color: config.color }}>really you</span>
+                </h2>
+                <p className="font-sans text-[15px] leading-relaxed max-w-[330px]" style={{ color: 'var(--text-muted)' }}>
+                  Enter the 6-digit code we sent to confirm your {channel === 'phone' ? 'number' : 'email'}.
+                </p>
+              </>
+            )}
+
+            {channel === 'email' && stage === 'identify' && (
+              <div className="hidden md:flex gap-3 mt-6">
+                {[
+                  { icon: Zap, text: 'Quick & easy' },
+                  { icon: ShieldCheck, text: 'Your data is safe' },
+                  { icon: FileText, text: 'No spam guaranteed' },
+                ].map(({ icon: Icon, text }) => (
+                  <div key={text} className="flex items-center gap-2 flex-1">
+                    <span className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: config.colorBg }}>
+                      <Icon className="w-4 h-4" style={{ color: config.color }} />
+                    </span>
+                    <span className="font-sans text-[12.5px] leading-tight" style={{ color: 'var(--text-secondary)' }}>{text}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/auth/car-illustration.webp"
+              alt=""
+              aria-hidden="true"
+              className="hidden md:block w-full max-w-[400px] mt-auto pt-6 select-none pointer-events-none"
+            />
           </div>
 
-          <AnimatePresence mode="wait">
-            {stage === 'identify' ? (
-              <motion.div key="identify" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
-                <h2 className="font-display font-bold text-[22px] tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>
-                  Let’s get your {config.label}
-                </h2>
-                <p className="font-sans text-[14px] mb-5" style={{ color: 'var(--text-muted)' }}>
-                  Enter your mobile number or email — we’ll send a one-time code to confirm it’s you.
-                </p>
-
-                {/* Mobile / Email switch */}
-                <div className="flex p-1 rounded-2xl mb-4" style={{ backgroundColor: 'var(--surface-raised)' }}>
-                  {([['phone', 'Mobile', Phone], ['email', 'Email', Mail]] as const).map(([key, label, Icon]) => {
-                    const active = channel === key
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => switchChannel(key)}
-                        className="flex-1 h-9 rounded-xl flex items-center justify-center gap-1.5 font-sans font-semibold text-[13px] transition-all"
-                        style={active
-                          ? { backgroundColor: 'white', color: config.color, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                          : { color: 'var(--text-muted)' }}
-                      >
-                        <Icon className="w-3.5 h-3.5" /> {label}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                <div className="relative mb-3">
-                  {channel === 'phone' ? (
-                    <>
-                      <div
-                        className="absolute left-0 top-0 h-full flex items-center pl-3 pr-2 border-r"
-                        style={{ borderColor: 'var(--border-default)' }}
-                      >
-                        <select
-                          aria-label="Country code"
-                          value={dialCode}
-                          onChange={(e) => setDialCode(e.target.value)}
-                          className="h-full bg-transparent font-sans font-semibold text-[14px] outline-none cursor-pointer pr-1"
-                          style={{ color: 'var(--text-secondary)' }}
+          {/* Right: form */}
+          <div className="px-7 pt-6 pb-7 md:px-10 md:py-12">
+            <AnimatePresence mode="wait">
+              {stage === 'identify' ? (
+                <motion.div key="identify" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+                  {/* Mobile / Email switch */}
+                  <div className="flex p-1 rounded-full border mb-6" style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-subtle)' }}>
+                    {([['phone', 'Mobile', Phone], ['email', 'Email', Mail]] as const).map(([key, label, Icon]) => {
+                      const active = channel === key
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => switchChannel(key)}
+                          className="flex-1 h-11 rounded-full flex items-center justify-center gap-2 font-sans font-semibold text-[14px] transition-all"
+                          style={active
+                            ? { backgroundColor: config.colorBg, color: 'var(--text-primary)', boxShadow: `0 0 0 1.5px ${config.color}33` }
+                            : { color: 'var(--text-muted)' }}
                         >
-                          {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code} title={c.name}>{c.flag} {c.code}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <input
-                        autoFocus
-                        type="tel"
-                        inputMode="numeric"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                        onKeyDown={(e) => e.key === 'Enter' && sendCode()}
-                        placeholder="801 234 5678"
-                        className="w-full h-13 py-3.5 pl-[104px] pr-4 rounded-2xl border-[1.5px] font-sans text-[15px] outline-none transition-all"
-                        style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                        onFocus={(e) => { e.currentTarget.style.borderColor = config.color }}
-                        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
-                      <input
-                        autoFocus
-                        type="email"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && sendCode()}
-                        placeholder="you@example.com"
-                        className="w-full h-13 py-3.5 pl-11 pr-4 rounded-2xl border-[1.5px] font-sans text-[15px] outline-none transition-all"
-                        style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                        onFocus={(e) => { e.currentTarget.style.borderColor = config.color }}
-                        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
-                      />
-                    </>
+                          <Icon className="w-4 h-4" style={{ color: active ? config.color : undefined }} /> {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {channel === 'email' && (
+                    <label className="block font-sans font-semibold text-[14px] mb-2" style={{ color: 'var(--text-primary)' }}>Email address</label>
                   )}
-                </div>
 
-                {error && <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--error)' }}>{error}</p>}
+                  <div className="relative mb-4">
+                    {channel === 'phone' ? (
+                      <>
+                        <div className="absolute left-0 top-0 h-full flex items-center pl-4 pr-3 border-r gap-1.5" style={{ borderColor: 'var(--border-default)' }}>
+                          <span className="text-[17px] leading-none">{selected.flag}</span>
+                          <span className="font-sans font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>{selected.code}</span>
+                          <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
+                          {/* Native select laid over the label so the OS picker still opens. */}
+                          <select
+                            aria-label="Country code"
+                            value={dialCode}
+                            onChange={(e) => setDialCode(e.target.value)}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          >
+                            {COUNTRY_CODES.map((c) => (
+                              <option key={c.code} value={c.code}>{c.flag} {c.code} {c.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <input
+                          autoFocus
+                          type="tel"
+                          inputMode="numeric"
+                          value={value}
+                          onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                          onKeyDown={(e) => e.key === 'Enter' && sendCode()}
+                          placeholder="801 234 5678"
+                          className={`${inputBase} pl-[128px] pr-5`}
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                          onFocus={focusOn}
+                          onBlur={focusOff}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-[18px] h-[18px]" style={{ color: 'var(--text-subtle)' }} />
+                        <input
+                          autoFocus
+                          type="email"
+                          value={value}
+                          onChange={(e) => setValue(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && sendCode()}
+                          placeholder="you@example.com"
+                          className={`${inputBase} pl-12 pr-5`}
+                          style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                          onFocus={focusOn}
+                          onBlur={focusOff}
+                        />
+                      </>
+                    )}
+                  </div>
 
-                <button
-                  type="button"
-                  onClick={sendCode}
-                  disabled={isLoading || !value.trim()}
-                  className="w-full h-12 rounded-2xl font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:translate-y-0 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: config.color }}
-                >
-                  {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending code…</> : 'Continue →'}
-                </button>
+                  {error && <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--error)' }}>{error}</p>}
 
-                <button
-                  type="button"
-                  onClick={demoLogin}
-                  className="w-full mt-3 h-10 rounded-2xl font-sans font-semibold text-[13px] border-[1.5px] border-dashed transition-colors hover:bg-[var(--surface-raised)]"
-                  style={{ borderColor: config.color, color: config.color }}
-                >
-                  Demo: skip OTP and sign in as Emeka Okonkwo
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div key="otp" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
-                <h2 className="font-display font-bold text-[22px] tracking-tight mb-1" style={{ color: 'var(--text-primary)' }}>
-                  Enter the 6-digit code
-                </h2>
-                <p className="font-sans text-[14px] mb-5" style={{ color: 'var(--text-muted)' }}>
-                  Sent to <strong style={{ color: 'var(--text-primary)' }}>{sentTo}</strong>{' '}
                   <button
                     type="button"
-                    onClick={() => { setStage('identify'); setCode(['', '', '', '', '', '']); setError('') }}
-                    className="font-medium hover:underline"
-                    style={{ color: config.color }}
+                    onClick={sendCode}
+                    disabled={isLoading || !value.trim()}
+                    className="w-full h-14 rounded-full font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-60 disabled:translate-y-0 flex items-center justify-center gap-2"
+                    style={{ backgroundColor: config.color }}
                   >
-                    Change
+                    {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending code…</> : 'Continue →'}
                   </button>
-                </p>
 
-                <div className="flex gap-2 justify-between mb-4">
-                  {code.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={(el) => { boxes.current[i] = el }}
-                      value={digit}
-                      inputMode="numeric"
-                      maxLength={6}
-                      onChange={(e) => setDigit(i, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Backspace' && !code[i] && i > 0) boxes.current[i - 1]?.focus()
-                        if (e.key === 'Enter') submitCode()
-                      }}
-                      className="w-full max-w-[52px] h-13 py-3 rounded-xl border-[1.5px] text-center font-display font-bold text-[19px] outline-none transition-all"
-                      style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = config.color }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
-                    />
-                  ))}
-                </div>
-
-                <AnimatePresence>
-                  {resent && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                      className="font-sans font-medium text-[12.5px] flex items-center gap-1.5 mb-3"
-                      style={{ color: config.color }}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" /> A new code has been sent to {sentTo}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-
-                <p className="font-sans text-[12px] rounded-xl px-3 py-2.5 mb-3" style={{ backgroundColor: config.colorBg, color: 'var(--text-secondary)' }}>
-                  <strong>Demo mode</strong> — no code is actually sent. Enter any 6 digits, e.g. <strong>123456</strong>.
-                </p>
-
-                {error && <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--error)' }}>{error}</p>}
-
-                <button
-                  type="button"
-                  onClick={submitCode}
-                  disabled={isLoading || code.some((d) => !d)}
-                  className="w-full h-12 rounded-2xl font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:translate-y-0 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: config.color }}
-                >
-                  {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</> : 'Verify & continue →'}
-                </button>
-
-                <div className="flex items-center justify-between mt-3">
                   <button
                     type="button"
-                    onClick={() => { setStage('identify'); setCode(['', '', '', '', '', '']); setError('') }}
-                    className="flex items-center gap-1.5 font-sans text-[13px] hover:underline"
-                    style={{ color: 'var(--text-muted)' }}
+                    onClick={demoLogin}
+                    className="w-full mt-3 h-11 rounded-full font-sans font-semibold text-[13px] border-[1.5px] border-dashed transition-colors hover:bg-[var(--surface-raised)]"
+                    style={{ borderColor: config.color, color: config.color }}
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" /> Back
+                    Demo: skip OTP and sign in as Emeka Okonkwo
                   </button>
-                  <span className="font-sans text-[13px] flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
-                    Didn’t get it?
+
+                  <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 mt-5" style={{ backgroundColor: 'var(--surface-raised)' }}>
+                    <ShieldCheck className="w-6 h-6 shrink-0" style={{ color: config.color }} />
+                    <p className="font-sans text-[12.5px] leading-snug" style={{ color: 'var(--text-muted)' }}>
+                      By continuing you agree to be contacted about this quote.
+                    </p>
+                  </div>
+                  <p className="font-sans text-[12px] text-center mt-3" style={{ color: 'var(--text-subtle)' }}>
+                    NAICOM regulated · SSL secure · Your data is safe
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div key="otp" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} transition={{ duration: 0.18 }}>
+                  <p className="font-sans text-[14px] mb-5" style={{ color: 'var(--text-muted)' }}>
+                    Sent to <strong style={{ color: 'var(--text-primary)' }}>{sentTo}</strong>{' '}
                     <button
                       type="button"
-                      onClick={resendCode}
-                      disabled={secondsLeft > 0 || isLoading}
-                      className="font-sans font-semibold text-[13px] flex items-center gap-1 disabled:cursor-not-allowed hover:enabled:underline"
-                      style={{ color: secondsLeft > 0 ? 'var(--text-subtle)' : config.color }}
+                      onClick={() => { setStage('identify'); setCode(['', '', '', '', '', '']); setError('') }}
+                      className="font-medium hover:underline"
+                      style={{ color: config.color }}
                     >
-                      {secondsLeft > 0 ? (
-                        <><RotateCw className="w-3.5 h-3.5" /> Resend in {secondsLeft}s</>
-                      ) : (
-                        <><RotateCw className="w-3.5 h-3.5" /> Resend OTP</>
-                      )}
+                      Change
                     </button>
-                  </span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                  </p>
 
-        <p
-          className="px-6 sm:px-8 py-3.5 font-sans text-[11.5px] text-center border-t"
-          style={{ backgroundColor: 'var(--surface-raised)', borderColor: 'var(--border-subtle)', color: 'var(--text-subtle)' }}
-        >
-          By continuing you agree to be contacted about this quote. NAICOM regulated · SSL secure.
-        </p>
+                  <div className="flex gap-2 justify-between mb-4">
+                    {code.map((digit, i) => (
+                      <input
+                        key={i}
+                        ref={(el) => { boxes.current[i] = el }}
+                        value={digit}
+                        inputMode="numeric"
+                        maxLength={6}
+                        onChange={(e) => setDigit(i, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Backspace' && !code[i] && i > 0) boxes.current[i - 1]?.focus()
+                          if (e.key === 'Enter') submitCode()
+                        }}
+                        className="w-full max-w-[54px] h-14 rounded-2xl border-[1.5px] text-center font-display font-bold text-[20px] outline-none transition-all"
+                        style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
+                        onFocus={focusOn}
+                        onBlur={focusOff}
+                      />
+                    ))}
+                  </div>
+
+                  <AnimatePresence>
+                    {resent && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                        className="font-sans font-medium text-[12.5px] flex items-center gap-1.5 mb-3"
+                        style={{ color: config.color }}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" /> A new code has been sent to {sentTo}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+
+                  <p className="font-sans text-[12px] rounded-2xl px-4 py-3 mb-4" style={{ backgroundColor: config.colorBg, color: 'var(--text-secondary)' }}>
+                    <strong>Demo mode</strong> — no code is actually sent. Enter any 6 digits, e.g. <strong>123456</strong>.
+                  </p>
+
+                  {error && <p className="font-sans text-[13px] mb-3" style={{ color: 'var(--error)' }}>{error}</p>}
+
+                  <button
+                    type="button"
+                    onClick={submitCode}
+                    disabled={isLoading || code.some((d) => !d)}
+                    className="w-full h-14 rounded-full font-display font-semibold text-[16px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-60 disabled:translate-y-0 flex items-center justify-center gap-2"
+                    style={{ backgroundColor: config.color }}
+                  >
+                    {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</> : 'Verify & continue →'}
+                  </button>
+
+                  <div className="flex items-center justify-between mt-4">
+                    <button
+                      type="button"
+                      onClick={() => { setStage('identify'); setCode(['', '', '', '', '', '']); setError('') }}
+                      className="flex items-center gap-1.5 font-sans text-[13px] hover:underline"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" /> Back
+                    </button>
+                    <span className="font-sans text-[13px] flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                      Didn’t get it?
+                      <button
+                        type="button"
+                        onClick={resendCode}
+                        disabled={secondsLeft > 0 || isLoading}
+                        className="font-sans font-semibold text-[13px] flex items-center gap-1 disabled:cursor-not-allowed hover:enabled:underline"
+                        style={{ color: secondsLeft > 0 ? 'var(--text-subtle)' : config.color }}
+                      >
+                        {secondsLeft > 0 ? (
+                          <><RotateCw className="w-3.5 h-3.5" /> Resend in {secondsLeft}s</>
+                        ) : (
+                          <><RotateCw className="w-3.5 h-3.5" /> Resend OTP</>
+                        )}
+                      </button>
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </motion.div>
     </div>
   )
