@@ -6,6 +6,7 @@ import BottomNav from './BottomNav'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import LiveChat from '@/components/ui/LiveChat'
 import CookieBanner from '@/components/ui/CookieBanner'
+import DemoBanner from './DemoBanner'
 
 const CHROME_HIDDEN_PREFIXES = ['/dashboard', '/login', '/register', '/admin', '/quote']
 const BOTTOM_NAV_HIDDEN_PREFIXES = ['/quote', '/dashboard', '/admin', '/login', '/register']
@@ -19,6 +20,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
+      <DemoBanner />
       {!hideChrome && <Navbar />}
       <main className={showBottomNav ? 'pb-[calc(4rem+env(safe-area-inset-bottom,0px))] md:pb-0' : undefined}>
         {children}
