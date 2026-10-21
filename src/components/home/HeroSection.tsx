@@ -1,21 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useQuoteStore } from '@/store/quoteStore'
 import { BUSINESS_TYPES, MEDICAL_COVER_OPTIONS, TRAVEL_DESTINATIONS } from '@/lib/constants'
 import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
-import { ArrowRight, Car, Heart, Plane, Building2, Search, Users, MapPin, Briefcase, Trophy, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react'
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' as const, delay: i * 0.08 },
-  }),
-}
+import { ArrowRight, Car, Heart, Plane, Building2, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react'
 
 const TABS = [
   { key: 'motor',    label: 'Motor',    icon: Car,       color: 'var(--motor-600)',    bg: 'var(--motor-50)',    href: '/quote/motor'    },
@@ -33,15 +24,6 @@ const HERO_COPY: Record<TabKey, { eyebrow: string; title: string; highlight: str
   travel: { eyebrow: 'Go further with confidence', title: 'Explore the world.', highlight: 'Worry-free.', description: 'Compare travel policies for your next adventure, with support wherever you go.', image: '', imageAlt: '', accent: '#bc770c', wash: '#fff5e5', benefit: 'Cover beyond borders' },
   business: { eyebrow: 'Built for ambitious businesses', title: 'Protect what', highlight: 'you’ve built.', description: 'Find coverage for your premises, people and operations as your business grows.', image: '', imageAlt: '', accent: '#7041b8', wash: '#f3eeff', benefit: 'Your growth deserves protection' },
 }
-
-const LIVE_POLICIES = [
-  { product: 'Motor', city: 'Lagos', time: '2 min ago' },
-  { product: 'Health', city: 'Abuja', time: '4 min ago' },
-  { product: 'Travel', city: 'Port Harcourt', time: '6 min ago' },
-  { product: 'Business', city: 'Kano', time: '8 min ago' },
-  { product: 'Motor', city: 'Ibadan', time: '11 min ago' },
-  { product: 'Health', city: 'Enugu', time: '13 min ago' },
-]
 
 export default function HeroSection() {
   const router = useRouter()
@@ -62,14 +44,6 @@ export default function HeroSection() {
     setHeroPrefill(answer ? { product, value: answer } : null)
     router.push(`/quote/${product}`)
   }
-
-  const tab = TABS.find((t) => t.key === activeTab)!
-  const [tickerIdx, setTickerIdx] = useState(0)
-
-  useEffect(() => {
-    const t = setInterval(() => setTickerIdx(i => (i + 1) % LIVE_POLICIES.length), 3500)
-    return () => clearInterval(t)
-  }, [])
 
   const hero = HERO_COPY[activeTab]
   return (
