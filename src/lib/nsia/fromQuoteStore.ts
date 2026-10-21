@@ -122,6 +122,8 @@ export function toNsiaMotorDetails(motorData: MotorData, premium: number) {
     engineNo: motorData.engineCapacity,
     registrationNo: motorData.registrationNumber,
     natureOfUse: motorData.useType === 'commercial' ? 'Commercial' : 'Private',
+    // Asked on step 5 for NSIA plans; 5 only covers a session saved before the question existed.
+    numberOfSeats: motorData.numberOfSeats ?? 5,
     tracking: 0,
     nameOfAgent: '',
     inspectionVenue: motorData.residentialAddress,

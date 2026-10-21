@@ -15,6 +15,7 @@ import {
 import { extractMotorDetails } from '@/lib/motorExtraction'
 import TangerineMotorDetails from './TangerineMotorDetails'
 import AiicoMotorDetails from './AiicoMotorDetails'
+import NsiaMotorDetails from './NsiaMotorDetails'
 
 type ExtractionStatus = 'idle' | 'reading' | 'done' | 'error'
 
@@ -232,6 +233,7 @@ export default function MotorDocuments() {
 
       {tangerineLine && <TangerineMotorDetails />}
       {aiicoLine && <AiicoMotorDetails />}
+      {isNsia && <NsiaMotorDetails />}
 
       <DocumentUploadZone
         slots={slots}

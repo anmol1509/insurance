@@ -49,6 +49,8 @@ export interface MotorData {
   // Tangerine-specific — only asked for when a Tangerine plan is chosen
   lgaOfResidence: string
   mileageKm: number | null
+  // NSIA-specific — how many people the vehicle carries, driver included
+  numberOfSeats: number | null
   vehicleRegistrationDate: string
   tin: string
   // AIICO-specific — only asked for when an AIICO plan is chosen
@@ -328,7 +330,7 @@ const defaultMotor: MotorData = {
   gender: '', maritalStatus: '', residentialAddress: '', residentialState: '',
   occupation: '', idType: '', idNumber: '', isBusinessPolicy: false,
   companyName: '', rcNumber: '', contactPerson: '',
-  lgaOfResidence: '', mileageKm: null, vehicleRegistrationDate: '', tin: '',
+  lgaOfResidence: '', mileageKm: null, numberOfSeats: 5, vehicleRegistrationDate: '', tin: '',
   title: '',
   uploadedDocs: {}, reviewConfirmed: false, selectedUnderwriter: null,
 }

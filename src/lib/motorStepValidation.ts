@@ -15,7 +15,7 @@
  */
 import type { MotorData } from '@/store/quoteStore'
 import { motorClientInfoConfig } from './motorClientInfo'
-import { aiicoLineFor, requiredMotorDocKeys, tangerineLineFor } from './motorDocuments'
+import { aiicoLineFor, isNsiaMotorPlan, requiredMotorDocKeys, tangerineLineFor } from './motorDocuments'
 
 export function motorStep5Missing(motorData: MotorData): string[] {
   const missing: string[] = []
@@ -35,6 +35,11 @@ export function motorStep5Missing(motorData: MotorData): string[] {
 
   if (aiicoLineFor(motorData.selectedUnderwriter) !== null && !motorData.title.trim()) {
     missing.push('Title')
+  }
+
+  if (isNsiaMotorPlan(motorData.selectedUnderwriter)) {
+    const seats = motorData.numberOfSeats
+    if (seats == null || !Number.isInteger(seats) || seats < 1 || seats > 100) missing.push('Number of seats')
   }
 
   return missing
