@@ -20,7 +20,7 @@ const products = [
     featureLabel: 'NAICOM Approved',
     color: 'var(--motor-600)', borderColor: '#25D366',
     href: '/motor',
-    icon: Car, image: '/home/motor-hero.svg',
+    icon: Car, image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=850&q=85',
     large: true,
   },
   {
@@ -31,7 +31,7 @@ const products = [
     featureLabel: '700+ Hospitals',
     color: 'var(--medical-600)', borderColor: '#059669',
     href: '/medical',
-    icon: Heart, image: '/home/medical-hero.svg',
+    icon: Heart, image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=850&q=85',
     large: true,
   },
   {
@@ -42,7 +42,7 @@ const products = [
     featureLabel: 'Worldwide Coverage',
     color: 'var(--travel-600)', borderColor: '#D97706',
     href: '/travel',
-    icon: Plane, image: '/home/travel-hero.svg',
+    icon: Plane, image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=850&q=85',
     large: false,
   },
   {
@@ -53,7 +53,7 @@ const products = [
     featureLabel: 'Flexible Cover',
     color: 'var(--business-600)', borderColor: '#7C3AED',
     href: '/business',
-    icon: Building2, image: '/home/business-hero.svg',
+    icon: Building2, image: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=85',
     large: false,
   },
   // Marine and Personal Accident are built (NSIA-backed, full quote flows at
@@ -63,7 +63,7 @@ const products = [
 
 export default function ProductBentoGrid() {
   return (
-    <section id="products" style={{ backgroundColor: 'var(--page-bg)' }} className="px-5 lg:px-20 pt-16 lg:pt-24 pb-20">
+    <section id="products" style={{ backgroundColor: 'var(--page-bg)' }} className="px-5 lg:px-20 pt-14 lg:pt-16 pb-16">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -92,7 +92,7 @@ export default function ProductBentoGrid() {
               viewport={{ once: true, margin: '-60px' }}
               whileHover={{ scale: 1.01, boxShadow: '0 12px 40px rgba(0,0,0,0.07)' }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="min-h-[270px]"
+              className="min-h-[310px]"
             >
               <Link
                 href={p.href}
