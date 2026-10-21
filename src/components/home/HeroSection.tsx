@@ -46,46 +46,37 @@ export default function HeroSection() {
   }
 
   const hero = HERO_COPY[activeTab]
+  const heroPhoto: Record<TabKey,string> = {
+    motor: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1600&q=85',
+    medical: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1600&q=85',
+    travel: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=85',
+    business: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=85',
+  }
   return (
-    <section className="relative overflow-hidden pt-12 pb-14 lg:pt-16 lg:pb-20" style={{ background: `linear-gradient(110deg, #f7fcf9 0%, ${hero.wash} 100%)` }}>
-      <div className="max-w-[1320px] mx-auto px-5 lg:px-12 relative">
-        <div className="grid lg:grid-cols-[53%_47%] gap-8 lg:gap-4 items-center">
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wide bg-white/80 border border-emerald-100 text-emerald-800"><ShieldCheck className="w-4 h-4" /> {hero.eyebrow}</span>
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTab} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} transition={{duration:0.24}}>
-                <h1 className="mt-6 mb-4 font-display font-extrabold tracking-[-0.045em] leading-[1.05] text-[clamp(38px,4.4vw,66px)] text-slate-950">{hero.title}<br/><span style={{color:hero.accent}}>{hero.highlight}</span></h1>
-                <p className="max-w-[525px] mb-8 text-base lg:text-lg leading-relaxed text-slate-600">{hero.description}</p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          <div className="hidden lg:flex min-h-[315px] items-center justify-center relative" aria-hidden="true">
-            <div className="absolute w-[370px] h-[370px] rounded-full opacity-60" style={{background:hero.wash,border:'32px solid rgba(255,255,255,.45)'}} />
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTab} initial={{opacity:0,x:25,scale:.95}} animate={{opacity:1,x:0,scale:1}} exit={{opacity:0,x:-15}} transition={{duration:.3}} className="relative w-full flex flex-col items-center justify-center">
-                {hero.image ? <img src={hero.image} alt={hero.imageAlt} className="max-h-[310px] w-full object-contain drop-shadow-2xl" /> : <div className="relative w-[300px] h-[245px] rounded-[40px] bg-white/75 shadow-xl flex items-center justify-center border border-white">
-                  {activeTab==='medical' ? <Heart className="w-32 h-32 text-blue-500" strokeWidth={1.1}/> : activeTab==='travel' ? <Plane className="w-32 h-32 text-amber-500" strokeWidth={1.1}/> : <Building2 className="w-32 h-32 text-violet-500" strokeWidth={1.1}/>}
-                </div>}
-                <div className="absolute right-0 top-2 bg-white rounded-2xl shadow-lg border border-slate-100 px-4 py-3 flex items-center gap-3 text-sm font-semibold text-slate-800"><ShieldCheck className="w-5 h-5" style={{color:hero.accent}}/> {hero.benefit}</div>
-              </motion.div>
-            </AnimatePresence>
+    <section className="relative isolate overflow-hidden bg-[#f4faf8] min-h-[590px] lg:min-h-[610px]">
+      <div className="absolute inset-0 -z-20"><img src={heroPhoto[activeTab]} alt="" className="h-full w-full object-cover object-center" /></div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#f8fdfa] via-[#f8fdfa]/95 via-[43%] to-[#f8fdfa]/15" />
+      <div className="max-w-[1320px] mx-auto px-5 sm:px-8 lg:px-12 pt-10 lg:pt-14 pb-12 relative">
+        <div className="max-w-[620px]">
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#d9f6e8] px-3 py-1.5 text-xs font-bold text-[#065f3d]"><ShieldCheck className="w-3.5 h-3.5"/> Nigeria’s trusted insurance partner</span>
+          <AnimatePresence mode="wait"><motion.div key={activeTab} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} transition={{duration:.2}}>
+            <h1 className="mt-5 font-display text-[clamp(39px,4.1vw,61px)] font-extrabold leading-[1.04] tracking-[-.045em] text-[#071e30]">{activeTab==='motor'?<>Buy insurance with<br/>confidence.<br/><span className="text-[#076c44]">Claim stress free.</span></>:<>{hero.title}<br/><span style={{color:hero.accent}}>{hero.highlight}</span></>}</h1>
+            <p className="mt-4 max-w-[465px] text-[15px] leading-relaxed text-slate-600">{activeTab==='motor'?'Compare plans from top insurers, get the best coverage and manage everything online — quickly, securely and without stress.':hero.description}</p>
+          </motion.div></AnimatePresence>
+        </div>
+        <div className="mt-7 max-w-[705px] rounded-[20px] bg-white/95 shadow-[0_15px_50px_rgba(9,42,35,.16)] border border-white overflow-hidden backdrop-blur-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-100" role="tablist" aria-label="Insurance type">{TABS.map(t=>{const Icon=t.icon;return <button key={t.key} type="button" role="tab" aria-selected={activeTab===t.key} onClick={()=>setActiveTab(t.key)} className={`flex items-center justify-center gap-2 min-h-14 px-2 text-[13px] font-bold transition-colors ${activeTab===t.key?'bg-[#087c4b] text-white':'bg-white text-slate-700 hover:bg-emerald-50'}`}><Icon className="w-4 h-4"/><span>{t.label}</span></button>})}</div>
+          <div className="px-5 sm:px-6 py-5">
+            <div className="flex flex-wrap justify-between items-start gap-2 mb-3"><div><h2 className="text-base font-extrabold text-slate-900">Get a {activeTab==='motor'?'car':activeTab==='medical'?'health':activeTab} insurance quote</h2><p className="text-xs text-slate-500 mt-1">Enter your details to compare quotes from top insurers.</p></div><Link href="/login" className="text-xs font-semibold text-[#087c4b]">Retrieve saved quote ↗</Link></div>
+            <div className="flex flex-col sm:flex-row gap-2">{activeTab==='motor'?<input aria-label="Car registration number" placeholder="Enter your car number (e.g. LNO 123 AB)" value={plateNum} onChange={e=>setPlateNum(e.target.value.toUpperCase())} onKeyDown={e=>e.key==='Enter'&&startQuote('motor',plateNum)} className="min-w-0 flex-1 h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none focus:border-emerald-600"/>:<select aria-label="Quote details" value={activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType} onChange={e=>activeTab==='medical'?setCoverFor(e.target.value):activeTab==='travel'?setDestination(e.target.value):setBusinessType(e.target.value)} className="min-w-0 flex-1 h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900"><option value="">{activeTab==='medical'?'Who needs cover?':activeTab==='travel'?'Where are you travelling?':'What type of business?'}</option>{activeTab==='medical'?MEDICAL_COVER_OPTIONS.map(o=><option key={o.value} value={o.value}>{o.label}</option>):activeTab==='travel'?TRAVEL_DESTINATIONS.map(d=><option key={d.value} value={d.value}>{d.label}</option>):BUSINESS_TYPES.map(b=><option key={b} value={b}>{b}</option>)}</select>}
+              <button type="button" onClick={()=>startQuote(activeTab,activeTab==='motor'?plateNum:activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType)} className="h-12 px-6 rounded-xl bg-[#07844d] hover:bg-[#056a3e] text-white text-sm font-bold flex items-center justify-center gap-2 shrink-0">Get Quotes <ArrowRight className="w-4 h-4"/></button></div>
+            {activeTab==='motor'&&<button type="button" onClick={()=>startQuote('motor',NEW_CAR_PREFILL)} className="mt-2 text-xs text-emerald-800 underline underline-offset-2">Brand-new car without a plate? Start here</button>}
+            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-4 text-[11px] text-slate-500">{['Instant quotes','Top insurers','Secure & confidential'].map(x=><span key={x} className="inline-flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-700"/>{x}</span>)}</div>
           </div>
         </div>
-        <div className="relative z-20 mt-2 lg:-mt-7 max-w-[950px] rounded-[26px] bg-white border border-slate-200 shadow-[0_22px_65px_rgba(15,61,42,.12)] p-4 sm:p-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6" role="tablist" aria-label="Insurance type">
-            {TABS.map(t=>{const Icon=t.icon;return <button key={t.key} type="button" role="tab" aria-selected={activeTab===t.key} onClick={()=>setActiveTab(t.key)} className="rounded-xl flex items-center justify-center gap-2 px-3 py-3 text-sm font-semibold transition-colors border" style={{background:activeTab===t.key?t.bg:'#fff',color:activeTab===t.key?t.color:'#526175',borderColor:activeTab===t.key?t.color:'#e5e7eb'}}><Icon className="w-4 h-4"/>{t.label}</button>})}
-          </div>
-          <div className="flex flex-wrap justify-between items-start gap-3 mb-4"><div><h2 className="text-xl font-bold text-slate-900">Get a {activeTab==='motor'?'car':activeTab==='medical'?'health':activeTab} insurance quote</h2><p className="text-sm text-slate-500 mt-1">A few details are all you need to get started.</p></div><Link href="/login" className="text-xs text-emerald-800 underline underline-offset-4">Retrieve saved quote</Link></div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 min-w-0">
-              {activeTab==='motor' ? <input aria-label="Car registration number" placeholder="Enter car number (e.g. LAG 123 AB) — optional" value={plateNum} onChange={e=>setPlateNum(e.target.value.toUpperCase())} onKeyDown={e=>e.key==='Enter'&&startQuote('motor',plateNum)} className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm text-slate-900 outline-none focus:border-emerald-600"/> : <select aria-label="Quote details" value={activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType} onChange={e=>activeTab==='medical'?setCoverFor(e.target.value):activeTab==='travel'?setDestination(e.target.value):setBusinessType(e.target.value)} className="w-full h-12 rounded-xl border border-slate-200 px-4 text-sm text-slate-900 bg-white focus:border-emerald-600"><option value="">{activeTab==='medical'?'Who needs cover?':activeTab==='travel'?'Where are you travelling?':'What type of business?'}</option>{activeTab==='medical'?MEDICAL_COVER_OPTIONS.map(o=><option key={o.value} value={o.value}>{o.label}</option>):activeTab==='travel'?TRAVEL_DESTINATIONS.map(d=><option key={d.value} value={d.value}>{d.label}</option>):BUSINESS_TYPES.map(b=><option key={b} value={b}>{b}</option>)}</select>}
-            </div>
-            <button type="button" onClick={()=>startQuote(activeTab,activeTab==='motor'?plateNum:activeTab==='medical'?coverFor:activeTab==='travel'?destination:businessType)} className="h-12 sm:px-8 px-6 rounded-xl font-bold text-white flex items-center justify-center gap-2 hover:brightness-110 transition-all" style={{background:'#07834b'}}>Get Quotes <ArrowRight className="w-4 h-4"/></button>
-          </div>
-          {activeTab==='motor'&&<button type="button" onClick={()=>startQuote('motor',NEW_CAR_PREFILL)} className="mt-3 text-sm font-semibold text-emerald-800 underline underline-offset-2">Brand-new car without a plate? Start here</button>}
-          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-5 text-xs text-slate-500">{['Instant quotes','Compare trusted insurers','Secure & confidential'].map(x=><span key={x} className="inline-flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600"/>{x}</span>)}</div>
-        </div>
-        <p className="flex gap-2 items-center text-xs text-slate-600 mt-5"><Sparkles className="w-4 h-4 text-emerald-600"/> Simple insurance. Clear choices. A more confident tomorrow.</p>
+        <div className="hidden lg:flex absolute right-8 top-16 bg-white/95 rounded-xl shadow-lg px-4 py-3 gap-2 items-center text-xs font-bold text-slate-800"><ShieldCheck className="text-emerald-600 w-6 h-6"/> Comprehensive cover<br/>from trusted insurers</div>
+        <div className="hidden lg:flex absolute right-10 bottom-16 bg-white/95 rounded-xl shadow-lg px-4 py-3 gap-2 items-center text-xs font-bold text-slate-800"><CheckCircle2 className="text-emerald-600 w-6 h-6"/> Quick & easy<br/>claims process</div>
       </div>
     </section>
-  )}
+  )
+}
