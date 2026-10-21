@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowRight, Car, Heart, Plane, Building2 } from 'lucide-react'
-import Tag from '@/components/ui/Tag'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -21,7 +20,7 @@ const products = [
     featureLabel: 'NAICOM Approved',
     color: 'var(--motor-600)', borderColor: '#25D366',
     href: '/motor',
-    icon: Car,
+    icon: Car, image: '/home/motor-hero.svg',
     large: true,
   },
   {
@@ -32,7 +31,7 @@ const products = [
     featureLabel: '700+ Hospitals',
     color: 'var(--medical-600)', borderColor: '#059669',
     href: '/medical',
-    icon: Heart,
+    icon: Heart, image: '/home/medical-hero.svg',
     large: true,
   },
   {
@@ -43,7 +42,7 @@ const products = [
     featureLabel: 'Worldwide Coverage',
     color: 'var(--travel-600)', borderColor: '#D97706',
     href: '/travel',
-    icon: Plane,
+    icon: Plane, image: '/home/travel-hero.svg',
     large: false,
   },
   {
@@ -54,7 +53,7 @@ const products = [
     featureLabel: 'Flexible Cover',
     color: 'var(--business-600)', borderColor: '#7C3AED',
     href: '/business',
-    icon: Building2,
+    icon: Building2, image: '/home/business-hero.svg',
     large: false,
   },
   // Marine and Personal Accident are built (NSIA-backed, full quote flows at
@@ -97,15 +96,12 @@ export default function ProductBentoGrid() {
             >
               <Link
                 href={p.href}
-                className="block h-full rounded-2xl border border-[var(--border-default)] overflow-hidden cursor-pointer bg-white"
+                className="block h-full group rounded-2xl border border-[var(--border-default)] overflow-hidden cursor-pointer bg-white"
                 style={{ borderLeft: `3px solid ${p.borderColor}` }}
               >
-                <div className="relative flex flex-col h-full min-h-[270px] p-6 overflow-hidden" style={{background:`linear-gradient(145deg, white 40%, ${p.tag==='motor'?'#e9f9ee':p.tag==='medical'?'#eaf5ff':p.tag==='travel'?'#fff5e6':'#f4efff'} 100%)`}}>
-                  <div className="flex items-start justify-between gap-2"><Tag variant={p.tag}>{p.tagLabel}</Tag><span className="rounded-full w-9 h-9 bg-white border border-slate-100 flex items-center justify-center"><ArrowRight className="w-4 h-4 text-slate-700"/></span></div>
-                  <div className="mt-7 mb-5 flex items-center justify-center"><div className="w-24 h-24 rounded-[28px] bg-white/80 border border-white shadow-sm flex items-center justify-center"><Icon className="w-12 h-12" strokeWidth={1.4} style={{color:p.color}}/></div></div>
-                  <h3 className="font-display font-bold text-xl text-slate-900">{p.title}</h3>
-                  <p className="font-sans text-sm mt-1 text-slate-600">{p.valueProp}</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold mt-4" style={{color:p.color}}><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7 L6 10 L11 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>{p.featureLabel}</span>
+                <div className="relative flex flex-col h-full min-h-[310px] overflow-hidden" style={{background:`linear-gradient(145deg, white 40%, ${p.tag==='motor'?'#e9f9ee':p.tag==='medical'?'#eaf5ff':p.tag==='travel'?'#fff5e6':'#f4efff'} 100%)`}}>
+                  <div className="relative h-40 overflow-hidden bg-slate-50"><img src={p.image} alt={`${p.title} illustration`} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" /></div>
+                  <div className="p-5 relative flex flex-col flex-1"><div className="absolute -top-6 left-5 bg-white rounded-2xl shadow-md border border-slate-100 w-12 h-12 flex items-center justify-center"><Icon className="w-6 h-6" style={{color:p.color}}/></div><div className="flex items-center justify-end mb-4"><ArrowRight className="w-4 h-4 text-emerald-700"/></div><h3 className="font-display font-bold text-xl text-slate-900">{p.title}</h3><p className="font-sans text-sm mt-1 text-slate-600">{p.valueProp}</p><span className="inline-flex items-center gap-1.5 text-xs font-semibold mt-4" style={{color:p.color}}>{p.featureLabel}</span></div>
                 </div>
               </Link>
             </motion.div>
