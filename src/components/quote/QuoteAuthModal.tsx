@@ -18,6 +18,17 @@ type Product = keyof typeof PRODUCT_CONFIG
 
 const RESEND_SECONDS = 30
 
+const COUNTRY_CODES = [
+  { code: '+234', flag: '🇳🇬', name: 'Nigeria' },
+  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
+  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
+  { code: '+27', flag: '🇿🇦', name: 'South Africa' },
+  { code: '+44', flag: '🇬🇧', name: 'United Kingdom' },
+  { code: '+1', flag: '🇺🇸', name: 'United States / Canada' },
+  { code: '+971', flag: '🇦🇪', name: 'UAE' },
+  { code: '+91', flag: '🇮🇳', name: 'India' },
+]
+
 /**
  * Sign-in popup shown over the quote flow: the customer verifies a single
  * contact — mobile number *or* email — with a one-time code before the
@@ -27,10 +38,11 @@ const RESEND_SECONDS = 30
 export default function QuoteAuthModal({ product }: { product: Product }) {
   const router = useRouter()
   const config = PRODUCT_CONFIG[product]
-  const { requestOtp, verifyOtp, isLoading } = useAuthStore()
+  const { requestOtp, verifyOtp, demoLogin, isLoading } = useAuthStore()
 
   const [channel, setChannel] = useState<OtpChannel>('phone')
   const [value, setValue] = useState('')
+  const [dialCode, setDialCode] = useState('+234')
   const [stage, setStage] = useState<'identify' | 'otp'>('identify')
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -51,12 +63,15 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
     return () => clearTimeout(t)
   }, [secondsLeft])
 
-  const sentTo = channel === 'phone' ? `+234 ${value}` : value
+  const sentTo = channel === 'phone' ? `${dialCode} ${value}` : value
+  // What the auth store sees: the full international number for a phone, so
+  // two countries' numbers never look alike.
+  const contact = channel === 'phone' ? `${dialCode} ${value}` : value
 
   async function sendCode() {
     setError('')
     setResent(false)
-    const res = await requestOtp(channel, value)
+    const res = await requestOtp(channel, contact)
     if (!res.success) return setError(res.error ?? 'Something went wrong.')
     setStage('otp')
     setSecondsLeft(RESEND_SECONDS)
@@ -67,7 +82,7 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
   async function resendCode() {
     if (secondsLeft > 0 || isLoading) return
     setError('')
-    const res = await requestOtp(channel, value)
+    const res = await requestOtp(channel, contact)
     if (!res.success) return setError(res.error ?? 'Something went wrong.')
     setCode(['', '', '', '', '', ''])
     setSecondsLeft(RESEND_SECONDS)
@@ -77,7 +92,7 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
 
   async function submitCode() {
     setError('')
-    const res = await verifyOtp(channel, value, code.join(''))
+    const res = await verifyOtp(channel, contact, code.join(''))
     if (!res.success) setError(res.error ?? 'Something went wrong.')
     // On success the store holds a user and the quote page drops this modal.
   }
@@ -167,12 +182,22 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                 <div className="relative mb-3">
                   {channel === 'phone' ? (
                     <>
-                      <span
-                        className="absolute left-3 top-1/2 -translate-y-1/2 font-sans font-semibold text-[14px] pr-3 border-r"
-                        style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-default)' }}
+                      <div
+                        className="absolute left-0 top-0 h-full flex items-center pl-3 pr-2 border-r"
+                        style={{ borderColor: 'var(--border-default)' }}
                       >
-                        +234
-                      </span>
+                        <select
+                          aria-label="Country code"
+                          value={dialCode}
+                          onChange={(e) => setDialCode(e.target.value)}
+                          className="h-full bg-transparent font-sans font-semibold text-[14px] outline-none cursor-pointer pr-1"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code} title={c.name}>{c.flag} {c.code}</option>
+                          ))}
+                        </select>
+                      </div>
                       <input
                         autoFocus
                         type="tel"
@@ -181,7 +206,7 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                         onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 11))}
                         onKeyDown={(e) => e.key === 'Enter' && sendCode()}
                         placeholder="801 234 5678"
-                        className="w-full h-13 py-3.5 pl-[76px] pr-4 rounded-2xl border-[1.5px] font-sans text-[15px] outline-none transition-all"
+                        className="w-full h-13 py-3.5 pl-[104px] pr-4 rounded-2xl border-[1.5px] font-sans text-[15px] outline-none transition-all"
                         style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
                         onFocus={(e) => { e.currentTarget.style.borderColor = config.color }}
                         onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }}
@@ -216,6 +241,15 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                   style={{ backgroundColor: config.color }}
                 >
                   {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending code…</> : 'Continue →'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={demoLogin}
+                  className="w-full mt-3 h-10 rounded-2xl font-sans font-semibold text-[13px] border-[1.5px] border-dashed transition-colors hover:bg-[var(--surface-raised)]"
+                  style={{ borderColor: config.color, color: config.color }}
+                >
+                  Demo: skip OTP and sign in as Emeka Okonkwo
                 </button>
               </motion.div>
             ) : (

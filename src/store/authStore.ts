@@ -27,6 +27,8 @@ interface AuthStore {
   requestOtp: (channel: OtpChannel, value: string) => Promise<{ success: boolean; error?: string }>
   verifyOtp: (channel: OtpChannel, value: string, code: string) => Promise<{ success: boolean; error?: string }>
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>
+  /** Demo-only shortcut: signs in as the seeded customer without an OTP. */
+  demoLogin: () => void
   logout: () => void
 }
 
@@ -97,7 +99,7 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true })
         await new Promise((r) => setTimeout(r, 700))
         set({ isLoading: false })
-        if (channel === 'phone' && value.replace(/\D/g, '').length < 10) {
+        if (channel === 'phone' && value.replace(/\D/g, '').length < 8) {
           return { success: false, error: 'Enter a valid mobile number.' }
         }
         if (channel === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
@@ -131,6 +133,8 @@ export const useAuthStore = create<AuthStore>()(
         set({ user, isLoading: false })
         return { success: true }
       },
+
+      demoLogin: () => set({ user: MOCK_USERS['customer@demo.com'] }),
 
       logout: () => set({ user: null }),
     }),
