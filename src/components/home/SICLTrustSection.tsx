@@ -10,25 +10,25 @@ const stats = [
     sub: 'In operation since 1980',
   },
   {
-    value: '$2M',
-    label: 'Professional Indemnity',
-    sub: 'Every policy is protected',
+    value: '4',
+    label: 'Insurance categories',
+    sub: 'Motor, medical, travel and business',
   },
   {
-    value: '97%',
-    label: 'Client Retention Rate',
-    sub: 'Clients who return, year on year',
+    value: '1980',
+    label: 'Brokerage heritage',
+    sub: 'Standard Insurance Consultants',
   },
 ]
 
 export default function SICLTrustSection() {
   return (
     <section
-      className="px-5 lg:px-20 py-14 lg:py-20"
+      className="px-5 lg:px-20 py-16 lg:py-20"
       style={{ background: 'linear-gradient(135deg, #011a14 0%, #022c22 60%, #063d24 100%)' }}
     >
       <div className="max-w-[1280px] mx-auto">
-        <div className="grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
+        <div className="grid lg:grid-cols-[55fr_45fr] gap-12 lg:gap-20 items-center">
 
           {/* Left — SICL identity */}
           <motion.div
@@ -38,7 +38,7 @@ export default function SICLTrustSection() {
             transition={{ duration: 0.5 }}
           >
             <p className="font-sans font-semibold text-[13px] mb-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
-              Backed by
+              About ShopInsurance
             </p>
 
             {/* SICL logo — on a white pill for contrast */}
@@ -54,7 +54,7 @@ export default function SICLTrustSection() {
             </div>
 
             <h2 className="font-display font-extrabold text-[22px] lg:text-[26px] leading-tight tracking-tight text-white mb-4 max-w-[480px]">
-              Nigeria&apos;s most trusted insurance brokerage — behind every policy on this platform
+              Nigeria&apos;s most trusted insurance marketplace.
             </h2>
 
             <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.75)' }}>
@@ -84,7 +84,7 @@ export default function SICLTrustSection() {
           </motion.div>
 
           {/* Right — Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-0 lg:gap-0 divide-y lg:divide-y divide-x-0 sm:divide-x lg:divide-x-0"
+          <div className="grid grid-cols-2 gap-6 lg:gap-8"
             style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
             {stats.map(({ value, label, sub }, i) => (
               <motion.div
