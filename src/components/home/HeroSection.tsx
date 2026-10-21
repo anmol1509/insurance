@@ -20,9 +20,9 @@ type TabKey = 'motor' | 'medical' | 'travel' | 'business'
 
 const HERO_COPY: Record<TabKey, { eyebrow: string; title: string; highlight: string; description: string; image: string; imageAlt: string; accent: string; wash: string; benefit: string }> = {
   motor: { eyebrow: 'Drive with peace of mind', title: 'Drive with complete', highlight: 'confidence.', description: 'Compare motor insurance from trusted insurers and get the coverage that fits your car.', image: '/home/motor-hero.svg', imageAlt: 'White car with green city illustration', accent: '#087a47', wash: '#eaf8ef', benefit: 'Protection for every journey' },
-  medical: { eyebrow: 'Care that puts you first', title: 'Better health.', highlight: 'Brighter tomorrows.', description: 'Find medical cover for yourself and the people who matter most.', image: '', imageAlt: '', accent: '#1765c1', wash: '#eaf4ff', benefit: 'Care when it matters most' },
-  travel: { eyebrow: 'Go further with confidence', title: 'Explore the world.', highlight: 'Worry-free.', description: 'Compare travel policies for your next adventure, with support wherever you go.', image: '', imageAlt: '', accent: '#bc770c', wash: '#fff5e5', benefit: 'Cover beyond borders' },
-  business: { eyebrow: 'Built for ambitious businesses', title: 'Protect what', highlight: 'you’ve built.', description: 'Find coverage for your premises, people and operations as your business grows.', image: '', imageAlt: '', accent: '#7041b8', wash: '#f3eeff', benefit: 'Your growth deserves protection' },
+  medical: { eyebrow: 'Care that puts you first', title: 'Better health.', highlight: 'Brighter tomorrows.', description: 'Find medical cover for yourself and the people who matter most.', image: '/home/medical-hero.svg', imageAlt: '', accent: '#1765c1', wash: '#eaf4ff', benefit: 'Care when it matters most' },
+  travel: { eyebrow: 'Go further with confidence', title: 'Explore the world.', highlight: 'Worry-free.', description: 'Compare travel policies for your next adventure, with support wherever you go.', image: '/home/travel-hero.svg', imageAlt: '', accent: '#bc770c', wash: '#fff5e5', benefit: 'Cover beyond borders' },
+  business: { eyebrow: 'Built for ambitious businesses', title: 'Protect what', highlight: 'you’ve built.', description: 'Find coverage for your premises, people and operations as your business grows.', image: '/home/business-hero.svg', imageAlt: '', accent: '#7041b8', wash: '#f3eeff', benefit: 'Your growth deserves protection' },
 }
 
 export default function HeroSection() {
