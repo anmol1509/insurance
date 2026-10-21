@@ -2,8 +2,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2, Zap, FileText, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2, Zap, FileText, ChevronDown, Search, Check } from 'lucide-react'
 import { useAuthStore, type OtpChannel } from '@/store/authStore'
+import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/lib/countryCodes'
 
 const PRODUCT_CONFIG = {
   motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'motor quote'    },
@@ -18,16 +19,6 @@ type Product = keyof typeof PRODUCT_CONFIG
 
 const RESEND_SECONDS = 30
 
-const COUNTRY_CODES = [
-  { code: '+234', flag: '🇳🇬', name: 'Nigeria' },
-  { code: '+233', flag: '🇬🇭', name: 'Ghana' },
-  { code: '+254', flag: '🇰🇪', name: 'Kenya' },
-  { code: '+27', flag: '🇿🇦', name: 'South Africa' },
-  { code: '+44', flag: '🇬🇧', name: 'United Kingdom' },
-  { code: '+1', flag: '🇺🇸', name: 'United States / Canada' },
-  { code: '+971', flag: '🇦🇪', name: 'UAE' },
-  { code: '+91', flag: '🇮🇳', name: 'India' },
-]
 
 /**
  * Sign-in popup shown over the quote flow: the customer verifies a single
@@ -42,7 +33,11 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
 
   const [channel, setChannel] = useState<OtpChannel>('phone')
   const [value, setValue] = useState('')
-  const [dialCode, setDialCode] = useState('+234')
+  const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [countryQuery, setCountryQuery] = useState('')
+  const pickerRef = useRef<HTMLDivElement | null>(null)
+  const dialCode = country.dial
   const [stage, setStage] = useState<'identify' | 'otp'>('identify')
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -62,6 +57,20 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
     const t = setTimeout(() => setSecondsLeft((n) => n - 1), 1000)
     return () => clearTimeout(t)
   }, [secondsLeft])
+
+  useEffect(() => {
+    if (!pickerOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (!pickerRef.current?.contains(e.target as Node)) setPickerOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPickerOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [pickerOpen])
 
   const sentTo = channel === 'phone' ? `${dialCode} ${value}` : value
   // What the auth store sees: the full international number for a phone, so
@@ -118,7 +127,10 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
   const inputBase = 'w-full h-14 rounded-full border-[1.5px] bg-white font-sans text-[15px] outline-none transition-all'
   const focusOn = (e: React.FocusEvent<HTMLElement>) => { e.currentTarget.style.borderColor = config.color }
   const focusOff = (e: React.FocusEvent<HTMLElement>) => { e.currentTarget.style.borderColor = 'var(--border-medium)' }
-  const selected = COUNTRY_CODES.find((c) => c.code === dialCode) ?? COUNTRY_CODES[0]
+  const q = countryQuery.trim().toLowerCase().replace(/^\+/, '')
+  const visibleCountries = q
+    ? COUNTRIES.filter((c) => c.name.toLowerCase().includes(q) || c.dial.slice(1).startsWith(q) || c.iso.toLowerCase() === q)
+    : COUNTRIES
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -252,31 +264,71 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                   <div className="relative mb-4">
                     {channel === 'phone' ? (
                       <>
-                        <div className="absolute left-0 top-0 h-full flex items-center pl-4 pr-3 border-r gap-1.5" style={{ borderColor: 'var(--border-default)' }}>
-                          <span className="text-[17px] leading-none">{selected.flag}</span>
-                          <span className="font-sans font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>{selected.code}</span>
-                          <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
-                          {/* Native select laid over the label so the OS picker still opens. */}
-                          <select
+                        <div ref={pickerRef}>
+                          <button
+                            type="button"
                             aria-label="Country code"
-                            value={dialCode}
-                            onChange={(e) => setDialCode(e.target.value)}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            aria-haspopup="listbox"
+                            aria-expanded={pickerOpen}
+                            onClick={() => { setPickerOpen((o) => !o); setCountryQuery('') }}
+                            className="absolute left-0 top-0 h-full flex items-center pl-4 pr-3 border-r gap-1.5 rounded-l-full"
+                            style={{ borderColor: 'var(--border-default)' }}
                           >
-                            {COUNTRY_CODES.map((c) => (
-                              <option key={c.code} value={c.code}>{c.flag} {c.code} {c.name}</option>
-                            ))}
-                          </select>
+                            <span className="text-[17px] leading-none">{country.flag}</span>
+                            <span className="font-sans font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>{country.dial}</span>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${pickerOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
+                          </button>
+
+                          {pickerOpen && (
+                            <div
+                              className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 bg-white rounded-2xl border overflow-hidden"
+                              style={{ borderColor: 'var(--border-default)', boxShadow: '0 12px 32px rgba(0,0,0,0.14)' }}
+                            >
+                              <div className="relative p-2 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--text-subtle)' }} />
+                                <input
+                                  autoFocus
+                                  value={countryQuery}
+                                  onChange={(e) => setCountryQuery(e.target.value)}
+                                  placeholder="Search country or code"
+                                  className="w-full h-10 pl-9 pr-3 rounded-xl font-sans text-[14px] outline-none"
+                                  style={{ backgroundColor: 'var(--surface-raised)', color: 'var(--text-primary)' }}
+                                />
+                              </div>
+                              <ul role="listbox" className="max-h-[220px] overflow-y-auto py-1">
+                                {visibleCountries.length === 0 && (
+                                  <li className="px-4 py-3 font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>No country found</li>
+                                )}
+                                {visibleCountries.map((c) => {
+                                  const active = c.iso === country.iso
+                                  return (
+                                    <li key={c.iso} role="option" aria-selected={active}>
+                                      <button
+                                        type="button"
+                                        onClick={() => { setCountry(c); setPickerOpen(false) }}
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-[var(--surface-raised)] transition-colors"
+                                      >
+                                        <span className="text-[18px] leading-none">{c.flag}</span>
+                                        <span className="flex-1 font-sans text-[14px] truncate" style={{ color: 'var(--text-primary)' }}>{c.name}</span>
+                                        <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{c.dial}</span>
+                                        {active && <Check className="w-4 h-4" style={{ color: config.color }} />}
+                                      </button>
+                                    </li>
+                                  )
+                                })}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                         <input
                           autoFocus
                           type="tel"
                           inputMode="numeric"
                           value={value}
-                          onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                          onChange={(e) => setValue(e.target.value.replace(/\D/g, '').slice(0, 15))}
                           onKeyDown={(e) => e.key === 'Enter' && sendCode()}
                           placeholder="801 234 5678"
-                          className={`${inputBase} pl-[128px] pr-5`}
+                          className={`${inputBase} pl-[150px] pr-5`}
                           style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}
                           onFocus={focusOn}
                           onBlur={focusOff}
