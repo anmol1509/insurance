@@ -2,20 +2,78 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, Lock, RotateCw, CheckCircle2, Zap, FileText, ChevronDown, Search, Check } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, ShieldCheck, Loader2, X, RotateCw, CheckCircle2, Zap, FileText, ChevronDown, Search, Check, Car, HeartPulse, Plane, BriefcaseBusiness, Ship, Users, Globe2, Building2, type LucideIcon } from 'lucide-react'
 import { useAuthStore, type OtpChannel } from '@/store/authStore'
 import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/lib/countryCodes'
 
-const PRODUCT_CONFIG = {
-  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'motor quote'    },
-  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'health quote'   },
-  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'travel quote'   },
-  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'business quote' },
-  marine:   { color: 'var(--marine-600)',   colorBg: 'var(--marine-50)',   label: 'marine quote'   },
-  'personal-accident': { color: 'var(--pa-600)', colorBg: 'var(--pa-50)', label: 'accident cover quote' },
+type Perk = { icon: LucideIcon; text: string }
+
+interface ProductAuth {
+  color: string
+  colorBg: string
+  icon: LucideIcon
+  /** Small pill beside the icon. */
+  pill: string
+  /** Two-line headline: plain first line, coloured second line. */
+  title: [string, string]
+  /** What the one-time code is for, shown under the headline. */
+  reason: string
+  /** Three reassurance chips shown on the email tab. */
+  perks: [Perk, Perk, Perk]
+  /** Left-panel image: the illustration is shown as is, a photo in a rounded frame. */
+  image?: { src: string; kind: 'illustration' | 'photo'; position?: string }
 }
 
-type Product = keyof typeof PRODUCT_CONFIG
+const PRODUCT_CONFIG: Record<string, ProductAuth> = {
+  motor: {
+    color: 'var(--motor-600)', colorBg: 'var(--motor-50)', icon: Car,
+    pill: 'Secure & Instant',
+    title: ['Let’s get your', 'motor quote'],
+    reason: 'confirm it’s you',
+    perks: [{ icon: Zap, text: 'Quick & easy' }, { icon: ShieldCheck, text: 'Your data is safe' }, { icon: FileText, text: 'No spam guaranteed' }],
+    image: { src: '/auth/car-illustration.webp', kind: 'illustration' },
+  },
+  medical: {
+    color: 'var(--medical-600)', colorBg: 'var(--medical-50)', icon: HeartPulse,
+    pill: 'Cover for your family',
+    title: ['Let’s find your', 'health cover'],
+    reason: 'keep your health quote private',
+    perks: [{ icon: Users, text: 'Plans for the whole family' }, { icon: ShieldCheck, text: 'Your health data stays private' }, { icon: Zap, text: 'Compare in minutes' }],
+    image: { src: '/home/photos/medical.webp', kind: 'photo', position: '75% 50%' },
+  },
+  travel: {
+    color: 'var(--travel-600)', colorBg: 'var(--travel-50)', icon: Plane,
+    pill: 'Travel with confidence',
+    title: ['Let’s cover', 'your trip'],
+    reason: 'save your trip quote',
+    perks: [{ icon: Globe2, text: 'Cover for wherever you go' }, { icon: ShieldCheck, text: 'Your trip details stay private' }, { icon: Zap, text: 'Quote in minutes' }],
+    image: { src: '/home/photos/travel.webp', kind: 'photo', position: '70% 50%' },
+  },
+  business: {
+    color: 'var(--business-600)', colorBg: 'var(--business-50)', icon: BriefcaseBusiness,
+    pill: 'Built for business',
+    title: ['Let’s protect your', 'business'],
+    reason: 'keep your business quote secure',
+    perks: [{ icon: Building2, text: 'Cover built around your business' }, { icon: ShieldCheck, text: 'Your company data is safe' }, { icon: Zap, text: 'Quick to compare' }],
+    image: { src: '/home/photos/business.webp', kind: 'photo', position: '78% 50%' },
+  },
+  marine: {
+    color: 'var(--marine-600)', colorBg: 'var(--marine-50)', icon: Ship,
+    pill: 'Secure & Instant',
+    title: ['Let’s get your', 'marine quote'],
+    reason: 'confirm it’s you',
+    perks: [{ icon: Zap, text: 'Quick & easy' }, { icon: ShieldCheck, text: 'Your data is safe' }, { icon: FileText, text: 'No spam guaranteed' }],
+  },
+  'personal-accident': {
+    color: 'var(--pa-600)', colorBg: 'var(--pa-50)', icon: ShieldCheck,
+    pill: 'Secure & Instant',
+    title: ['Let’s get your', 'accident cover quote'],
+    reason: 'confirm it’s you',
+    perks: [{ icon: Zap, text: 'Quick & easy' }, { icon: ShieldCheck, text: 'Your data is safe' }, { icon: FileText, text: 'No spam guaranteed' }],
+  },
+}
+
+type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
 const RESEND_SECONDS = 30
 
@@ -171,27 +229,27 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
                 style={{ boxShadow: '0 4px 14px rgba(0,0,0,0.08)' }}
               >
                 {stage === 'identify'
-                  ? <Lock className="w-6 h-6" style={{ color: config.color }} />
+                  ? <config.icon className="w-6 h-6" style={{ color: config.color }} />
                   : <ShieldCheck className="w-6 h-6" style={{ color: config.color }} />}
               </span>
               <span
                 className="px-4 py-1.5 rounded-full font-sans font-semibold text-[13px]"
                 style={{ backgroundColor: config.colorBg, color: 'var(--text-primary)' }}
               >
-                Secure &amp; Instant
+                {stage === 'identify' ? config.pill : 'Secure & Instant'}
               </span>
             </div>
 
             {stage === 'identify' ? (
               <>
                 <h2 className="font-display font-bold text-[30px] md:text-[34px] leading-[1.1] tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
-                  Let’s get your<br />
-                  <span style={{ color: config.color }}>{config.label}</span>
+                  {config.title[0]}<br />
+                  <span style={{ color: config.color }}>{config.title[1]}</span>
                 </h2>
                 <p className="font-sans text-[15px] leading-relaxed max-w-[330px]" style={{ color: 'var(--text-muted)' }}>
                   {channel === 'phone'
-                    ? 'Enter your mobile number or email — we’ll send a one-time code to confirm it’s you.'
-                    : 'Enter your email or mobile number — we’ll send a one-time code to confirm it’s you.'}
+                    ? `Enter your mobile number or email — we’ll send a one-time code to ${config.reason}.`
+                    : `Enter your email or mobile number — we’ll send a one-time code to ${config.reason}.`}
                 </p>
               </>
             ) : (
@@ -208,11 +266,7 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
 
             {channel === 'email' && stage === 'identify' && (
               <div className="hidden md:flex gap-3 mt-6">
-                {[
-                  { icon: Zap, text: 'Quick & easy' },
-                  { icon: ShieldCheck, text: 'Your data is safe' },
-                  { icon: FileText, text: 'No spam guaranteed' },
-                ].map(({ icon: Icon, text }) => (
+                {config.perks.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-2 flex-1">
                     <span className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: config.colorBg }}>
                       <Icon className="w-4 h-4" style={{ color: config.color }} />
@@ -223,13 +277,26 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
               </div>
             )}
 
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/auth/car-illustration.webp"
-              alt=""
-              aria-hidden="true"
-              className="hidden md:block w-full max-w-[400px] mt-auto pt-6 select-none pointer-events-none"
-            />
+            {config.image && (config.image.kind === 'illustration' ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={config.image.src}
+                alt=""
+                aria-hidden="true"
+                className="hidden md:block w-full max-w-[400px] mt-auto pt-6 select-none pointer-events-none"
+              />
+            ) : (
+              <div className="hidden md:block mt-auto pt-6">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={config.image.src}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-full max-w-[400px] h-[210px] object-cover rounded-3xl select-none pointer-events-none"
+                  style={{ objectPosition: config.image.position, boxShadow: '0 14px 34px rgba(15, 23, 42, 0.14)' }}
+                />
+              </div>
+            ))}
           </div>
 
           {/* Right: form */}
