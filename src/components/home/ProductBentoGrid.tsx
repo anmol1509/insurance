@@ -52,8 +52,9 @@ export default function ProductBentoGrid() {
                 <Image
                   src={`/home/photos/${product.key}.webp`}
                   alt={product.alt}
+                  loading="eager"
                   fill
-                  sizes="(max-width: 600px) 90vw, (max-width: 1000px) 45vw, 280px"
+                  sizes="(max-width: 700px) 45vw, (max-width: 1000px) 45vw, 280px"
                 />
               </div>
               <div className={s.productContent}>
