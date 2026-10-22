@@ -21,7 +21,7 @@ export default function TestimonialsSection() {
             <h3>Real stories deserve a place here.</h3>
             <p>
               Customer reviews will appear here when they’re available. Already
-              used Shapinsurance? We’d love to hear from you.
+              used ShopInsurance? We’d love to hear from you.
             </p>
           </div>
           <Link href="/contact">

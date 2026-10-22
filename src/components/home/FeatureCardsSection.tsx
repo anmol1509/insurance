@@ -24,7 +24,7 @@ const benefits = [
 ]
 export default function FeatureCardsSection() {
   return (
-    <section className={s.benefits} aria-label="Why choose Shapinsurance">
+    <section className={s.benefits} aria-label="Why choose ShopInsurance">
       <div className={s.container}>
         {benefits.map(({ icon: Icon, title, description }) => (
           <div key={title}>

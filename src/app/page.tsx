@@ -14,14 +14,14 @@ import TrustBannerSection from '@/components/home/TrustBannerSection'
 import ClaimsSupportSection from '@/components/home/ClaimsSupportSection'
 
 export const metadata: Metadata = {
-  title: { absolute: 'Shapinsurance — Confident cover, stress-free claims' },
+  title: { absolute: 'ShopInsurance — Confident cover, stress-free claims' },
   description:
     'Compare motor, medical, travel and business insurance. Find cover that fits, manage your policies online and get help with claims.',
   openGraph: {
-    title: 'Shapinsurance — Confident cover, stress-free claims',
+    title: 'ShopInsurance — Confident cover, stress-free claims',
     description:
       'Compare insurance, manage your policies and get help with claims in one place.',
-    siteName: 'Shapinsurance',
+    siteName: 'ShopInsurance',
   },
 }
 

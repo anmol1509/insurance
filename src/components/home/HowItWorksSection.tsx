@@ -58,7 +58,7 @@ export default function HowItWorksSection() {
           <div className={s.phoneScreen}>
             <div className={s.phoneBrand}>
               <ShieldCheck size={19} />
-              Shapinsurance
+              ShopInsurance
             </div>
             <h3>Car Insurance</h3>
             <p>Let’s find your cover.</p>

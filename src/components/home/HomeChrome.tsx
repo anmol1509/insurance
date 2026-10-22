@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowRight, ChevronDown, Menu, X, Shield } from 'lucide-react'
+import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react'
 import AccountMenu from '@/components/layout/AccountMenu'
 import { useAuthStore } from '@/store/authStore'
 import { useHydrated } from '@/lib/useHydrated'
@@ -10,12 +10,16 @@ import s from './homepage.module.css'
 
 export function HomeBrand() {
   return (
-    <Link href="/" className={s.brand} aria-label="Shapinsurance home">
-      <span className={s.brandMark}>
-        <Shield aria-hidden="true" />
-        <b>S</b>
-      </span>
-      <span>Shapinsurance</span>
+    <Link href="/" className={s.brand} aria-label="ShopInsurance home">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/shopinsurance-logo.webp"
+        alt=""
+        width={40}
+        height={40}
+        style={{ width: 40, height: 40, borderRadius: 9 }}
+      />
+      <span>ShopInsurance</span>
     </Link>
   )
 }
@@ -183,7 +187,7 @@ export function HomeFooter() {
         </div>
         <div className={s.footerBottom}>
           <p>
-            © {new Date().getFullYear()} Shapinsurance. All rights reserved.
+            © {new Date().getFullYear()} ShopInsurance. All rights reserved.
           </p>
           <Link href="/contact">Contact us</Link>
         </div>
