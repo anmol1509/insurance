@@ -29,7 +29,7 @@ export default function MotorQuoteLayout({currentStep,totalSteps,stepTitle,stepS
     </div></header>
     <nav className={s.rail} aria-label="Motor quote progress"><div className={s.railInner}>{steps.map((step,index)=>{const n=index+1;const state=n<currentStep?'complete':n===currentStep?'active':'';return <span key={step.id} style={{display:'contents'}}><button type="button" disabled={n>maxStep} onClick={()=>n<=maxStep&&onStepSelect(n)} className={`${s.railStep} ${state?s[state]:''}`}><span className={s.railNum}>{n<currentStep?<Check size={15}/>:n}</span><span>{step.label}</span></button>{index<steps.length-1&&<span className={s.connector}/>}</span>})}</div></nav>
     <div className={s.content}><div className={`${s.twoColumn} ${isPlan?s.plan:''}`}>
-      {isPlan?<PlanSidebar data={motorData} plan={plan}/>:<ContextPanel step={currentStep} data={motorData} plan={plan}/>} 
+      {isPlan?<PlanSidebar data={motorData} plan={plan}/>:<ContextPanel step={currentStep} data={motorData} plan={plan}/>}
       <main className={isPlan?s.planMain:s.panel}>
         <div className={s.panelHeader}><div><h2>{stepTitle}</h2><p>{stepSub}</p></div></div>
         <div className={s.body}>{children}</div>

@@ -7,12 +7,12 @@ import { useAuthStore, type OtpChannel } from '@/store/authStore'
 import { COUNTRIES, DEFAULT_COUNTRY, type Country } from '@/lib/countryCodes'
 
 const PRODUCT_CONFIG = {
-  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'motor quote'    },
-  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'health quote'   },
-  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'travel quote'   },
-  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'business quote' },
-  marine:   { color: 'var(--marine-600)',   colorBg: 'var(--marine-50)',   label: 'marine quote'   },
-  'personal-accident': { color: 'var(--pa-600)', colorBg: 'var(--pa-50)', label: 'accident cover quote' },
+  motor:    { color: 'var(--motor-600)',    colorBg: 'var(--motor-50)',    label: 'motor quote',    image: '/auth/car-illustration.webp', alt: 'Motor insurance vehicle' },
+  medical:  { color: 'var(--medical-600)',  colorBg: 'var(--medical-50)',  label: 'health quote',   image: '/home/medical-hero.svg', alt: 'Medical insurance family' },
+  travel:   { color: 'var(--travel-600)',   colorBg: 'var(--travel-50)',   label: 'travel quote',   image: '/home/travel-hero.svg', alt: 'Travel insurance destination' },
+  business: { color: 'var(--business-600)', colorBg: 'var(--business-50)', label: 'business quote', image: '/home/business-hero.svg', alt: 'Business insurance workspace' },
+  marine:   { color: 'var(--marine-600)',   colorBg: 'var(--marine-50)',   label: 'marine quote',   image: '/home/business-hero.svg', alt: 'Business insurance workspace' },
+  'personal-accident': { color: 'var(--pa-600)', colorBg: 'var(--pa-50)', label: 'accident cover quote', image: '/home/medical-hero.svg', alt: 'Personal accident protection' },
 }
 
 type Product = keyof typeof PRODUCT_CONFIG
@@ -225,10 +225,9 @@ export default function QuoteAuthModal({ product }: { product: Product }) {
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/auth/car-illustration.webp"
-              alt=""
-              aria-hidden="true"
-              className="hidden md:block w-full max-w-[400px] mt-auto pt-6 select-none pointer-events-none"
+              src={config.image}
+              alt={config.alt}
+              className="hidden md:block w-full max-w-[400px] max-h-[250px] object-contain mt-auto pt-6 select-none pointer-events-none"
             />
           </div>
 
