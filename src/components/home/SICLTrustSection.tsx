@@ -87,7 +87,7 @@ export default function SICLTrustSection() {
                   style={{ fontSize: 'clamp(40px, 4vw, 52px)', color: 'var(--green-400)' }}>
                   {value}
                 </p>
-                <p className="font-sans font-bold text-[15px] text-white mb-0.5">{label}</p>
+                <p className="font-sans font-bold text-[15px] mb-0.5" style={{ color: '#ffffff' }}>{label}</p>
                 <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{sub}</p>
               </motion.div>
             ))}
