@@ -26,6 +26,24 @@ function findPhotoUrl(value: unknown): string | null {
   return null
 }
 
+function listingPhoto(payload: unknown, make: string, model: string, year?: string): string | null {
+  if (!payload || typeof payload !== 'object' || !Array.isArray((payload as { data?: unknown }).data)) return null
+  const rows = (payload as { data: unknown[] }).data
+  const match = rows.find((row) => {
+    if (!row || typeof row !== 'object') return false
+    const vehicle = (row as { vehicle?: unknown }).vehicle
+    if (!vehicle || typeof vehicle !== 'object') return false
+    const fields = vehicle as Record<string, unknown>
+    const receivedModel = typeof fields.model === 'string' ? simplify(fields.model) : ''
+    const requestedModel = simplify(model)
+    return typeof fields.make === 'string' && simplify(fields.make) === simplify(make)
+      && (receivedModel === requestedModel || receivedModel.startsWith(requestedModel) || requestedModel.startsWith(receivedModel))
+      && (!year || String(fields.year) === year)
+  })
+  if (!match || typeof match !== 'object') return null
+  return findPhotoUrl((match as { retailListing?: unknown }).retailListing)
+}
+
 export async function GET(request: NextRequest) {
   const vin = request.nextUrl.searchParams.get('vin')?.trim().toUpperCase() ?? ''
   const make = request.nextUrl.searchParams.get('make')?.trim() ?? ''
@@ -39,40 +57,35 @@ export async function GET(request: NextRequest) {
   if (!apiKey) return NextResponse.json({ success: false, error: 'Vehicle photos are unavailable.' }, { status: 503 })
 
   try {
-    const endpoint = hasVin
-      ? `https://api.auto.dev/photos/${encodeURIComponent(vin)}`
-      : (() => {
-          const params = new URLSearchParams({ 'vehicle.make': make, 'vehicle.model': model, limit: '10' })
-          if (year) params.set('vehicle.year', year)
-          return `https://api.auto.dev/listings?${params}`
-        })()
-    const response = await fetch(endpoint, {
-      headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
-      next: { revalidate: 86400 },
-      signal: AbortSignal.timeout(8_000),
-    })
-    if (!response.ok) return NextResponse.json({ success: false, error: 'No matching vehicle photo was found.' }, { status: 404 })
-    const payload: unknown = await response.json()
-    let imageUrl: string | null = null
-    if (hasVin) {
-      imageUrl = findPhotoUrl(payload)
-    } else if (payload && typeof payload === 'object' && Array.isArray((payload as { data?: unknown }).data)) {
-      const match = (payload as { data: unknown[] }).data.find((row) => {
-        if (!row || typeof row !== 'object') return false
-        const vehicle = (row as { vehicle?: unknown }).vehicle
-        if (!vehicle || typeof vehicle !== 'object') return false
-        const fields = vehicle as Record<string, unknown>
-        return typeof fields.make === 'string' && simplify(fields.make) === simplify(make)
-          && typeof fields.model === 'string' && simplify(fields.model) === simplify(model)
-          && (!year || String(fields.year) === year)
+    const requestAutoDev = async (endpoint: string) => {
+      const response = await fetch(endpoint, {
+        headers: { Authorization: `Bearer ${apiKey}`, Accept: 'application/json' },
+        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(8_000),
       })
-      if (match && typeof match === 'object') {
-        const retailListing = (match as { retailListing?: unknown }).retailListing
-        if (retailListing && typeof retailListing === 'object') imageUrl = findPhotoUrl((retailListing as { primaryImage?: unknown }).primaryImage)
+      return response.ok ? response.json() as Promise<unknown> : null
+    }
+    let imageUrl: string | null = null
+    let matchedBy = hasVin ? 'vin' : year ? 'make-model-year' : 'make-model'
+    if (hasVin) {
+      imageUrl = findPhotoUrl(await requestAutoDev(`https://api.auto.dev/photos/${encodeURIComponent(vin)}`))
+    } else {
+      const listingUrl = (includeYear: boolean) => {
+        const params = new URLSearchParams({ 'vehicle.make': make, 'vehicle.model': model, limit: '10' })
+        if (includeYear && year) params.set('vehicle.year', year)
+        return `https://api.auto.dev/listings?${params}`
+      }
+      const exactPayload = await requestAutoDev(listingUrl(true))
+      imageUrl = listingPhoto(exactPayload, make, model, year)
+      // A selected Nigerian model year may have no active US dealer listing.
+      // Reuse the same model's nearest available listing image rather than an unrelated generic car.
+      if (!imageUrl && year) {
+        imageUrl = listingPhoto(await requestAutoDev(listingUrl(false)), make, model)
+        if (imageUrl) matchedBy = 'make-model'
       }
     }
     if (!imageUrl) return NextResponse.json({ success: false, error: 'No matching vehicle photo was found.' }, { status: 404 })
-    return NextResponse.json({ success: true, imageUrl, matchedBy: hasVin ? 'vin' : year ? 'make-model-year' : 'make-model' })
+    return NextResponse.json({ success: true, imageUrl, matchedBy })
   } catch {
     return NextResponse.json({ success: false, error: 'Vehicle photos are temporarily unavailable.' }, { status: 502 })
   }
