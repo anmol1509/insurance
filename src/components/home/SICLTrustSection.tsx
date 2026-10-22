@@ -1,24 +1,12 @@
 'use client'
 import { motion } from 'framer-motion'
 
-const SICL_LOGO = 'https://res.cloudinary.com/degunlqed/image/upload/v1778748730/standrd_LOGO_new_pvjxu6.avif'
+const SICL_LOGO = '/brand/standard-insurance-logo.avif'
 
 const stats = [
-  {
-    value: '46+',
-    label: 'Years of Experience',
-    sub: 'In operation since 1980',
-  },
-  {
-    value: '4',
-    label: 'Insurance categories',
-    sub: 'Motor, medical, travel and business',
-  },
-  {
-    value: '1980',
-    label: 'Brokerage heritage',
-    sub: 'Standard Insurance Consultants',
-  },
+  { value: '46+', label: 'Years of Experience', sub: 'In operation since 1980' },
+  { value: '$2M', label: 'Professional Indemnity', sub: 'Every policy is protected' },
+  { value: '97%', label: 'Client Retention Rate', sub: 'Clients who return, year on year' },
 ]
 
 export default function SICLTrustSection() {
@@ -84,8 +72,7 @@ export default function SICLTrustSection() {
           </motion.div>
 
           {/* Right — Stats */}
-          <div className="grid grid-cols-2 gap-6 lg:gap-8"
-            style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+          <div className="grid grid-cols-1 lg:pl-12">
             {stats.map(({ value, label, sub }, i) => (
               <motion.div
                 key={label}
@@ -93,7 +80,8 @@ export default function SICLTrustSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="py-7 sm:px-8 lg:px-0 lg:py-7 first:pt-0 lg:first:pt-0 last:pb-0 lg:last:pb-0"
+                className="py-7 border-t first:border-t-0 first:pt-0 last:pb-0"
+                style={{ borderColor: 'rgba(255,255,255,0.1)' }}
               >
                 <p className="font-display font-black leading-none mb-1.5"
                   style={{ fontSize: 'clamp(40px, 4vw, 52px)', color: 'var(--green-400)' }}>
