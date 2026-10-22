@@ -38,7 +38,7 @@ export default function SICLTrustSection() {
             transition={{ duration: 0.5 }}
           >
             <p className="font-sans font-semibold text-[13px] mb-5" style={{ color: 'rgba(255,255,255,0.9)' }}>
-              About ShopInsurance
+              Backed by
             </p>
 
             {/* SICL logo — on a white pill for contrast */}
@@ -48,13 +48,13 @@ export default function SICLTrustSection() {
                 <img
                   src={SICL_LOGO}
                   alt="Standard Insurance Consultants Limited"
-                  className="h-10 w-auto object-contain"
+                  className="h-12 w-auto object-contain"
                 />
               </div>
             </div>
 
             <h2 className="font-display font-extrabold text-[22px] lg:text-[26px] leading-tight tracking-tight text-white mb-4 max-w-[480px]">
-              Nigeria&apos;s most trusted insurance marketplace.
+              Nigeria&apos;s most trusted insurance brokerage — behind every policy on this platform
             </h2>
 
             <p className="font-sans text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'rgba(255,255,255,0.75)' }}>

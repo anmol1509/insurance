@@ -105,11 +105,12 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-12">
           {/* Brand */}
           <div className="max-w-[280px]">
-            <div className="mb-4">
-              <Logo size={36} variant="white" wordmarkColor="white" />
+            {/* On a white chip so the logo reads against the dark footer. */}
+            <div className="mb-4 inline-flex items-center rounded-2xl bg-white px-3.5 py-2.5">
+              <Logo size={34} />
             </div>
             <p className="font-sans text-[13px] leading-relaxed mb-3" style={{ color: '#6B7280' }}>
-              Nigeria\'s smartest insurance platform. Compare motor, health, travel and business cover from multiple NAICOM-licensed insurers — free, in minutes.
+              Nigeria&apos;s smartest insurance platform. Compare motor, health, travel and business cover from multiple NAICOM-licensed insurers — free, in minutes.
             </p>
             <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid #1e3d2e' }}>
               <div className="flex items-center justify-center w-6 h-6 rounded-lg shrink-0" style={{ backgroundColor: '#0A5C36' }}>
