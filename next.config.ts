@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '**.data.retail',
       },
+      {
+        protocol: 'https',
+        hostname: '**.photos.vin',
+      },
     ],
   },
 };

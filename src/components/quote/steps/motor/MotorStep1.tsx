@@ -82,7 +82,6 @@ export default function MotorStep1(){
       <div className="grid sm:grid-cols-2 gap-5"><Select label="Model year" required value={motorData.yearOfManufacture?String(motorData.yearOfManufacture):''} options={years.map(x=>({value:x,label:x}))} onChange={v=>updateNew({yearOfManufacture:Number(v)})} placeholder="Select year" disabled={!model} productColor="#005B3B"/><Select label="Vehicle type" required value={motorData.vehicleType} options={VEHICLE_TYPES.map(x=>({value:x,label:x}))} onChange={v=>updateNew({vehicleType:v})} placeholder="Select vehicle type" disabled={!model} productColor="#005B3B"/></div>
       <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">Variant / trim <span className="font-normal text-slate-400">(if known)</span></label><input className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-emerald-700" value={motorData.vehicleVariant} onChange={e=>updateNew({vehicleVariant:e.target.value})} disabled={!model} placeholder="e.g. XLE, Sport, Premium"/></div>
     </div>
-    {motorData.vehicleMakeModel?<div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4"><VehiclePreview data={motorData} compact/></div>:<div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><Car className="mx-auto text-slate-300" size={36}/><p className="font-semibold mt-3">Your car will appear here</p><p className="text-xs text-slate-500 mt-1">Select a make and model to build your vehicle summary.</p></div>}
   </div>
 
   return <div className="space-y-5">
