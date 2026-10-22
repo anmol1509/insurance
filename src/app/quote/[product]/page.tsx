@@ -7,7 +7,6 @@ import { useHydrated } from '@/lib/useHydrated'
 import QuoteLayout from '@/components/quote/QuoteLayout'
 import QuoteAuthModal from '@/components/quote/QuoteAuthModal'
 import { MEDICAL_COVER_OPTIONS, PRODUCT_STEPS } from '@/lib/constants'
-import { motorDocSlots } from '@/lib/motorDocuments'
 import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
 import { requiredSlotsFor } from '@/lib/nsia/documents'
 
@@ -118,37 +117,24 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typedProduct, setActiveProduct, resetQuote])
 
-  /**
-   * Motor's Documents step (raw step 5) has nothing to show for an insurer
-   * whose API takes no documents (e.g. Fortis) — rather than making the
-   * customer click through an empty step, it's skipped entirely and every
-   * step after it is renumbered so the sidebar/progress never show a gap.
-   */
-  const MOTOR_DOCS_RAW_STEP = 5
-  function isMotorStepActive(raw: number): boolean {
-    if (raw === MOTOR_DOCS_RAW_STEP) return motorDocSlots(motorData).length > 0
-    return true
-  }
-  const motorRawSteps = PRODUCT_STEPS.motor.map((_, i) => i + 1)
-  const motorActiveRaw = motorRawSteps.filter(isMotorStepActive)
-
-  const displaySteps = typedProduct === 'motor'
-    ? motorActiveRaw.map((raw) => PRODUCT_STEPS.motor[raw - 1])
-    : PRODUCT_STEPS[typedProduct]
+  const displaySteps = PRODUCT_STEPS[typedProduct]
   const totalSteps = displaySteps.length
-  const displayCurrentStep = typedProduct === 'motor'
-    ? Math.max(motorActiveRaw.indexOf(currentStep) + 1, 1)
-    : currentStep
+  const displayCurrentStep = currentStep
   const rawMaxStep = Math.max(maxSteps?.[typedProduct] ?? 1, currentStep)
-  const displayMaxStep = typedProduct === 'motor'
-    ? Math.max(motorActiveRaw.filter((raw) => raw <= rawMaxStep).length, 1)
-    : rawMaxStep
-  /** The true last step never gets skipped (only an interior step can be), so this stays a plain raw comparison. */
+  const displayMaxStep = rawMaxStep
   const rawTotalSteps = PRODUCT_STEPS[typedProduct].length
+  const displayedStepTitle = typedProduct === 'motor' && currentStep === 1
+    ? motorData.isNewCar ? 'Select your car' : motorData.lookupVerified ? 'Vehicle found' : 'Find your car'
+    : stepConfig?.title ?? ''
+  const displayedStepSub = typedProduct === 'motor' && currentStep === 1
+    ? motorData.isNewCar ? 'Choose your vehicle details below to continue.' : motorData.lookupVerified ? 'Review the registry details before continuing.' : 'Enter your registration plate to look up your vehicle.'
+    : typedProduct === 'motor' && currentStep === 2 && motorData.isNewCar
+      ? 'New vehicle — complete the missing details from your purchase documents.'
+      : stepConfig?.sub ?? ''
 
   const nextDisabled =
     (typedProduct === 'motor' && (
-      (currentStep === 1 && !motorData.vehicleMakeModel) ||
+      (currentStep === 1 && (!motorData.vehicleMakeModel || (motorData.isNewCar && (!motorData.yearOfManufacture || !motorData.vehicleType)))) ||
       (currentStep === 2 && (!motorData.vehicleMakeModel.trim() || !motorData.vehicleType || !motorData.yearOfManufacture || !motorData.useType || !motorData.vehicleColour || !motorData.engineCapacity || motorData.chassisVIN.trim().length < 6)) ||
       (currentStep === 3 && (!motorData.coverType || (motorData.coverType === 'comprehensive' && !(motorData.carValue && motorData.carValue > 0)))) ||
       (currentStep === 4 && !motorData.selectedUnderwriter) ||
@@ -182,23 +168,17 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       router.push('/quote/checkout')
       return
     }
-    let next = currentStep + 1
-    if (typedProduct === 'motor') {
-      while (next <= rawTotalSteps && !isMotorStepActive(next)) next++
-    }
-    setStep(typedProduct, next)
+    setStep(typedProduct, currentStep + 1)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   /**
-   * The rail hands back a *display* step number (motor's skipped Documents
-   * step is not in that list), so map it back onto the raw step the store
-   * keeps. Jumping forward is only offered for steps already reached, and
+   * Jumping forward is only offered for steps already reached, and
    * only while the current step is complete, so a customer can never skip
    * past a question the flow still needs answered.
    */
   function goToStep(display: number) {
-    const raw = typedProduct === 'motor' ? (motorActiveRaw[display - 1] ?? 1) : display
+    const raw = display
     if (raw === currentStep) return
     if (raw > currentStep && nextDisabled) return
     setStep(typedProduct, raw)
@@ -206,11 +186,7 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   }
 
   function goBack() {
-    let prev = currentStep - 1
-    if (typedProduct === 'motor') {
-      while (prev >= 1 && !isMotorStepActive(prev)) prev--
-    }
-    setStep(typedProduct, Math.max(prev, 1))
+    setStep(typedProduct, Math.max(currentStep - 1, 1))
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -224,8 +200,8 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
       product={typedProduct}
       currentStep={displayCurrentStep}
       totalSteps={totalSteps}
-      stepTitle={stepConfig?.title ?? ''}
-      stepSub={stepConfig?.sub ?? ''}
+      stepTitle={displayedStepTitle}
+      stepSub={displayedStepSub}
       onBack={currentStep > 1 ? goBack : undefined}
       onNext={goNext}
       isFinalStep={currentStep === rawTotalSteps}

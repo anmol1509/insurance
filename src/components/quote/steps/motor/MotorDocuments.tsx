@@ -204,10 +204,16 @@ export default function MotorDocuments() {
             ? `Required by ${plan?.insurer} to generate your policy. Vehicle photos are hosted and linked directly on your application. `
             : aiicoLine
             ? `Required by ${plan?.insurer} to register your policy. Files are sent securely with your application. `
-            : 'Required per NAICOM/NSIA guidelines. Files must be clear and legible. '}
+            : `Required by ${plan?.insurer ?? 'your selected insurer'}. Files must be clear and legible. `}
           Accepted formats: PDF, JPG, PNG (max 5 MB each). Drag &amp; drop supported.
         </p>
       </div>
+
+      {motorData.isNewCar && slots.some((slot) => /registration|vehicle licen[cs]e/i.test(slot.label)) && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 font-sans text-[13px] text-amber-900">
+          Your selected insurer requires a registration document. If the vehicle has not been registered yet, contact support or return to the plan step to choose an option whose requirements you can provide.
+        </div>
+      )}
 
       <AnimatePresence>
         {extraction.status !== 'idle' && (
@@ -243,6 +249,7 @@ export default function MotorDocuments() {
         errors={errors}
         productColor="var(--motor-600)"
         productColorBg="var(--motor-50)"
+        layout="grid"
       />
     </div>
   )

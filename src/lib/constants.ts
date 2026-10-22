@@ -118,7 +118,7 @@ export const PRODUCT_STEPS = {
     { id: 2, label: 'Car details',     title: 'Confirm your car details',       sub: 'We pre-filled these from the registry — check and edit if needed.' },
     { id: 3, label: 'Value & cover',   title: 'Car value & cover type',         sub: 'Set the insured value and choose comprehensive or third-party cover.' },
     { id: 4, label: 'Choose plan',     title: 'Compare & choose a plan',        sub: 'Pick the licensed insurer and cover that best suits your needs.' },
-    { id: 5, label: 'Documents',       title: 'Upload your documents',          sub: 'Required documents for your policy under NAICOM guidelines.' },
+    { id: 5, label: 'Documents',       title: 'Upload your documents',          sub: 'Upload the documents required by your selected insurer.' },
     { id: 6, label: 'Your details',    title: 'Your personal information',      sub: 'Complete your KYC details and review your quote before submitting.' },
   ],
   medical: [

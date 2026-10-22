@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Check, X, ChevronDown, ChevronUp, Plus, ArrowLeftRight } from 'lucide-react'
+import { Check, X, ChevronDown, ChevronUp, Plus, ArrowLeftRight } from 'lucide-react'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import type { MotorPlan } from '@/lib/motorPlans'
 import { cheapestCoverPrice, extractMotorProducts } from '@/lib/fortis/catalog'
@@ -26,20 +26,21 @@ const FEATURE_KEYWORDS: Record<string, string> = {
   'Windscreen Cover': 'windscreen',
 }
 
-type SortKey = 'popular' | 'price' | 'rating'
+type SortKey = 'default' | 'price'
 
 export default function MotorPlanSelect() {
-  const { motorData, updateMotor, setCalculatedPremium, setStep } = useQuoteStore()
+  const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
   const carValue = motorData.carValue ?? 0
   const coverType = motorData.coverType
 
-  const [sortBy, setSortBy] = useState<SortKey>('popular')
+  const [sortBy, setSortBy] = useState<SortKey>('default')
   const [featureFilters, setFeatureFilters] = useState<string[]>([])
   const [fortisCatalogPrices, setFortisCatalogPrices] = useState<Record<string, number>>({})
   const [insurerStatus, setInsurerStatus] = useState<MotorInsurerStatus | null>(null)
   const [insurerDemo, setInsurerDemo] = useState<MotorInsurerStatus | null>(null)
   const [compareIds, setCompareIds] = useState<string[]>([])
   const [showCompareModal, setShowCompareModal] = useState(false)
+  const [statusLoading, setStatusLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/fortis/catalog')
@@ -61,6 +62,7 @@ export default function MotorPlanSelect() {
     fetchMotorInsurerStatus()
       .then(({ status, demo }) => { setInsurerStatus(status); setInsurerDemo(demo) })
       .catch(() => {})
+      .finally(() => setStatusLoading(false))
   }, [])
 
   function toggleFeature(f: string) {
@@ -97,19 +99,18 @@ export default function MotorPlanSelect() {
     }))
     .sort((a, b) => {
       if (sortBy === 'price') return getPrice(a) - getPrice(b)
-      if (sortBy === 'rating') return b.rating - a.rating
-      return (b.popular ? 1 : 0) - (a.popular ? 1 : 0)
+      return 0
     })
+  const availableFeatureOptions = FEATURE_OPTIONS.filter((feature) => {
+    const keyword = FEATURE_KEYWORDS[feature] ?? feature.toLowerCase()
+    return filtered.some((plan) => plan.features.some((item) => item.toLowerCase().includes(keyword)))
+  })
 
   const comparePlansData = MOTOR_PLANS.filter(p => compareIds.includes(p.id))
 
   function handleSelect(plan: MotorPlan) {
     updateMotor({ selectedUnderwriter: plan.id })
     setCalculatedPremium(getPrice(plan), {})
-    setTimeout(() => {
-      setStep('motor', 5)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 350)
   }
 
   if (!coverType) {
@@ -122,6 +123,10 @@ export default function MotorPlanSelect() {
     )
   }
 
+  if (statusLoading) {
+    return <div className="space-y-4" aria-live="polite">{[1,2,3].map(n=><div key={n} className="h-44 animate-pulse rounded-2xl border border-slate-200 bg-slate-50"/>)}<span className="sr-only">Checking available insurers…</span></div>
+  }
+
   return (
     <div className="space-y-4">
       {/* Sort + feature filter bar */}
@@ -130,7 +135,7 @@ export default function MotorPlanSelect() {
         style={{ backgroundColor: 'var(--motor-50)', borderColor: 'var(--motor-100)' }}
       >
         <span className="font-sans font-semibold text-[11px] uppercase tracking-wider shrink-0" style={{ color: 'var(--text-muted)' }}>Sort</span>
-        {([['popular', 'Popular'], ['price', 'Lowest Price'], ['rating', 'Best Rating']] as [SortKey, string][]).map(([key, label]) => (
+        {([['default', 'Available plans'], ['price', 'Lowest estimate']] as [SortKey, string][]).map(([key, label]) => (
           <button key={key} type="button" onClick={() => setSortBy(key)}
             className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
             style={sortBy === key
@@ -140,7 +145,7 @@ export default function MotorPlanSelect() {
         ))}
         <div className="h-5 w-px shrink-0" style={{ backgroundColor: 'var(--border-subtle)' }} />
         <span className="font-sans font-semibold text-[11px] uppercase tracking-wider shrink-0" style={{ color: 'var(--text-muted)' }}>Features</span>
-        {FEATURE_OPTIONS.map(f => (
+        {availableFeatureOptions.map(f => (
           <button key={f} type="button" onClick={() => toggleFeature(f)}
             className="h-7 px-3 rounded-full font-sans text-[12px] font-medium transition-all border shrink-0"
             style={featureFilters.includes(f)
@@ -159,6 +164,18 @@ export default function MotorPlanSelect() {
       <p className="font-sans text-[12px]" style={{ color: 'var(--text-muted)' }}>
         {displayPlans.length} plan{displayPlans.length !== 1 ? 's' : ''} · {COVER_LABELS[coverType]}{carValue > 0 ? ` · ${formatNGN(carValue)} IDV` : ''}
       </p>
+
+      {displayPlans.length === 0 && (
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+          <h3 className="font-bold text-slate-900">{filtered.length === 0 ? 'No insurer plans are currently available' : 'No plans match these filters'}</h3>
+          <p className="mt-2 text-sm text-slate-500">
+            {filtered.length === 0
+              ? 'Live plan results will appear when a configured insurer returns an available product.'
+              : 'Clear the feature filters or go back and review the cover type.'}
+          </p>
+          {filtered.length > 0 && <button type="button" onClick={() => setFeatureFilters([])} className="mt-4 rounded-xl border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-800">Clear filters</button>}
+        </div>
+      )}
 
       {displayPlans.map((plan, i) => (
         <PlanCard
@@ -264,12 +281,12 @@ function PlanCard({
       transition={{ delay: index * 0.06 }}
       className="rounded-2xl border overflow-hidden"
       style={{
-        borderColor: selected ? 'var(--motor-600)' : inCompare ? 'var(--motor-400)' : plan.popular ? 'var(--motor-300)' : 'var(--border-default)',
-        borderWidth: selected || plan.popular || inCompare ? '1.5px' : '1px',
+        borderColor: selected ? 'var(--motor-600)' : inCompare ? 'var(--motor-400)' : 'var(--border-default)',
+        borderWidth: selected || inCompare ? '1.5px' : '1px',
         backgroundColor: selected ? 'var(--motor-50)' : 'white',
       }}
     >
-      {(selected || plan.popular) && (
+      {selected && (
         <div className="h-1 w-full" style={{ backgroundColor: 'var(--motor-600)' }} />
       )}
 
@@ -283,11 +300,6 @@ function PlanCard({
             >
               {COVER_LABELS[plan.coverType]}
             </span>
-            {plan.badge && !isDemo && (
-              <span className="font-sans font-semibold text-[11px] px-2.5 py-1 rounded-full bg-[var(--green-50)] text-[var(--green-700)] border border-[var(--green-100)]">
-                {plan.badge}
-              </span>
-            )}
             {isDemo && (
               <span
                 className="font-sans font-bold text-[11px] px-2.5 py-1 rounded-full text-white"
@@ -307,7 +319,7 @@ function PlanCard({
             <p className="font-display font-extrabold text-[22px] leading-none" style={{ color: 'var(--motor-600)' }}>
               {formatNGN(price)}
             </p>
-            <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>/yr · excl. taxes</p>
+            <p className="font-sans text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>estimated / year · fees may apply</p>
           </div>
         </div>
 
@@ -324,28 +336,11 @@ function PlanCard({
             <h3 className="font-display font-bold text-[17px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</h3>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="font-sans text-[13px]" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</span>
-              <span className="w-1 h-1 rounded-full" style={{ backgroundColor: 'var(--border-medium)' }} />
-              <Star className="w-3 h-3 fill-current" style={{ color: '#F59E0B' }} />
-              <span className="font-sans text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
-              <span className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>({plan.reviews.toLocaleString()})</span>
             </div>
           </div>
         </div>
 
-        {/* Stats bar */}
-        <div className="grid grid-cols-4 gap-2 py-3 border-y border-[var(--border-subtle)] mb-4">
-          {[
-            { label: 'CLAIM SETTLEMENT', value: plan.claimSettlement },
-            { label: 'RESPONSE TIME',    value: plan.responseTime },
-            { label: 'EXCESS',           value: plan.excess },
-            { label: 'REPAIR NETWORK',   value: plan.repairNetwork },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <p className="font-sans font-bold text-[9px] uppercase tracking-[0.06em] mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
-              <p className="font-sans font-semibold text-[12px]" style={{ color: 'var(--text-primary)' }}>{value}</p>
-            </div>
-          ))}
-        </div>
+        <p className="mb-4 rounded-xl bg-slate-50 px-3 py-2 text-[11px] text-slate-500">Review the insurer&apos;s policy wording for final benefits, exclusions, excess, taxes and fees.</p>
 
         {/* Highlights / Exclusions tabs */}
         <div className="flex gap-5 border-b border-[var(--border-subtle)] mb-3">
@@ -514,35 +509,16 @@ function CompareModal({ plans, prices, onClose, onSelect, onRemove }: {
                         </button>
                       </div>
 
-                      {/* Badge */}
-                      {plan.badge && (
-                        <span
-                          className="inline-flex items-center font-sans font-bold text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full mb-2"
-                          style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)', border: '1px solid var(--motor-100)' }}
-                        >
-                          {plan.badge}
-                        </span>
-                      )}
-
                       {/* Name + insurer */}
                       <p className="font-display font-bold text-[15px] leading-tight" style={{ color: 'var(--text-primary)' }}>{plan.name}</p>
                       <p className="font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{plan.insurer}</p>
-
-                      {/* Star rating */}
-                      <div className="flex items-center gap-0.5 mt-2 mb-3">
-                        {[1, 2, 3, 4, 5].map(n => (
-                          <Star key={n} className="w-3 h-3 fill-current" style={{ color: n <= Math.round(plan.rating) ? '#F59E0B' : '#D1D5DB' }} />
-                        ))}
-                        <span className="font-sans font-semibold text-[11px] ml-1" style={{ color: 'var(--text-secondary)' }}>{plan.rating}</span>
-                        <span className="font-sans text-[11px] ml-0.5" style={{ color: 'var(--text-muted)' }}>· {plan.reviews.toLocaleString()}</span>
-                      </div>
 
                       {/* Price + select */}
                       <div className="pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
                         <p className="font-display font-extrabold text-[24px] leading-none" style={{ color: 'var(--motor-600)' }}>
                           {formatNGN(prices[i])}
                         </p>
-                        <p className="font-sans text-[11px] mt-0.5 mb-3" style={{ color: 'var(--text-muted)' }}>/yr · excl. taxes</p>
+                        <p className="font-sans text-[11px] mt-0.5 mb-3" style={{ color: 'var(--text-muted)' }}>estimated / year · fees may apply</p>
                         <button
                           type="button"
                           onClick={() => onSelect(plan)}
@@ -558,38 +534,6 @@ function CompareModal({ plans, prices, onClose, onSelect, onRemove }: {
               </thead>
 
               <tbody>
-                {/* Key stats section */}
-                <tr>
-                  <td
-                    colSpan={plans.length + 1}
-                    className="px-4 py-2 font-sans font-bold text-[10px] uppercase tracking-widest"
-                    style={{ backgroundColor: 'var(--motor-50)', color: 'var(--motor-700)', borderTop: '2px solid var(--motor-100)', borderBottom: '1px solid var(--motor-100)' }}
-                  >
-                    Key Statistics
-                  </td>
-                </tr>
-
-                {([
-                  ['Claim Settlement', 'claimSettlement'],
-                  ['Response Time', 'responseTime'],
-                  ['Excess', 'excess'],
-                  ['Repair Network', 'repairNetwork'],
-                ] as [string, keyof MotorPlan][]).map(([label, key], idx) => (
-                  <tr key={key} className="border-b" style={{ borderColor: 'var(--border-subtle)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)' }}>
-                    <td
-                      className="sticky left-0 z-10 px-4 py-3.5 font-sans font-semibold text-[12px] border-r"
-                      style={{ color: 'var(--text-secondary)', backgroundColor: idx % 2 === 0 ? 'white' : 'var(--surface-raised)', borderColor: 'var(--border-subtle)' }}
-                    >
-                      {label}
-                    </td>
-                    {plans.map(plan => (
-                      <td key={plan.id} className="px-5 py-3.5 font-sans font-medium text-[13px] border-l" style={{ color: 'var(--text-primary)', borderColor: 'var(--border-subtle)' }}>
-                        {String(plan[key])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-
                 {/* Features section */}
                 <tr>
                   <td

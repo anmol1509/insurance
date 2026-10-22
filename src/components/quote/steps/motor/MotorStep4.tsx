@@ -44,6 +44,10 @@ export default function MotorStep4() {
         </p>
       )}
 
+      <div className="border-b border-[var(--border-subtle)] pb-2">
+        <h3 className="font-display text-lg font-bold text-[var(--text-primary)]">Personal details</h3>
+      </div>
+
       <div className={config.dateOfBirth ? 'grid md:grid-cols-2 gap-5' : ''}>
         <Input
           label="Full Name"
@@ -130,6 +134,10 @@ export default function MotorStep4() {
           </div>
         </div>
       )}
+
+      <div className="border-b border-[var(--border-subtle)] pb-2 pt-1">
+        <h3 className="font-display text-lg font-bold text-[var(--text-primary)]">Address details</h3>
+      </div>
 
       {(config.occupation || config.residentialState) && (
         <div className={config.occupation && config.residentialState ? 'grid md:grid-cols-2 gap-5' : ''}>

@@ -67,9 +67,11 @@ export default function MotorStep2() {
       >
         <Car className="w-4 h-4 mt-0.5 shrink-0" style={{ color: 'var(--motor-600)' }} />
         <p className="font-sans text-[13px]" style={{ color: 'var(--motor-700)' }}>
-          {motorData.isNewCar
+          {motorData.lookupVerified
+            ? 'Details were pre-filled from the registry. Check and edit anything that is incorrect before continuing.'
+            : motorData.isNewCar
             ? 'Brand-new car — no plate number needed. We\u2019ll cover it using its chassis number, so please fill in the details from your purchase invoice or vehicle papers. Tell us your plate number once it\u2019s registered.'
-            : 'Details were pre-filled from your registration. Check and edit anything that\u2019s incorrect before continuing.'}
+            : 'Enter the vehicle details from your licence or purchase documents. These details have not been verified by the registry.'}
         </p>
       </div>
 
@@ -169,7 +171,7 @@ export default function MotorStep2() {
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
           <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-            {motorData.isNewCar ? 'Year of Manufacture' : 'Year of Registration'} <span className="text-[var(--error)]">*</span>
+            Year of Manufacture <span className="text-[var(--error)]">*</span>
           </p>
         </div>
         <Select

@@ -9,6 +9,8 @@ export interface MotorData {
   engineCapacity: string
   vehicleColour: string
   registrationNumber: string
+  /** True only when the registry lookup returned this vehicle successfully. */
+  lookupVerified: boolean
   /** A brand-new car with no plate yet — insured on its chassis number until registered. */
   isNewCar: boolean
   chassisVIN: string
@@ -323,7 +325,7 @@ interface QuoteStore {
 
 const defaultMotor: MotorData = {
   vehicleMakeModel: '', yearOfManufacture: null, vehicleType: '', engineCapacity: '',
-  vehicleColour: '', registrationNumber: '', isNewCar: false, chassisVIN: '', marketValueRange: '',
+  vehicleColour: '', registrationNumber: '', lookupVerified: false, isNewCar: false, chassisVIN: '', marketValueRange: '',
   useType: null, coverType: null, usageCategory: null, geographicalState: '', accessories: '',
   fuelType: '', vehicleVariant: '', carValue: null, previousPolicyExpiry: '',
   driverAge: null, drivingExperience: '', claimsHistory: false, claimsDetail: '',

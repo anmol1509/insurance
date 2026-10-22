@@ -8,30 +8,11 @@ function formatNGN(n: number) {
   return '₦' + n.toLocaleString('en-NG')
 }
 
-const BASE_VALUES: Record<string, Record<number, number>> = {
-  Toyota:        { 2024: 28000000, 2023: 25000000, 2022: 22000000, 2021: 19000000, 2020: 16500000, 2019: 14000000, 2018: 12000000, 2017: 10000000 },
-  Honda:         { 2024: 24000000, 2023: 21000000, 2022: 18000000, 2021: 16000000, 2020: 14000000, 2019: 12000000, 2018: 10000000, 2017: 8500000 },
-  'Mercedes-Benz': { 2024: 65000000, 2023: 58000000, 2022: 50000000, 2021: 43000000, 2020: 37000000, 2019: 32000000 },
-  BMW:           { 2024: 60000000, 2023: 52000000, 2022: 45000000, 2021: 38000000, 2020: 33000000, 2019: 28000000 },
-  Hyundai:       { 2024: 22000000, 2023: 19000000, 2022: 16500000, 2021: 14000000, 2020: 12000000, 2019: 10000000 },
-  Lexus:         { 2024: 55000000, 2023: 48000000, 2022: 42000000, 2021: 36000000, 2020: 31000000, 2019: 26000000 },
-}
-
-function getAIEstimate(makeModel: string, year: number | null): number | null {
-  if (!year) return null
-  const make = makeModel.split(' ')[0]
-  const makeData = BASE_VALUES[make]
-  if (!makeData) {
-    const fallback: Record<number, number> = { 2024: 18000000, 2023: 15000000, 2022: 13000000, 2021: 11000000, 2020: 9500000, 2019: 8000000, 2018: 7000000 }
-    return fallback[year] ?? 6000000
-  }
-  return makeData[year] ?? Object.values(makeData).at(-1) ?? 6000000
-}
-
 export default function MotorStep3() {
   const { motorData, updateMotor, setCalculatedPremium } = useQuoteStore()
   const [aiLoading, setAiLoading] = useState(false)
   const [aiDone, setAiDone] = useState(false)
+  const [estimateUnavailable, setEstimateUnavailable] = useState(false)
   const [showTooltip, setShowTooltip] = useState<string | null>(null)
 
   const carValue = motorData.carValue ?? 0
@@ -40,14 +21,9 @@ export default function MotorStep3() {
   async function handleAIEstimate() {
     setAiLoading(true)
     setAiDone(false)
-    await new Promise((r) => setTimeout(r, 2000))
-    const est = getAIEstimate(motorData.vehicleMakeModel, motorData.yearOfManufacture)
-    if (est) {
-      updateMotor({ carValue: est })
-      if (motorData.coverType === 'comprehensive') {
-        setCalculatedPremium(Math.round(est * 0.05), {})
-      }
-    }
+    await new Promise((r) => setTimeout(r, 500))
+    // No licensed valuation provider is configured. Never invent a market value.
+    setEstimateUnavailable(true)
     setAiLoading(false)
     setAiDone(true)
   }
@@ -62,6 +38,7 @@ export default function MotorStep3() {
       setCalculatedPremium(tpoBase, {})
     }
     setAiDone(false)
+    setEstimateUnavailable(false)
   }
 
   function handlePlanSelect(type: 'comprehensive' | 'tpo') {
@@ -81,9 +58,9 @@ export default function MotorStep3() {
       color: 'var(--motor-600)',
       bg: 'var(--motor-50)',
       border: 'var(--motor-300)',
-      recommended: true,
-      desc: 'Covers damage to your own vehicle AND third-party liability. Full protection.',
-      features: ['Own vehicle damage', 'Theft & fire', 'Flood cover', 'Third-party liability', 'Roadside assist'],
+      recommended: false,
+      desc: 'Can cover your own vehicle and third-party liability. Exact benefits vary by insurer and are shown before selection.',
+      features: ['Own vehicle cover', 'Third-party liability', 'Insurer-specific benefits shown next'],
     },
     {
       id: 'tpo' as const,
@@ -94,7 +71,7 @@ export default function MotorStep3() {
       border: 'var(--border-medium)',
       recommended: false,
       desc: 'Covers injury or damage you cause to others only. Does NOT cover your own vehicle.',
-      features: ['Third-party bodily injury', 'Third-party property damage', 'NIID registered', 'NAICOM compliant'],
+      features: ['Third-party bodily injury', 'Third-party property damage', 'Your own vehicle is not covered'],
     },
   ]
 
@@ -128,6 +105,12 @@ export default function MotorStep3() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {estimateUnavailable && (
+          <div className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-900">
+            An automated valuation provider is not configured. Enter the vehicle&apos;s current documented market value to continue.
+          </div>
+        )}
 
         <div className="flex gap-2">
           <div className="relative flex-1">
@@ -173,7 +156,7 @@ export default function MotorStep3() {
 
         {!aiDone && (
           <p className="font-sans text-[12px] mt-1.5" style={{ color: 'var(--text-muted)' }}>
-            Not sure? Click <strong>AI Estimate</strong> and we&apos;ll calculate based on your car&apos;s make and year.
+            Not sure? Click <strong>AI Estimate</strong>{' '}to request a configured valuation for this vehicle.
           </p>
         )}
       </div>

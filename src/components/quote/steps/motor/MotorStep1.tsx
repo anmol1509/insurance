@@ -1,311 +1,80 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AlertCircle, ArrowLeft, Car, CheckCircle2, Loader2, Search, ShieldCheck, Sparkles } from 'lucide-react'
 import { useQuoteStore } from '@/store/quoteStore'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CheckCircle2, Car, AlertCircle, Pencil, Sparkles } from 'lucide-react'
 import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
 import { lookupVehicleByPlate } from '@/lib/verifydata/browser'
+import { VEHICLE_SUGGESTIONS } from '@/data/vehicleMakes'
+import { VEHICLE_TYPES } from '@/lib/constants'
+import Select from '@/components/ui/Select'
+import VehiclePreview from '@/components/quote/motor/VehiclePreview'
 
-const MOCK_LOOKUP: Record<string, {
-  vehicleMakeModel: string; yearOfManufacture: number; vehicleType: string;
-  engineCapacity: string; vehicleColour: string; chassisVIN: string;
-  fuelType: string; vehicleVariant: string;
-}> = {
-  'LAG-123-AA': { vehicleMakeModel: 'Toyota Camry', yearOfManufacture: 2020, vehicleType: 'Saloon', engineCapacity: '2000–2499cc', vehicleColour: 'Black', chassisVIN: 'JT2BF22K1W0084979', fuelType: 'Petrol', vehicleVariant: 'XLE' },
-  'ABJ-456-BB': { vehicleMakeModel: 'Honda CR-V', yearOfManufacture: 2019, vehicleType: 'SUV', engineCapacity: '1500–1999cc', vehicleColour: 'White', chassisVIN: '5J6RW2H89KA009423', fuelType: 'Petrol', vehicleVariant: 'Sport' },
-  'RIV-789-CC': { vehicleMakeModel: 'Mercedes-Benz C300', yearOfManufacture: 2021, vehicleType: 'Saloon', engineCapacity: '2000–2499cc', vehicleColour: 'Silver', chassisVIN: 'WDD2050122F382015', fuelType: 'Petrol', vehicleVariant: 'AMG Line' },
-}
+type LookupState='idle'|'loading'|'found'|'error'
+const years=Array.from({length:35},(_,i)=>String(new Date().getFullYear()-i))
+const makeNames=Array.from(new Set(VEHICLE_SUGGESTIONS.map(v=>v.split(' ')[0]))).sort()
 
-type LookupState = 'idle' | 'loading' | 'found' | 'not_found'
+export default function MotorStep1(){
+  const {motorData,updateMotor,setStep,heroPrefill,setHeroPrefill}=useQuoteStore()
+  const [mode,setMode]=useState<'lookup'|'new'>(motorData.isNewCar?'new':'lookup')
+  const [lookupState,setLookupState]=useState<LookupState>(motorData.lookupVerified?'found':'idle')
+  const [inputValue,setInputValue]=useState(motorData.registrationNumber)
+  const [error,setError]=useState('')
+  const [make,setMake]=useState(motorData.vehicleMakeModel.split(' ')[0]||'')
+  const [model,setModel]=useState(motorData.vehicleMakeModel.split(' ').slice(1).join(' ')||'')
+  const prefillConsumed=useRef(false)
+  const models=useMemo(()=>VEHICLE_SUGGESTIONS.filter(v=>v.startsWith(`${make} `)).map(v=>v.slice(make.length+1)).sort(),[make])
 
-export default function MotorStep1() {
-  const { motorData, updateMotor, setStep, heroPrefill, setHeroPrefill } = useQuoteStore()
-  const [lookupState, setLookupState] = useState<LookupState>('idle')
-  const [inputValue, setInputValue] = useState(motorData.registrationNumber)
-
-  async function runLookup(plate: string) {
-    const key = plate.trim().toUpperCase()
-    if (!key) return
-    setLookupState('loading')
-    updateMotor({ registrationNumber: key })
-
-    // Try the real registry lookup (VerifyData) first; fall back to demo data
-    // if it's unavailable, not configured, or the plate isn't found — the
-    // quote flow should never get stuck on a third-party outage.
-    const [, verified] = await Promise.all([
-      new Promise((r) => setTimeout(r, 1800)),
-      lookupVehicleByPlate(key).catch(() => null),
-    ])
-
-    if (verified?.fields.vehicleMakeModel) {
-      updateMotor({
-        vehicleMakeModel: verified.fields.vehicleMakeModel,
-        yearOfManufacture: verified.fields.yearOfManufacture,
-        vehicleType: verified.fields.vehicleType,
-        engineCapacity: verified.fields.engineCapacity,
-        vehicleColour: verified.fields.vehicleColour,
-        chassisVIN: verified.fields.chassisVIN,
-      })
+  async function runLookup(raw:string){
+    const plate=raw.trim().toUpperCase(); if(!plate)return
+    setLookupState('loading');setError('');updateMotor({registrationNumber:plate,lookupVerified:false,isNewCar:false})
+    try{
+      const verified=await lookupVehicleByPlate(plate)
+      if(!verified.fields.vehicleMakeModel)throw new Error('No vehicle details were returned for that registration number.')
+      updateMotor({...verified.fields,registrationNumber:plate,lookupVerified:true,isNewCar:false})
       setLookupState('found')
-      return
+    }catch(e){
+      setLookupState('error')
+      setError(e instanceof Error?e.message:'Vehicle lookup is unavailable right now. Please try again or enter the details manually.')
     }
-
-    const match = MOCK_LOOKUP[key] ?? {
-      vehicleMakeModel: 'Toyota Camry',
-      yearOfManufacture: 2022,
-      vehicleType: 'Saloon',
-      engineCapacity: '2000–2499cc',
-      vehicleColour: 'Silver',
-      chassisVIN: 'JT2BF22K9W0123456',
-      fuelType: 'Petrol',
-      vehicleVariant: 'XLE',
-    }
-    updateMotor(match)
-    setLookupState('found')
   }
 
-  function handleLookup() {
-    return runLookup(inputValue)
-  }
-
-  /**
-   * The customer already typed a plate into the homepage quick-quote widget,
-   * so run the lookup for them and hand them straight to step 2 (vehicle
-   * details) rather than making them re-enter and re-submit it here.
-   *
-   * The route resets motorData in its own mount effect, which React runs
-   * after this child effect — the lookup only writes to the store once its
-   * awaits resolve, so the pre-filled details survive that reset.
-   */
-  const prefillConsumed = useRef(false)
-  useEffect(() => {
-    if (prefillConsumed.current || heroPrefill?.product !== 'motor') return
-    prefillConsumed.current = true
-    const plate = heroPrefill.value
-    setHeroPrefill(null)
-    if (plate === NEW_CAR_PREFILL) {
-      // Deferred until every effect of this commit has run: the quote page resets
-      // the form in its own mount effect (which runs after this one) and would
-      // otherwise wipe the new-car choice straight away.
-      queueMicrotask(markNewCar)
-      return
-    }
-    queueMicrotask(() => {
-      setInputValue(plate)
-      runLookup(plate).then(() => setStep('motor', 2))
-    })
+  useEffect(()=>{
+    if(prefillConsumed.current||heroPrefill?.product!=='motor')return
+    prefillConsumed.current=true;const value=heroPrefill.value;setHeroPrefill(null)
+    queueMicrotask(()=>{if(value===NEW_CAR_PREFILL){startNewCar()}else{setInputValue(value);void runLookup(value)}})
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [heroPrefill])
+  },[heroPrefill])
 
-  function handleSkip() {
-    updateMotor({ registrationNumber: inputValue.trim().toUpperCase() })
-    setLookupState('found')
-  }
+  function startNewCar(){setMode('new');setLookupState('idle');setError('');setInputValue('');setMake('');setModel('');updateMotor({isNewCar:true,lookupVerified:false,registrationNumber:'',vehicleMakeModel:'',yearOfManufacture:null,vehicleVariant:'',vehicleType:'',fuelType:'',vehicleColour:'',engineCapacity:'',chassisVIN:'',mileageKm:0})}
+  function manualEntry(){updateMotor({registrationNumber:inputValue.trim().toUpperCase(),lookupVerified:false,isNewCar:false,vehicleMakeModel:''});setStep('motor',2)}
+  function updateNew(patch:Parameters<typeof updateMotor>[0]){updateMotor({isNewCar:true,lookupVerified:false,...patch})}
 
-  /**
-   * A brand-new car has no plate to look up, so skip the lookup and go straight
-   * to the details step, where the customer types the car in from their
-   * invoice. Mileage starts at 0 and the year at the current one.
-   */
-  function markNewCar() {
-    updateMotor({
-      isNewCar: true,
-      registrationNumber: '',
-      yearOfManufacture: new Date().getFullYear(),
-      mileageKm: 0,
-    })
-    setStep('motor', 2)
-  }
-
-  function startNewCar() {
-    setInputValue('')
-    markNewCar()
-  }
-
-  const found = lookupState === 'found'
-
-  return (
-    <div className="max-w-lg mx-auto space-y-6">
-      <div
-        className="rounded-3xl border-2 p-6 sm:p-8 text-center"
-        style={{ borderColor: found ? 'var(--motor-300)' : 'var(--border-default)', backgroundColor: found ? 'var(--motor-50)' : 'white', transition: 'all 0.3s' }}
-      >
-        <div className="flex items-center justify-center mb-5">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ backgroundColor: found ? 'var(--motor-600)' : 'var(--surface-raised)' }}>
-            {found
-              ? <CheckCircle2 className="w-8 h-8 text-white" />
-              : <Car className="w-8 h-8" style={{ color: 'var(--text-muted)' }} />}
-          </div>
-        </div>
-
-        <h2 className="font-display font-bold text-xl mb-1.5" style={{ color: 'var(--text-primary)' }}>
-          {found ? 'Vehicle found!' : 'Enter your plate number'}
-        </h2>
-        <p className="font-sans text-[14px] mb-6" style={{ color: 'var(--text-muted)' }}>
-          {found
-            ? "We've pre-filled your car details from the FRSC registry. Review them in the next step."
-            : "We'll look up your vehicle details automatically from the FRSC/NIID registry."}
-        </p>
-
-        {!found && (
-          <>
-            <div className="relative mb-3">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 font-sans font-bold text-[13px] px-2 py-0.5 rounded" style={{ backgroundColor: 'var(--motor-600)', color: 'white' }}>
-                NG
-              </div>
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => {
-                  setInputValue(e.target.value.toUpperCase())
-                  setLookupState('idle')
-                }}
-                onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
-                placeholder="e.g. LAG-123-AA"
-                className="w-full h-14 pl-16 pr-4 rounded-2xl border-2 font-sans font-semibold text-[16px] tracking-widest outline-none transition-all"
-                style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)', letterSpacing: '0.08em' }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--motor-600)'; e.currentTarget.style.boxShadow = '0 0 0 4px color-mix(in srgb, var(--motor-600) 12%, transparent)' }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.boxShadow = 'none' }}
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={handleLookup}
-              disabled={lookupState === 'loading' || !inputValue.trim()}
-              className="w-full h-13 py-3.5 rounded-2xl font-sans font-bold text-[15px] text-white transition-all disabled:opacity-50 hover:-translate-y-px hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-              style={{ backgroundColor: 'var(--motor-600)' }}
-            >
-              {lookupState === 'loading' ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Looking up vehicle…
-                </>
-              ) : (
-                <>
-                  <Search className="w-5 h-5" />
-                  Find my car
-                </>
-              )}
-            </button>
-
-            {lookupState === 'loading' && (
-              <>
-                <motion.div
-                  initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-                  transition={{ duration: 1.6, ease: 'linear' }}
-                  className="mt-3 h-1 rounded-full origin-left"
-                  style={{ backgroundColor: 'var(--motor-600)' }}
-                />
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="rounded-2xl border p-4 text-left mt-3"
-                  style={{ borderColor: 'var(--border-subtle)' }}
-                >
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                    {[60, 80, 70, 50, 75, 65, 55, 45].map((w, i) => (
-                      <div key={i} className="animate-pulse">
-                        <div className="h-2 rounded-full mb-1.5" style={{ backgroundColor: 'var(--border-subtle)', width: '40%' }} />
-                        <div className="h-3.5 rounded-full" style={{ backgroundColor: 'var(--surface-raised)', width: `${w}%` }} />
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 pt-3 border-t animate-pulse" style={{ borderColor: 'var(--border-subtle)' }}>
-                    <div className="h-2.5 rounded-full" style={{ backgroundColor: 'var(--border-subtle)', width: '55%' }} />
-                  </div>
-                </motion.div>
-              </>
-            )}
-
-            <p className="font-sans text-[12px] mt-3" style={{ color: 'var(--text-muted)' }}>
-              Don&apos;t have the plate handy?{' '}
-              <button type="button" onClick={handleSkip} className="underline font-medium" style={{ color: 'var(--motor-600)' }}>
-                Enter details manually
-              </button>
-            </p>
-
-            <div className="flex items-center gap-3 my-5">
-              <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
-              <span className="font-sans text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--text-subtle)' }}>or</span>
-              <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
-            </div>
-
-            <button
-              type="button"
-              onClick={startNewCar}
-              className="w-full flex items-center gap-3.5 p-4 rounded-2xl border-2 text-left transition-all hover:-translate-y-px hover:shadow-sm"
-              style={{
-                borderColor: motorData.isNewCar ? 'var(--motor-600)' : 'var(--border-default)',
-                backgroundColor: motorData.isNewCar ? 'var(--motor-50)' : 'white',
-              }}
-            >
-              <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--motor-50)' }}>
-                <Sparkles className="w-5 h-5" style={{ color: 'var(--motor-600)' }} />
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block font-sans font-semibold text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                  Brand-new car — no plate number yet
-                </span>
-                <span className="block font-sans text-[12px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  Just bought it? We&apos;ll cover it using its chassis number.
-                </span>
-              </span>
-            </button>
-          </>
-        )}
-
-        {found && motorData.vehicleMakeModel && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="rounded-2xl border p-4 text-left"
-            style={{ backgroundColor: 'white', borderColor: 'var(--motor-200)' }}
-          >
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              {[
-                ['Make & Model', motorData.vehicleMakeModel],
-                ['Year', motorData.yearOfManufacture],
-                ['Type', motorData.vehicleType],
-                ['Fuel', motorData.fuelType],
-                ['Colour', motorData.vehicleColour],
-                ['Variant', motorData.vehicleVariant],
-                ['Engine', motorData.engineCapacity],
-                ['Chassis', motorData.chassisVIN ? motorData.chassisVIN.slice(0, 8) + '…' : null],
-              ].map(([label, value]) => value ? (
-                <div key={String(label)}>
-                  <p className="font-sans text-[10px] font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
-                  <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-primary)' }}>{value}</p>
-                </div>
-              ) : null)}
-            </div>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: 'var(--motor-100)' }}>
-              <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                ✓ Pre-filled from FRSC/NIID registry
-              </p>
-              <button
-                type="button"
-                onClick={() => setStep('motor', 2)}
-                className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg border font-sans text-[11px] font-medium transition-colors hover:bg-[var(--motor-50)]"
-                style={{ borderColor: 'var(--motor-300)', color: 'var(--motor-700)' }}
-              >
-                <Pencil className="w-3 h-3" /> Edit details
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { value: '12,000+', label: 'cars insured' },
-          { value: '₦2.1B', label: 'claims paid out' },
-          { value: '4.8★', label: 'customer rating' },
-        ].map(({ value, label }) => (
-          <div key={label} className="rounded-2xl border bg-white px-3 py-3.5 text-center" style={{ borderColor: 'var(--border-subtle)' }}>
-            <p className="font-display font-extrabold text-[18px] leading-none" style={{ color: 'var(--motor-600)' }}>{value}</p>
-            <p className="font-sans text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
-          </div>
-        ))}
-      </div>
+  if(mode==='new')return <div className="space-y-6">
+    <button type="button" onClick={()=>{setMode('lookup');updateMotor({isNewCar:false})}} className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800"><ArrowLeft size={16}/> Use a registration plate instead</button>
+    <div className="grid gap-5">
+      <Select label="Car Brand (Make)" required value={make} options={makeNames.map(x=>({value:x,label:x}))} onChange={v=>{setMake(v);setModel('');updateNew({vehicleMakeModel:v,vehicleVariant:'',vehicleType:''})}} placeholder="Select make" productColor="#005B3B"/>
+      <Select label="Model" required value={model} options={models.map(x=>({value:x,label:x}))} onChange={v=>{setModel(v);updateNew({vehicleMakeModel:`${make} ${v}`.trim(),vehicleVariant:'',vehicleType:''})}} placeholder={make?'Select model':'Select make first'} disabled={!make} productColor="#005B3B"/>
+      <div className="grid sm:grid-cols-2 gap-5"><Select label="Model year" required value={motorData.yearOfManufacture?String(motorData.yearOfManufacture):''} options={years.map(x=>({value:x,label:x}))} onChange={v=>updateNew({yearOfManufacture:Number(v)})} placeholder="Select year" disabled={!model} productColor="#005B3B"/><Select label="Vehicle type" required value={motorData.vehicleType} options={VEHICLE_TYPES.map(x=>({value:x,label:x}))} onChange={v=>updateNew({vehicleType:v})} placeholder="Select vehicle type" disabled={!model} productColor="#005B3B"/></div>
+      <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">Variant / trim <span className="font-normal text-slate-400">(if known)</span></label><input className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-emerald-700" value={motorData.vehicleVariant} onChange={e=>updateNew({vehicleVariant:e.target.value})} disabled={!model} placeholder="e.g. XLE, Sport, Premium"/></div>
     </div>
-  )
+    {motorData.vehicleMakeModel?<div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4"><VehiclePreview data={motorData} compact/></div>:<div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><Car className="mx-auto text-slate-300" size={36}/><p className="font-semibold mt-3">Your car will appear here</p><p className="text-xs text-slate-500 mt-1">Select a make and model to build your vehicle summary.</p></div>}
+  </div>
+
+  return <div className="space-y-5">
+    {lookupState==='found'&&motorData.lookupVerified?<>
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 flex gap-4"><CheckCircle2 className="text-emerald-600 shrink-0" size={28}/><div><h3 className="font-bold text-lg text-emerald-900">Vehicle found</h3><p className="text-sm text-emerald-800">These details came from the registry. Review them before continuing.</p></div></div>
+      <VehiclePreview data={motorData}/>
+      <div className="flex flex-wrap gap-3"><button type="button" onClick={()=>setStep('motor',2)} className="rounded-xl border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-800">Edit details</button><button type="button" onClick={()=>{setLookupState('idle');setInputValue('');updateMotor({lookupVerified:false,vehicleMakeModel:''})}} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold">Search again</button></div>
+    </>:<>
+      <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 text-center"><span className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><Car size={27}/></span><h3 className="text-xl font-bold">Enter your plate number</h3><p className="mt-1 text-sm text-slate-500">We’ll request your vehicle details from the configured registry service.</p>
+        <div className="mt-5 flex rounded-xl border border-slate-300 bg-white focus-within:border-emerald-700 focus-within:ring-4 focus-within:ring-emerald-50"><span className="m-1 grid min-w-14 place-items-center rounded-lg bg-emerald-700 text-sm font-bold text-white">NG</span><input aria-label="Registration plate" className="h-12 min-w-0 flex-1 px-3 uppercase tracking-widest outline-none" value={inputValue} onChange={e=>{setInputValue(e.target.value.toUpperCase());setError('');setLookupState('idle')}} onKeyDown={e=>e.key==='Enter'&&void runLookup(inputValue)} placeholder="e.g. LAG-123-AA"/></div>
+        <button type="button" onClick={()=>void runLookup(inputValue)} disabled={!inputValue.trim()||lookupState==='loading'} className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-800 font-bold text-white disabled:opacity-45">{lookupState==='loading'?<><Loader2 className="animate-spin" size={18}/>Looking up vehicle…</>:<><Search size={18}/>Find my car</>}</button>
+        <p className="mt-3 text-xs text-slate-500">Don’t have the plate handy? <button type="button" onClick={manualEntry} className="font-semibold text-emerald-800 underline">Enter details manually</button></p>
+      </div>
+      {error&&<div role="alert" className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><AlertCircle className="shrink-0" size={19}/><div><strong>We couldn’t verify that vehicle.</strong><p className="mt-1">{error}</p></div></div>}
+      <div className="flex items-center gap-3"><span className="h-px flex-1 bg-slate-200"/><span className="text-xs font-semibold uppercase text-slate-400">or</span><span className="h-px flex-1 bg-slate-200"/></div>
+      <button type="button" onClick={startNewCar} className="flex w-full items-center gap-4 rounded-2xl border border-slate-200 p-4 text-left hover:border-emerald-500"><span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-50 text-emerald-700"><Sparkles size={21}/></span><span className="flex-1"><strong className="block">Brand-new car — no plate number yet?</strong><span className="text-xs text-slate-500">Select the vehicle from the existing catalogue.</span></span><ShieldCheck size={18} className="text-emerald-700"/></button>
+    </>}
+  </div>
 }

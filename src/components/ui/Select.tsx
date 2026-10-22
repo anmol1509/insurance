@@ -19,6 +19,7 @@ interface SelectProps {
   error?: string
   className?: string
   productColor?: string
+  disabled?: boolean
 }
 
 export default function Select({
@@ -31,6 +32,7 @@ export default function Select({
   error,
   className,
   productColor = 'var(--green-700)',
+  disabled = false,
 }: SelectProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -55,7 +57,6 @@ export default function Select({
 
   useEffect(() => {
     if (open) setTimeout(() => searchRef.current?.focus(), 50)
-    else setQuery('')
   }, [open])
 
   return (
@@ -69,14 +70,20 @@ export default function Select({
 
       <button
         type="button"
-        onClick={() => setOpen(!open)}
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return
+          if (open) setQuery('')
+          setOpen(!open)
+        }}
         className={cn(
           'h-12 w-full bg-[var(--surface)] border-[1.5px] border-[var(--border-medium)] rounded-[var(--radius-md)] px-4 font-sans text-[15px] text-left flex items-center justify-between transition-all duration-[var(--transition-base)] outline-none',
           'hover:border-[var(--border-strong)]',
-          open && 'border-[var(--green-700)] shadow-[0_0_0_3px_rgba(10,92,54,0.1)]',
           error && 'border-[var(--error)]',
-          !selected && 'text-[var(--text-subtle)]'
+          !selected && 'text-[var(--text-subtle)]',
+          disabled && 'bg-[var(--surface-sunken)] opacity-60 cursor-not-allowed'
         )}
+        style={open ? { borderColor: productColor, boxShadow: `0 0 0 3px color-mix(in srgb, ${productColor} 10%, transparent)` } : undefined}
       >
         <span className={selected ? 'text-[var(--text-primary)]' : 'text-[var(--text-subtle)]'}>
           {selected?.label ?? placeholder}

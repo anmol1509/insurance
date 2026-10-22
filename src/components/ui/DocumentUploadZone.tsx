@@ -19,6 +19,7 @@ interface DocumentUploadZoneProps {
   errors?: Record<string, string>
   productColor?: string
   productColorBg?: string
+  layout?: 'list' | 'grid'
 }
 
 function FileTypeIcon({ name, productColor, productColorBg }: { name: string; productColor: string; productColorBg: string }) {
@@ -45,6 +46,7 @@ export default function DocumentUploadZone({
   errors = {},
   productColor = 'var(--green-700)',
   productColorBg = 'var(--green-50)',
+  layout = 'list',
 }: DocumentUploadZoneProps) {
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
   const [draggingOver, setDraggingOver] = useState<string | null>(null)
@@ -58,7 +60,7 @@ export default function DocumentUploadZone({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={layout === 'grid' ? 'grid md:grid-cols-2 xl:grid-cols-3 gap-4' : 'flex flex-col gap-4'}>
       {slots.map((slot) => {
         const doc = uploadedDocs[slot.key]
         const uploaded = !!doc
@@ -130,7 +132,7 @@ export default function DocumentUploadZone({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   onClick={() => inputRefs.current[slot.key]?.click()}
-                  className="w-full flex items-center gap-4 px-5 py-5 text-left"
+                  className={`w-full px-5 py-5 text-left ${layout === 'grid' ? 'min-h-[170px] flex flex-col items-center justify-center text-center' : 'flex items-center gap-4'}`}
                 >
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"

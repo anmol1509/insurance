@@ -1,6 +1,5 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { X, Car, Heart, Plane, Building2, Ship, HeartPulse, BadgeCheck, User } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
@@ -8,6 +7,7 @@ import StepRail from '@/components/quote/StepRail'
 import { useAuthStore } from '@/store/authStore'
 import { useHydrated } from '@/lib/useHydrated'
 import { PRODUCT_STEPS } from '@/lib/constants'
+import MotorQuoteLayout from '@/components/quote/motor/MotorQuoteLayout'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
@@ -67,11 +67,20 @@ export default function QuoteLayout({
   stepsOverride,
   children,
 }: QuoteLayoutProps) {
-  const router = useRouter()
   const config = PRODUCT_CONFIG[product]
   const user = useAuthStore((s) => s.user)
   const hydrated = useHydrated()
   const visibleSteps = stepsOverride ?? PRODUCT_STEPS[product]
+
+  if (product === 'motor') {
+    return (
+      <MotorQuoteLayout
+        currentStep={currentStep} totalSteps={totalSteps} stepTitle={stepTitle} stepSub={stepSub}
+        onBack={onBack} onNext={onNext} isFinalStep={isFinalStep} nextDisabled={nextDisabled}
+        maxStep={maxStep} onStepSelect={onStepSelect} steps={visibleSteps}
+      >{children}</MotorQuoteLayout>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
