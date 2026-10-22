@@ -5,3 +5,4 @@ node_modules/
 
 # Committed for reference; real values live in .env.local
 !.env.example
+.vercel
