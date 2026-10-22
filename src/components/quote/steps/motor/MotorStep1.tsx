@@ -5,14 +5,20 @@ import { AlertCircle, ArrowLeft, Car, CheckCircle2, Loader2, Search, ShieldCheck
 import { useQuoteStore } from '@/store/quoteStore'
 import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
 import { lookupVehicleByPlate } from '@/lib/verifydata/browser'
-import { VEHICLE_SUGGESTIONS } from '@/data/vehicleMakes'
+import { NIGERIA_VEHICLE_CATALOG } from '@/data/vehicleMakes'
+import type { VehicleMakeOption } from '@/lib/autoDev/catalog'
 import { VEHICLE_TYPES } from '@/lib/constants'
 import Select from '@/components/ui/Select'
 import VehiclePreview from '@/components/quote/motor/VehiclePreview'
 
 type LookupState='idle'|'loading'|'found'|'error'
 const years=Array.from({length:35},(_,i)=>String(new Date().getFullYear()-i))
-const makeNames=Array.from(new Set(VEHICLE_SUGGESTIONS.map(v=>v.split(' ')[0]))).sort()
+const fallbackCatalog:VehicleMakeOption[]=Object.entries(NIGERIA_VEHICLE_CATALOG).map(([name,models])=>({name,models:[...models]}))
+
+function splitVehicleName(value:string){
+  const make=fallbackCatalog.map(x=>x.name).sort((a,b)=>b.length-a.length).find(name=>value===name||value.startsWith(`${name} `))||''
+  return {make,model:make?value.slice(make.length).trim():''}
+}
 
 export default function MotorStep1(){
   const {motorData,updateMotor,setStep,heroPrefill,setHeroPrefill}=useQuoteStore()
@@ -20,10 +26,28 @@ export default function MotorStep1(){
   const [lookupState,setLookupState]=useState<LookupState>(motorData.lookupVerified?'found':'idle')
   const [inputValue,setInputValue]=useState(motorData.registrationNumber)
   const [error,setError]=useState('')
-  const [make,setMake]=useState(motorData.vehicleMakeModel.split(' ')[0]||'')
-  const [model,setModel]=useState(motorData.vehicleMakeModel.split(' ').slice(1).join(' ')||'')
+  const initialVehicle=splitVehicleName(motorData.vehicleMakeModel)
+  const [make,setMake]=useState(initialVehicle.make)
+  const [model,setModel]=useState(initialVehicle.model)
+  const [catalog,setCatalog]=useState<VehicleMakeOption[]>(fallbackCatalog)
+  const [catalogLoading,setCatalogLoading]=useState(true)
   const prefillConsumed=useRef(false)
-  const models=useMemo(()=>VEHICLE_SUGGESTIONS.filter(v=>v.startsWith(`${make} `)).map(v=>v.slice(make.length+1)).sort(),[make])
+  const makeNames=useMemo(()=>catalog.map(x=>x.name).sort(),[catalog])
+  const models=useMemo(()=>catalog.find(x=>x.name===make)?.models??[],[catalog,make])
+
+  useEffect(()=>{
+    let active=true
+    fetch('/api/auto-dev/catalog')
+      .then(response=>response.ok?response.json():Promise.reject(new Error('Catalogue unavailable')))
+      .then((payload:unknown)=>{
+        if(!active||!payload||typeof payload!=='object')return
+        const makes=(payload as {makes?:unknown}).makes
+        if(Array.isArray(makes)&&makes.length)setCatalog(makes as VehicleMakeOption[])
+      })
+      .catch(()=>{})
+      .finally(()=>{if(active)setCatalogLoading(false)})
+    return()=>{active=false}
+  },[])
 
   async function runLookup(raw:string){
     const plate=raw.trim().toUpperCase(); if(!plate)return
@@ -53,7 +77,7 @@ export default function MotorStep1(){
   if(mode==='new')return <div className="space-y-6">
     <button type="button" onClick={()=>{setMode('lookup');updateMotor({isNewCar:false})}} className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800"><ArrowLeft size={16}/> Use a registration plate instead</button>
     <div className="grid gap-5">
-      <Select label="Car Brand (Make)" required value={make} options={makeNames.map(x=>({value:x,label:x}))} onChange={v=>{setMake(v);setModel('');updateNew({vehicleMakeModel:v,vehicleVariant:'',vehicleType:''})}} placeholder="Select make" productColor="#005B3B"/>
+      <Select label="Car Brand (Make)" required value={make} options={makeNames.map(x=>({value:x,label:x}))} onChange={v=>{setMake(v);setModel('');updateNew({vehicleMakeModel:v,vehicleVariant:'',vehicleType:''})}} placeholder={catalogLoading?'Loading Nigerian makes…':'Select make'} productColor="#005B3B"/>
       <Select label="Model" required value={model} options={models.map(x=>({value:x,label:x}))} onChange={v=>{setModel(v);updateNew({vehicleMakeModel:`${make} ${v}`.trim(),vehicleVariant:'',vehicleType:''})}} placeholder={make?'Select model':'Select make first'} disabled={!make} productColor="#005B3B"/>
       <div className="grid sm:grid-cols-2 gap-5"><Select label="Model year" required value={motorData.yearOfManufacture?String(motorData.yearOfManufacture):''} options={years.map(x=>({value:x,label:x}))} onChange={v=>updateNew({yearOfManufacture:Number(v)})} placeholder="Select year" disabled={!model} productColor="#005B3B"/><Select label="Vehicle type" required value={motorData.vehicleType} options={VEHICLE_TYPES.map(x=>({value:x,label:x}))} onChange={v=>updateNew({vehicleType:v})} placeholder="Select vehicle type" disabled={!model} productColor="#005B3B"/></div>
       <div><label className="block text-xs font-semibold text-slate-600 mb-1.5">Variant / trim <span className="font-normal text-slate-400">(if known)</span></label><input className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-emerald-700" value={motorData.vehicleVariant} onChange={e=>updateNew({vehicleVariant:e.target.value})} disabled={!model} placeholder="e.g. XLE, Sport, Premium"/></div>
