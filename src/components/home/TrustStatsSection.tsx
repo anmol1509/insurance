@@ -1,3 +1,4 @@
+import { Reveal } from '@/components/motion/Reveal'
 import s from './homepage.module.css'
 // Product facts, not unverified customer, sales, rating or claims statistics.
 const facts = [
@@ -10,20 +11,20 @@ export default function TrustStatsSection() {
   return (
     <section className={s.trust}>
       <div className={s.container}>
-        <div>
+        <Reveal>
           <p className={s.eyebrow}>Built around you</p>
           <h2>
             Your trust isn’t assumed,
             <br />
             it’s earned.
           </h2>
-        </div>
+        </Reveal>
         <div className={s.trustFacts}>
-          {facts.map(([value, label]) => (
-            <div key={label}>
+          {facts.map(([value, label], index) => (
+            <Reveal key={label} delay={index * 0.08} y={18}>
               <strong>{value}</strong>
               <span>{label}</span>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

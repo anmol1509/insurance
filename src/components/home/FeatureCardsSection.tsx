@@ -1,4 +1,5 @@
 import { Search, Tag, Zap, Headphones } from 'lucide-react'
+import SpotlightCard from '@/components/motion/SpotlightCard'
 import s from './homepage.module.css'
 const benefits = [
   {
@@ -26,14 +27,14 @@ export default function FeatureCardsSection() {
   return (
     <section className={s.benefits} aria-label="Why choose ShopInsurance">
       <div className={s.container}>
-        {benefits.map(({ icon: Icon, title, description }) => (
-          <div key={title}>
+        {benefits.map(({ icon: Icon, title, description }, index) => (
+          <SpotlightCard key={title} delay={index * 0.08}>
             <span className={s.roundIcon}>
               <Icon size={25} />
             </span>
             <h3>{title}</h3>
             <p>{description}</p>
-          </div>
+          </SpotlightCard>
         ))}
       </div>
     </section>

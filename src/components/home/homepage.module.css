@@ -2234,6 +2234,13 @@
     font-size: 21px;
   }
 }
+/* Hero badges drift gently; reduced-motion users get none (rule below). */
+@keyframes badgeFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -7px; }
+}
+.coverBadge { animation: badgeFloat 5.5s ease-in-out infinite; }
+.supportBadge { animation: badgeFloat 6.5s ease-in-out 1.2s infinite; }
 @media (prefers-reduced-motion: reduce) {
   .home *,
   .home *:before,

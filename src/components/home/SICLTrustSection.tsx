@@ -1,5 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
+import CountUp from '@/components/motion/CountUp'
 
 const SICL_LOGO = '/brand/standard-insurance-logo.avif'
 
@@ -85,7 +86,7 @@ export default function SICLTrustSection() {
               >
                 <p className="font-display font-black leading-none mb-1.5"
                   style={{ fontSize: 'clamp(40px, 4vw, 52px)', color: 'var(--green-400)' }}>
-                  {value}
+                  <CountUp value={value} />
                 </p>
                 <p className="font-sans font-bold text-[15px] mb-0.5" style={{ color: '#ffffff' }}>{label}</p>
                 <p className="font-sans text-[12px]" style={{ color: 'rgba(255,255,255,0.72)' }}>{sub}</p>

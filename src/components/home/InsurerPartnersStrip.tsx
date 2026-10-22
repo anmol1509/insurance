@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { Reveal } from '@/components/motion/Reveal'
 import s from './homepage.module.css'
 
 const PARTNERS = [
@@ -34,14 +35,14 @@ export default function InsurerPartnersStrip() {
         </div>
         <div className={s.partnerLogos}>
           {PARTNERS.map(({ name }, index) => (
-            <div key={name} className={s.partnerLogo}>
+            <Reveal key={name} className={s.partnerLogo} delay={index * 0.08} y={18}>
               <Image
                 src={`/home/partners/partner-${index}.webp`}
                 alt={name}
                 width={190}
                 height={66}
               />
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

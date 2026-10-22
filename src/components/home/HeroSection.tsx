@@ -17,6 +17,7 @@ import {
   History,
   Headphones,
 } from 'lucide-react'
+import BlurText from '@/components/motion/BlurText'
 import { useQuoteStore } from '@/store/quoteStore'
 import {
   BUSINESS_TYPES,
@@ -155,9 +156,11 @@ export default function HeroSection() {
               : `${hero.label} Insurance`}
           </span>
           <h1>
-            {hero.title}
+            <BlurText text={hero.title} />
             <br />
-            <em>{hero.highlight}</em>
+            <em>
+              <BlurText text={hero.highlight} delay={0.35} />
+            </em>
           </h1>
           <p>{hero.description}</p>
         </motion.div>

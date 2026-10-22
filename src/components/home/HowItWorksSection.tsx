@@ -6,6 +6,7 @@ import {
   Signal,
   BatteryFull,
 } from 'lucide-react'
+import { Reveal } from '@/components/motion/Reveal'
 import s from './homepage.module.css'
 const steps = [
   ['Enter your details', 'Share basic information about your cover.'],
@@ -29,20 +30,20 @@ export default function HowItWorksSection() {
         </p>
         <ol>
           {steps.map(([title, text], index) => (
-            <li key={title}>
+            <Reveal as="li" key={title} delay={index * 0.12} y={18}>
               <span>{index + 1}</span>
               <div>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </div>
-            </li>
+            </Reveal>
           ))}
         </ol>
         <Link href="/#get-quote" className={s.button}>
           Get Your Free Quote <ArrowRight size={17} />
         </Link>
       </div>
-      <div className={s.phoneScene}>
+      <Reveal className={s.phoneScene} y={36} delay={0.15}>
         <div
           className={s.phone}
           aria-label="Preview of the mobile quote experience"
@@ -84,7 +85,7 @@ export default function HowItWorksSection() {
           </div>
           <div className={s.phoneHome} />
         </div>
-      </div>
+      </Reveal>
     </section>
   )
 }

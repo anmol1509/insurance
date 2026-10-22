@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import styles from '@/components/home/homepage.module.css'
+import ScrollProgress from '@/components/motion/ScrollProgress'
 import HeroSection from '@/components/home/HeroSection'
 import ProductBentoGrid from '@/components/home/ProductBentoGrid'
 import InsurerPartnersStrip from '@/components/home/InsurerPartnersStrip'
@@ -28,6 +29,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className={styles.home}>
+      <ScrollProgress />
       <HeroSection />
       <FeatureCardsSection />
       <InsurerPartnersStrip />

@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { RevealLink } from '@/components/motion/Reveal'
 import s from './homepage.module.css'
 const products = [
   {
@@ -42,9 +43,10 @@ export default function ProductBentoGrid() {
           </Link>
         </div>
         <div className={s.productGrid}>
-          {products.map((product) => (
-            <Link
+          {products.map((product, index) => (
+            <RevealLink
               key={product.key}
+              delay={index * 0.09}
               href={`/${product.key}`}
               className={`${s.productCard} ${s[product.key]}`}
             >
@@ -64,7 +66,7 @@ export default function ProductBentoGrid() {
                   <ArrowRight size={16} />
                 </span>
               </div>
-            </Link>
+            </RevealLink>
           ))}
         </div>
       </div>
