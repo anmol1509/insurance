@@ -7,6 +7,7 @@ import BottomNav from './BottomNav'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import LiveChat from '@/components/ui/LiveChat'
 import CookieBanner from '@/components/ui/CookieBanner'
+import DemoBanner from './DemoBanner'
 
 const CHROME_HIDDEN_PREFIXES = [
   '/dashboard',
@@ -39,6 +40,7 @@ export default function ClientLayout({
 
   return (
     <>
+      <DemoBanner />
       {!hideChrome && (isHome ? <HomeHeader /> : <Navbar />)}
       <main
         className={

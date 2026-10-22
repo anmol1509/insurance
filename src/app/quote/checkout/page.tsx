@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
+import { DEMO_MODE } from '@/components/layout/DemoBanner'
 import { ArrowLeft, Shield, Lock, ChevronDown, ChevronUp, Check, CreditCard, Building2, Smartphone, X } from 'lucide-react'
 import Logo from '@/components/ui/Logo'
 import { useQuoteStore } from '@/store/quoteStore'
@@ -648,6 +649,11 @@ export default function CheckoutPage() {
 
             <div className="bg-white rounded-3xl border p-6 lg:p-8" style={{ borderColor: 'var(--border-default)' }}>
               <h2 className="font-display font-bold text-xl mb-5" style={{ color: 'var(--text-primary)' }}>Payment method</h2>
+              {DEMO_MODE && (
+                <p className="font-sans text-[12.5px] rounded-xl px-3.5 py-2.5 mb-5" style={{ backgroundColor: 'var(--motor-50)', color: 'var(--text-secondary)' }}>
+                  <strong>Demo only</strong> — no real payment is taken and no policy is issued. Use any sample details.
+                </p>
+              )}
               <div className="flex gap-2 mb-5">
                 {([
                   { key: 'card', icon: CreditCard, label: 'Card' },
