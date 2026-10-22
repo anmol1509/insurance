@@ -4,7 +4,7 @@ import Select from '@/components/ui/Select'
 import Input from '@/components/ui/Input'
 import { ENGINE_CAPACITIES, VEHICLE_COLOURS, VEHICLE_MAKES, VEHICLE_TYPES } from '@/lib/constants'
 import { mergeOptions, useNsiaDropdowns } from '@/lib/nsia/useNsiaDropdowns'
-import { Fuel, Car, Calendar, Briefcase } from 'lucide-react'
+import { Fuel, Car, Calendar, Briefcase, CheckCircle2, Pencil } from 'lucide-react'
 
 const currentYear = new Date().getFullYear()
 const yearOptions = Array.from({ length: currentYear - 1989 }, (_, i) => {
@@ -51,7 +51,7 @@ function ChipGroup({
 }
 
 export default function MotorStep2() {
-  const { motorData, updateMotor } = useQuoteStore()
+  const { motorData, updateMotor, setStep } = useQuoteStore()
 
   // Prefer the brand names NSIA recognises so a submission is not rejected
   // over spelling; falls back to our own list when the API is unavailable.
@@ -75,7 +75,35 @@ export default function MotorStep2() {
         </p>
       </div>
 
-      {/* Make + Model */}
+      {motorData.isNewCar ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 sm:p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-emerald-700 shadow-sm">
+                <CheckCircle2 size={20} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Selected in Step 1</p>
+                <h3 className="mt-1 truncate text-lg font-bold text-slate-950">{motorData.vehicleMakeModel}</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  {[motorData.yearOfManufacture, motorData.vehicleVariant, motorData.vehicleType].filter(Boolean).join(' · ')}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setStep('motor', 1)}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:border-emerald-500"
+            >
+              <Pencil size={14} /> Change car
+            </button>
+          </div>
+          <p className="mt-4 border-t border-emerald-200 pt-3 text-xs text-slate-600">
+            Your make, model, year and vehicle type are already saved. Complete only the remaining insurance details below.
+          </p>
+        </div>
+      ) : <>
+      {/* Make + Model — editable for registry and manual-entry vehicles */}
       <div className="grid md:grid-cols-2 gap-5">
         <Select
           label="Car Brand (Make)"
@@ -122,6 +150,7 @@ export default function MotorStep2() {
           productColor="var(--motor-600)"
         />
       </div>
+      </>}
 
       {/* Fuel type chips */}
       <ChipGroup
@@ -166,8 +195,8 @@ export default function MotorStep2() {
         productColor="var(--motor-600)"
       />
 
-      {/* Registration Year */}
-      <div>
+      {/* New-car manufacture year was already selected in Step 1. */}
+      {!motorData.isNewCar && <div>
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="w-4 h-4" style={{ color: 'var(--motor-600)' }} />
           <p className="font-sans font-semibold text-[13px]" style={{ color: 'var(--text-secondary)' }}>
@@ -181,7 +210,7 @@ export default function MotorStep2() {
           placeholder="Select year"
           productColor="var(--motor-600)"
         />
-      </div>
+      </div>}
 
       {/* Commercial use */}
       <div>
