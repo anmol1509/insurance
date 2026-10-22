@@ -1,4 +1,5 @@
-'use client'
+import Image from 'next/image'
+import s from './homepage.module.css'
 
 const PARTNERS = [
   {
@@ -25,29 +26,21 @@ const PARTNERS = [
 
 export default function InsurerPartnersStrip() {
   return (
-    <section
-      className="py-10"
-      style={{ borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'white' }}
-    >
-      <div className="max-w-[1280px] mx-auto px-5 lg:px-20">
-        <p className="font-sans font-semibold text-[11px] uppercase tracking-[0.12em] text-center mb-7" style={{ color: 'var(--text-subtle)' }}>
-          Partnered with Nigeria&apos;s leading NAICOM-licensed insurers
-        </p>
-
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          {PARTNERS.map(({ name, logo }) => (
-            <div
-              key={name}
-              className="flex flex-col items-center gap-2.5 px-5 py-4 rounded-2xl border shrink-0"
-              style={{ borderColor: 'var(--border-default)', backgroundColor: 'var(--surface-raised)', minWidth: 140 }}
-            >
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-white border flex items-center justify-center p-1.5" style={{ borderColor: 'var(--border-subtle)' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logo} alt={name} className="w-full h-full object-contain" />
-              </div>
-              <span className="font-sans font-semibold text-[12px] text-center whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>
-                {name}
-              </span>
+    <section id="partners" className={s.partners}>
+      <div className={s.container}>
+        <div className={s.partnerTitle}>
+          <h2>Our Insurance Partners</h2>
+          <p>Compare cover from our existing insurance partners.</p>
+        </div>
+        <div className={s.partnerLogos}>
+          {PARTNERS.map(({ name }, index) => (
+            <div key={name} className={s.partnerLogo}>
+              <Image
+                src={`/home/partners/partner-${index}.webp`}
+                alt={name}
+                width={190}
+                height={66}
+              />
             </div>
           ))}
         </div>

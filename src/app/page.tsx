@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+import styles from '@/components/home/homepage.module.css'
 import HeroSection from '@/components/home/HeroSection'
 import ProductBentoGrid from '@/components/home/ProductBentoGrid'
 import InsurerPartnersStrip from '@/components/home/InsurerPartnersStrip'
@@ -11,21 +13,35 @@ import FAQSection from '@/components/home/FAQSection'
 import TrustBannerSection from '@/components/home/TrustBannerSection'
 import ClaimsSupportSection from '@/components/home/ClaimsSupportSection'
 
+export const metadata: Metadata = {
+  title: { absolute: 'Shapinsurance — Confident cover, stress-free claims' },
+  description:
+    'Compare motor, medical, travel and business insurance. Find cover that fits, manage your policies online and get help with claims.',
+  openGraph: {
+    title: 'Shapinsurance — Confident cover, stress-free claims',
+    description:
+      'Compare insurance, manage your policies and get help with claims in one place.',
+    siteName: 'Shapinsurance',
+  },
+}
+
 export default function HomePage() {
   return (
-    <>
+    <div className={styles.home}>
       <HeroSection />
       <FeatureCardsSection />
       <InsurerPartnersStrip />
       <SICLTrustSection />
       <ProductBentoGrid />
       <TrustStatsSection />
-      <HowItWorksSection />
-      <AppDownloadSection />
+      <div className={styles.howApp}>
+        <HowItWorksSection />
+        <AppDownloadSection />
+      </div>
       <ClaimsSupportSection />
       <TestimonialsSection />
       <FAQSection />
       <TrustBannerSection />
-    </>
+    </div>
   )
 }
