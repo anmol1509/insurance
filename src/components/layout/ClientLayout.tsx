@@ -8,6 +8,7 @@ import WhatsAppButton from '@/components/ui/WhatsAppButton'
 import LiveChat from '@/components/ui/LiveChat'
 import CookieBanner from '@/components/ui/CookieBanner'
 import DemoBanner from './DemoBanner'
+import motorStyles from '@/components/product/motorLanding.module.css'
 
 const CHROME_HIDDEN_PREFIXES = [
   '/dashboard',
@@ -32,6 +33,7 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname()
   const isHome = pathname === '/'
+  const isMotorLanding = pathname === '/motor'
   const hideChrome = CHROME_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
   const showBottomNav =
     !isHome && !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
@@ -41,7 +43,7 @@ export default function ClientLayout({
   return (
     <>
       <DemoBanner />
-      {!hideChrome && (isHome ? <HomeHeader /> : <Navbar />)}
+      {!hideChrome && (isHome || isMotorLanding ? <HomeHeader /> : <Navbar />)}
       <main
         className={
           showBottomNav
@@ -51,7 +53,7 @@ export default function ClientLayout({
       >
         {children}
       </main>
-      {!hideChrome && (isHome ? <HomeFooter /> : <Footer />)}
+      {!hideChrome && (isHome ? <HomeFooter /> : isMotorLanding ? <div className={motorStyles.footer}><HomeFooter /></div> : <Footer />)}
       {showBottomNav && <BottomNav />}
       {!hideFloating && <WhatsAppButton />}
       {!hideFloating && <LiveChat />}
