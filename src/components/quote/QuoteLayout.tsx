@@ -1,11 +1,8 @@
 'use client'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { X, Car, Heart, Plane, Building2, Ship, HeartPulse, BadgeCheck, User } from 'lucide-react'
-import Logo from '@/components/ui/Logo'
+import { X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import StepRail from '@/components/quote/StepRail'
-import { useAuthStore } from '@/store/authStore'
-import { useHydrated } from '@/lib/useHydrated'
 import { PRODUCT_STEPS } from '@/lib/constants'
 import MotorQuoteLayout from '@/components/quote/motor/MotorQuoteLayout'
 
@@ -68,8 +65,6 @@ export default function QuoteLayout({
   children,
 }: QuoteLayoutProps) {
   const config = PRODUCT_CONFIG[product]
-  const user = useAuthStore((s) => s.user)
-  const hydrated = useHydrated()
   const visibleSteps = stepsOverride ?? PRODUCT_STEPS[product]
 
   if (product === 'motor') {
@@ -84,10 +79,9 @@ export default function QuoteLayout({
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+      <div className="bg-white/95 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
-          <Logo size={28} href="/" />
-          <div className="flex-1 flex items-center justify-center gap-2">
+          <div className="flex-1 flex items-center gap-2">
             {(() => { const Icon = PRODUCT_ICON[product]; return <Icon className="w-4 h-4" style={{ color: config.color }} /> })()}
             <span className="font-sans text-[13px] hidden sm:inline" style={{ color: 'var(--text-muted)' }}>
               {config.label}
@@ -101,28 +95,11 @@ export default function QuoteLayout({
             </span>
           </div>
           <div className="shrink-0 flex items-center gap-2">
-            {hydrated && user && (
-              <span
-                className="hidden sm:flex items-center gap-1.5 h-8 pl-1 pr-2.5 rounded-full border"
-                style={{ borderColor: 'var(--border-default)' }}
-                title={`Signed in as ${user.phone || user.email}`}
-              >
-                <span
-                  className="w-6 h-6 rounded-full flex items-center justify-center font-sans font-bold text-[10px] text-white"
-                  style={{ backgroundColor: config.color }}
-                >
-                  {user.initials || <User className="w-3 h-3" />}
-                </span>
-                <span className="font-sans font-medium text-[12px] max-w-[140px] truncate" style={{ color: 'var(--text-secondary)' }}>
-                  {user.phone || user.email}
-                </span>
-                <BadgeCheck className="w-3.5 h-3.5 shrink-0" style={{ color: config.color }} />
-              </span>
-            )}
             <Link
               href="/"
               className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--surface-raised)] transition-colors"
               title="Exit quote"
+              aria-label="Exit quote"
             >
               <X className="w-4 h-4" style={{ color: 'var(--text-muted)' }} />
             </Link>
@@ -130,7 +107,7 @@ export default function QuoteLayout({
         </div>
       </div>
 
-      <div className="sticky top-14 z-30">
+      <div className="relative">
         <StepRail
           steps={visibleSteps}
           currentStep={currentStep}

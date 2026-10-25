@@ -1,9 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Car, Check, ChevronDown, Headphones, ShieldCheck, User, X, Zap } from 'lucide-react'
-import Logo from '@/components/ui/Logo'
-import { useAuthStore } from '@/store/authStore'
+import { Car, Check, Headphones, ShieldCheck, X, Zap } from 'lucide-react'
 import { useQuoteStore } from '@/store/quoteStore'
 import { MOTOR_PLANS } from '@/lib/motorPlans'
 import VehiclePreview, { formatNaira } from './VehiclePreview'
@@ -17,15 +15,13 @@ interface Props {
 }
 
 export default function MotorQuoteLayout({currentStep,totalSteps,stepTitle,stepSub,onBack,onNext,isFinalStep,nextDisabled,maxStep,onStepSelect,steps,children}:Props){
-  const user=useAuthStore(x=>x.user)
   const motorData=useQuoteStore(x=>x.motorData)
   const plan=MOTOR_PLANS.find(p=>p.id===motorData.selectedUnderwriter)
   const isPlan=currentStep===4
   return <div className={s.flow}>
     <header className={s.header}><div className={s.headerInner}>
-      <Logo size={32} href="/" />
       <div className={s.product}><Car size={18}/><strong>Motor Insurance</strong><span>·</span><span className={s.stepCount}>Step {currentStep}/{totalSteps}</span></div>
-      <div className={s.account}>{user&&<div className={s.user}><span className={s.avatar}>{user.initials||<User size={13}/>}</span><span>{user.phone||user.email}</span><ChevronDown size={14}/></div>}<Link className={s.exit} href="/" aria-label="Exit quote"><X size={20}/></Link></div>
+      <div className={s.account}><Link className={s.exit} href="/" aria-label="Exit quote"><X size={20}/></Link></div>
     </div></header>
     <nav className={s.rail} aria-label="Motor quote progress"><div className={s.railInner}>{steps.map((step,index)=>{const n=index+1;const state=n<currentStep?'complete':n===currentStep?'active':'';return <span key={step.id} style={{display:'contents'}}><button type="button" disabled={n>maxStep} onClick={()=>n<=maxStep&&onStepSelect(n)} className={`${s.railStep} ${state?s[state]:''}`}><span className={s.railNum}>{n<currentStep?<Check size={15}/>:n}</span><span>{step.label}</span></button>{index<steps.length-1&&<span className={s.connector}/>}</span>})}</div></nav>
     <div className={s.content}><div className={`${s.twoColumn} ${isPlan?s.plan:''}`}>
