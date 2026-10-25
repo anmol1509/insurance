@@ -3,7 +3,7 @@ import TravelProductPage from '@/components/product/TravelProductPage'
 
 export const metadata: Metadata = {
   title: 'Travel Insurance',
-  description: 'Schengen-compliant travel insurance. Medical emergencies, baggage protection, trip cancellation. Certificate ready for visa applications.',
+  description: 'Explore travel insurance for your destination. Compare medical, baggage, cancellation and optional activity cover for your journey.',
 }
 
 export default function TravelPage() {

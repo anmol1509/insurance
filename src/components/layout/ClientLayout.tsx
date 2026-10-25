@@ -33,7 +33,7 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname()
   const isHome = pathname === '/'
-  const isProductLanding = pathname === '/motor' || pathname === '/medical'
+  const isProductLanding = ['/motor', '/medical', '/travel', '/business'].includes(pathname)
   const hideChrome = CHROME_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
   const showBottomNav =
     !isHome && !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))

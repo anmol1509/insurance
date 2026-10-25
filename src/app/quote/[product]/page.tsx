@@ -9,6 +9,7 @@ import QuoteAuthModal from '@/components/quote/QuoteAuthModal'
 import { MEDICAL_COVER_OPTIONS, PRODUCT_STEPS } from '@/lib/constants'
 import { motorStep5Missing, motorStep6Missing } from '@/lib/motorStepValidation'
 import { requiredSlotsFor } from '@/lib/nsia/documents'
+import { landingQuotePreferences } from '@/lib/landingQuotePreferences'
 
 import MotorStep1 from '@/components/quote/steps/motor/MotorStep1'
 import MotorStep2 from '@/components/quote/steps/motor/MotorStep2'
@@ -95,6 +96,9 @@ export default function QuotePage({ params }: { params: Promise<{ product: strin
   useEffect(() => {
     setActiveProduct(typedProduct)
     resetQuote(typedProduct)
+    const preferences = landingQuotePreferences(window.location.search)
+    if (typedProduct === 'travel') updateTravel(preferences.travel)
+    if (typedProduct === 'business') updateBusiness(preferences.business)
 
     /**
      * Step 1 of every flow asks exactly what the homepage quick-quote widget
