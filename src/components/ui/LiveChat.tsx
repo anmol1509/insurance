@@ -74,7 +74,7 @@ export default function LiveChat() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
             className="fixed bottom-[calc(10rem+env(safe-area-inset-bottom,0px))] md:bottom-[5.5rem] right-4 md:right-6 z-[55] w-[calc(100vw-2rem)] md:w-[340px] max-w-[340px] bg-white rounded-3xl shadow-2xl border border-[var(--border-default)] overflow-hidden flex flex-col"
-            style={{ height: 460 }}
+            style={{ height: 460, maxHeight: 'calc(100dvh - 12rem)' }}
           >
             {/* Header */}
             <div className="px-5 py-4 flex items-center justify-between shrink-0" style={{ backgroundColor: 'var(--green-700)' }}>

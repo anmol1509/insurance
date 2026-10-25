@@ -1,7 +1,7 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import Navbar from './Navbar'
-import { HomeHeader, HomeFooter } from '@/components/home/HomeChrome'
+import { HomeFooter } from '@/components/home/HomeChrome'
 import Footer from './Footer'
 import BottomNav from './BottomNav'
 import WhatsAppButton from '@/components/ui/WhatsAppButton'
@@ -10,7 +10,7 @@ import CookieBanner from '@/components/ui/CookieBanner'
 import DemoBanner from './DemoBanner'
 import motorStyles from '@/components/product/motorLanding.module.css'
 
-const CHROME_HIDDEN_PREFIXES = [
+const FOOTER_HIDDEN_PREFIXES = [
   '/dashboard',
   '/login',
   '/register',
@@ -24,7 +24,6 @@ const BOTTOM_NAV_HIDDEN_PREFIXES = [
   '/login',
   '/register',
 ]
-const FLOATING_HIDDEN_PREFIXES = ['/login', '/register', '/admin']
 
 export default function ClientLayout({
   children,
@@ -34,16 +33,14 @@ export default function ClientLayout({
   const pathname = usePathname()
   const isHome = pathname === '/'
   const isProductLanding = ['/motor', '/medical', '/travel', '/business'].includes(pathname)
-  const hideChrome = CHROME_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
+  const hideFooter = FOOTER_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
   const showBottomNav =
     !isHome && !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
-  const hideFloating =
-    isHome || FLOATING_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
 
   return (
     <>
       <DemoBanner />
-      {!hideChrome && (isHome || isProductLanding ? <HomeHeader /> : <Navbar />)}
+      <Navbar />
       <main
         className={
           showBottomNav
@@ -53,10 +50,10 @@ export default function ClientLayout({
       >
         {children}
       </main>
-      {!hideChrome && (isHome ? <HomeFooter /> : isProductLanding ? <div className={motorStyles.footer}><HomeFooter /></div> : <Footer />)}
+      {!hideFooter && (isHome ? <HomeFooter /> : isProductLanding ? <div className={motorStyles.footer}><HomeFooter /></div> : <Footer />)}
       {showBottomNav && <BottomNav />}
-      {!hideFloating && <WhatsAppButton />}
-      {!hideFloating && <LiveChat />}
+      <WhatsAppButton />
+      <LiveChat />
       <CookieBanner />
     </>
   )
