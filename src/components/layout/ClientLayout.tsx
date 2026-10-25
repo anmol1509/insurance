@@ -33,7 +33,7 @@ export default function ClientLayout({
 }) {
   const pathname = usePathname()
   const isHome = pathname === '/'
-  const isMotorLanding = pathname === '/motor'
+  const isProductLanding = pathname === '/motor' || pathname === '/medical'
   const hideChrome = CHROME_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
   const showBottomNav =
     !isHome && !BOTTOM_NAV_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))
@@ -43,7 +43,7 @@ export default function ClientLayout({
   return (
     <>
       <DemoBanner />
-      {!hideChrome && (isHome || isMotorLanding ? <HomeHeader /> : <Navbar />)}
+      {!hideChrome && (isHome || isProductLanding ? <HomeHeader /> : <Navbar />)}
       <main
         className={
           showBottomNav
@@ -53,7 +53,7 @@ export default function ClientLayout({
       >
         {children}
       </main>
-      {!hideChrome && (isHome ? <HomeFooter /> : isMotorLanding ? <div className={motorStyles.footer}><HomeFooter /></div> : <Footer />)}
+      {!hideChrome && (isHome ? <HomeFooter /> : isProductLanding ? <div className={motorStyles.footer}><HomeFooter /></div> : <Footer />)}
       {showBottomNav && <BottomNav />}
       {!hideFloating && <WhatsAppButton />}
       {!hideFloating && <LiveChat />}
