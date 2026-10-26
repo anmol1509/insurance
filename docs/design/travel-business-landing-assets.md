@@ -12,3 +12,7 @@ Reference claims and prices are not treated as verified product facts. The busin
 
 - `public/travel/destinations.webp`: Built-in imagegen photorealistic six-panel contact sheet, 3 columns by 2 rows. Paris Eiffel Tower, London Big Ben, New York Statue of Liberty; African savannah, Japanese pagoda and Mount Fuji, passenger aircraft above clouds. Equal panels, no text or logos. Used as destination-card thumbnails.
 - Travel quote sidebar reuses `public/travel/coast.webp` with a pale warm overlay to support readable text.
+
+## Business quote portrait
+
+- `public/business/quote-owner.webp`: Generated with the built-in imagegen tool. Photorealistic Nigerian entrepreneur in a navy suit, eyeglasses and white shirt, holding a tablet, smiling outside glass office towers. Lower-right portrait placement with pale lavender negative space on the left and above; no text or logos. Encoded as WebP for the purple business quote sidebar.
