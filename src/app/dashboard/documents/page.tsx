@@ -1,150 +1,18 @@
 'use client'
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Download, Upload, FileText, Award, Receipt, Paperclip } from 'lucide-react'
-import { mockDocuments, PRODUCT_COLORS } from '@/lib/mockData'
-import Badge from '@/components/ui/Badge'
-
-const TYPE_ICON: Record<string, React.ElementType> = {
-  certificate:     Award,
-  policy_schedule: FileText,
-  receipt:         Receipt,
-  claim_form:      FileText,
-  uploaded:        Paperclip,
-}
-
-const TYPE_LABEL: Record<string, string> = {
-  certificate:     'Certificate',
-  policy_schedule: 'Policy Schedule',
-  receipt:         'Receipt',
-  claim_form:      'Claim Form',
-  uploaded:        'Uploaded',
-}
-
-type Filter = 'all' | 'certificate' | 'policy_schedule' | 'receipt' | 'uploaded'
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all',            label: 'All' },
-  { key: 'certificate',    label: 'Certificates' },
-  { key: 'policy_schedule', label: 'Schedules' },
-  { key: 'receipt',        label: 'Receipts' },
-  { key: 'uploaded',       label: 'Uploaded' },
-]
-
-export default function DocumentsPage() {
-  const [filter, setFilter] = useState<Filter>('all')
-
-  const shown = filter === 'all' ? mockDocuments : mockDocuments.filter((d) => d.type === filter)
-
-  return (
-    <div className="px-4 lg:px-8 py-6 max-w-[900px] mx-auto">
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="font-display font-extrabold text-[24px] tracking-tight" style={{ color: 'var(--text-primary)' }}>
-            Documents
-          </h1>
-          <p className="font-sans text-[14px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            {mockDocuments.length} documents stored securely
-          </p>
-        </div>
-        <button
-          type="button"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-sans font-semibold text-[13px] border transition-colors hover:bg-[var(--surface-raised)]"
-          style={{ borderColor: 'var(--border-default)', color: 'var(--text-secondary)' }}
-        >
-          <Upload className="w-4 h-4" /> Upload
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-2 mb-5 flex-wrap">
-        {FILTERS.map((f) => {
-          const count = f.key === 'all' ? mockDocuments.length : mockDocuments.filter((d) => d.type === f.key).length
-          return (
-            <button
-              key={f.key}
-              type="button"
-              onClick={() => setFilter(f.key)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-sans font-semibold text-[12px] border transition-colors"
-              style={{
-                backgroundColor: filter === f.key ? 'var(--green-700)' : 'white',
-                borderColor: filter === f.key ? 'var(--green-700)' : 'var(--border-default)',
-                color: filter === f.key ? 'white' : 'var(--text-secondary)',
-              }}
-            >
-              {f.label}
-              {count > 0 && (
-                <span
-                  className="min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] font-bold"
-                  style={{
-                    backgroundColor: filter === f.key ? 'rgba(255,255,255,0.25)' : 'var(--surface-raised)',
-                    color: filter === f.key ? 'white' : 'var(--text-muted)',
-                  }}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Document list */}
-      <div className="rounded-2xl border overflow-hidden" style={{ backgroundColor: 'white', borderColor: 'var(--border-default)' }}>
-        {shown.length === 0 ? (
-          <div className="text-center py-14">
-            <p className="font-sans text-[15px]" style={{ color: 'var(--text-muted)' }}>No documents in this category.</p>
-          </div>
-        ) : (
-          <div className="divide-y" style={{ borderColor: 'var(--border-subtle)' }}>
-            {shown.map((doc, i) => {
-              const colors = PRODUCT_COLORS[doc.productType]
-              const Icon = TYPE_ICON[doc.type] ?? FileText
-              return (
-                <motion.div
-                  key={doc.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-[var(--surface-raised)] transition-colors"
-                >
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: colors.light }}
-                  >
-                    <Icon className="w-4 h-4" style={{ color: colors.main }} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans font-semibold text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>
-                      {doc.name}
-                    </p>
-                    <p className="font-sans text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                      {doc.policyRef} · {doc.size} · {new Date(doc.uploadedAt).toLocaleDateString('en-NG')}
-                    </p>
-                  </div>
-
-                  <Badge variant={doc.productType as 'motor' | 'medical' | 'travel' | 'business'}>
-                    {TYPE_LABEL[doc.type]}
-                  </Badge>
-
-                  <button
-                    type="button"
-                    className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--green-50)] hover:border-[var(--green-100)]"
-                    style={{ borderColor: 'var(--border-default)', color: 'var(--text-muted)' }}
-                    title="Download"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                  </button>
-                </motion.div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      <p className="font-sans text-[11px] text-center mt-4" style={{ color: 'var(--text-subtle)' }}>
-        Documents are encrypted and stored securely in compliance with NDPR.
-      </p>
-    </div>
-  )
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
+import { Search, Upload, CloudUpload, FileText, Eye, Download, Award, Receipt, FolderOpen, ChevronRight, X } from 'lucide-react'
+import { mockDocuments, type Document } from '@/lib/mockData'
+import { PageHeading, Status, IconTile, HelpCard, DashboardModal, DemoDocumentNotice, dateLabel } from '@/components/dashboard/DashboardUI'
+import s from '@/components/dashboard/dashboard.module.css'
+type LocalDocument=Document&{url?:string;mime?:string}
+const categories=[{id:'all',label:'All',icon:FolderOpen},{id:'certificate',label:'Certificates',icon:Award},{id:'policy_schedule',label:'Schedules',icon:FileText},{id:'receipt',label:'Receipts',icon:Receipt},{id:'uploaded',label:'Uploaded',icon:Upload}]
+const labels:Record<string,string>={certificate:'Certificate',policy_schedule:'Policy Schedule',receipt:'Receipt',uploaded:'Uploaded',claim_form:'Claim Form'}
+export default function DocumentsPage(){
+ const [filter,setFilter]=useState('all');const [query,setQuery]=useState('');const [uploads,setUploads]=useState<LocalDocument[]>([]);const [preview,setPreview]=useState<LocalDocument|null>(null);const [error,setError]=useState('');const input=useRef<HTMLInputElement>(null);const urls=useRef<string[]>([])
+ useEffect(()=>()=>{urls.current.forEach(url=>URL.revokeObjectURL(url))},[])
+ const all:LocalDocument[]=[...mockDocuments,...uploads];const shown=all.filter(d=>(filter==='all'||filter===d.type)&&`${d.name} ${d.policyRef}`.toLowerCase().includes(query.toLowerCase()))
+ function addFiles(files:FileList|null){if(!files)return;setError('');const added:LocalDocument[]=[];for(const file of Array.from(files)){if(!['application/pdf','image/png','image/jpeg'].includes(file.type)){setError('Choose PDF, JPG or PNG files.');continue}if(file.size>10*1024*1024){setError('Each file must be 10 MB or smaller.');continue}const url=URL.createObjectURL(file);urls.current.push(url);added.push({id:crypto.randomUUID(),name:file.name,policyRef:'Uploaded this session',type:'uploaded',productType:'motor',size:`${Math.max(1,Math.round(file.size/1024))} KB`,uploadedAt:new Date().toISOString(),url,mime:file.type})}setUploads(prev=>[...prev,...added]);if(input.current)input.current.value=''}
+ function download(doc:LocalDocument){if(!doc.url){setPreview(doc);return}const link=document.createElement('a');link.href=doc.url;link.download=doc.name;link.click()}
+ return <div className={s.page}><input ref={input} type="file" multiple accept="application/pdf,image/png,image/jpeg" hidden onChange={e=>addFiles(e.target.files)}/><PageHeading title="Documents" sub={`${all.length} documents in your library`}><div className={s.tools}><label className={s.search}><Search size={18}/><input value={query} aria-label="Search documents" placeholder="Search documents…" onChange={e=>setQuery(e.target.value)}/></label><button className={s.primary} onClick={()=>input.current?.click()}><Upload size={16}/>Upload document</button></div></PageHeading>{error&&<p role="alert" className={`${s.message} ${s.error}`}>{error}</p>}<div className={s.twoColumns}><div><div className={s.filters}>{categories.map(({id,label,icon:Icon})=><button key={id} className={`${s.filter} ${filter===id?s.active:''}`} aria-pressed={filter===id} onClick={()=>setFilter(id)}>{id!=='all'&&<Icon size={15}/>} {label}<small>{all.filter(d=>id==='all'||d.type===id).length}</small></button>)}</div><div className={s.stack}>{shown.map(doc=><article className={`${s.card} ${s.document}`} key={doc.id}><div className={s.pdf}><FileText/>FILE</div><div className={s.documentBody}><h2>{doc.name}</h2><p>{doc.policyRef} · {doc.size} · {dateLabel(doc.uploadedAt)}</p><Status tone={doc.type==='policy_schedule'?'purple':doc.type==='receipt'?'amber':'green'}>{labels[doc.type]}</Status></div><div className={s.actions}><button className={s.secondary} onClick={()=>setPreview(doc)}><Eye size={15}/>View</button><button className={s.secondary} onClick={()=>download(doc)}><Download size={15}/>Download</button>{doc.url&&<button className={s.secondary} aria-label={`Remove ${doc.name}`} onClick={()=>{setUploads(prev=>prev.filter(d=>d.id!==doc.id));URL.revokeObjectURL(doc.url!)}}><X size={14}/></button>}</div></article>)}{!shown.length&&<div className={`${s.card} ${s.empty}`}><FolderOpen size={30}/><h3>No matching documents</h3><p>Try another category or upload a document.</p></div>}</div><p className={s.listNote}>Uploads stay in this browser session and are not sent to a server. Seeded demo records have no file attachments.</p></div><aside className={s.stack}><section className={`${s.card} ${s.uploadCard}`} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();addFiles(e.dataTransfer.files)}}><IconTile icon={CloudUpload}/><h2>Upload a document</h2><p>Add certificates, schedules, receipts or supporting files to your current session.</p><button className={s.primary} onClick={()=>input.current?.click()}><Upload size={16}/>Upload document</button><p className={s.listNote}>PDF, JPG, PNG · up to 10 MB each<br/>Click or drag and drop</p></section><section className={s.card}><h3>Document types</h3>{categories.slice(1).map(({id,label,icon})=><button key={id} className={s.categoryLink} onClick={()=>setFilter(id)}><IconTile icon={icon}/><span>{label}</span><Status>{all.filter(d=>d.type===id).length}</Status><ChevronRight size={14}/></button>)}</section><HelpCard title="Need help finding a document?"/></aside></div><DashboardModal title={preview?.name??'Document'} open={!!preview} onClose={()=>setPreview(null)}>{preview?.url?<><p>{preview.size} · Uploaded this session</p>{preview.mime==='application/pdf'?<iframe title={preview.name} src={preview.url} className={s.filePreview}/>:<Image src={preview.url} alt={preview.name} width={800} height={700} unoptimized className={s.filePreview}/>}<div className={s.actions}><button className={s.primary} onClick={()=>download(preview)}><Download size={15}/>Download file</button></div></>:<DemoDocumentNotice name={preview?.name??''}/>}</DashboardModal></div>
 }
