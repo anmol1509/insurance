@@ -1,249 +1,32 @@
 'use client'
+
+import Image from 'next/image'
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Phone, Mail, MapPin, Clock, Send, Check } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, Send, Check, ChevronRight, ExternalLink, Zap, Users, ShieldCheck, MessagesSquare, ArrowLeft } from 'lucide-react'
+import s from './contact.module.css'
 
 const OFFICES = [
-  {
-    city: 'Lagos',
-    address: '33, Victoria Arobieke Street, Off Admiralty Way, Lekki Phase 1, Lagos.',
-    color: 'var(--motor-600)',
-    bg: 'var(--motor-50)',
-  },
-  {
-    city: 'Abuja',
-    address: 'Suite 5005, Plot 264, Ahmadu Bello Way, Mabushi, Abuja.',
-    color: 'var(--medical-600)',
-    bg: 'var(--medical-50)',
-  },
-  {
-    city: 'Ibadan',
-    address: 'Standard Villa, Forest Hill Estate New Jericho GRA, Jericho Ibadan, Oyo State.',
-    color: 'var(--travel-600)',
-    bg: 'var(--travel-50)',
-  },
+  { city:'Lagos', address:'33, Victoria Arobieke Street, Off Admiralty Way, Lekki Phase 1, Lagos.', lat:6.4474, lon:3.4723 },
+  { city:'Abuja', address:'Suite 5005, Plot 264, Ahmadu Bello Way, Mabushi, Abuja.', lat:9.0765, lon:7.3986 },
+  { city:'Ibadan', address:'Standard Villa, Forest Hill Estate New Jericho GRA, Jericho Ibadan, Oyo State.', lat:7.3964, lon:3.8794 },
 ]
+const PHONES=['+234 803 330 5567','+234 802 352 8091','+234 802 412 5946']
+const SUPPORT='support@shopinsurance.com.ng'
+const topics=['Get a quote','Policy enquiry','Claims assistance','Renewals','Complaint','Other']
+const directions=(address:string)=>`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`
 
-const PHONES = ['+234 803 330 5567', '+234 802 352 8091', '+234 802 412 5946']
-
-export default function ContactPage() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [subject, setSubject] = useState('')
-  const [message, setMessage] = useState('')
-  const [sending, setSending] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
-  function validate() {
-    const e: Record<string, string> = {}
-    if (!name.trim()) e.name = 'Required'
-    if (!email.includes('@')) e.email = 'Valid email required'
-    if (!message.trim()) e.message = 'Please write a message'
-    setErrors(e)
-    return Object.keys(e).length === 0
-  }
-
-  function handleSubmit(ev: React.FormEvent) {
-    ev.preventDefault()
-    if (!validate()) return
-    setSending(true)
-    setTimeout(() => { setSending(false); setSent(true) }, 1600)
-  }
-
-  return (
-    <div style={{ backgroundColor: 'var(--page-bg)' }} className="min-h-screen">
-      {/* Hero band */}
-      <div className="bg-white border-b border-[var(--border-default)]">
-        <div className="max-w-[1200px] mx-auto px-5 lg:px-8 py-14 lg:py-20">
-          <p className="font-sans font-bold text-[11px] uppercase tracking-[0.12em] mb-3" style={{ color: 'var(--green-700)' }}>
-            Contact Us
-          </p>
-          <h1 className="font-display font-extrabold text-[36px] lg:text-[48px] tracking-tight leading-tight mb-3" style={{ color: 'var(--text-primary)' }}>
-            We're here to help.
-          </h1>
-          <p className="font-sans text-[16px] max-w-lg" style={{ color: 'var(--text-muted)' }}>
-            Whether it's a quote, a claim, or a question about your policy — reach us by phone, email, or drop into any of our offices.
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-[1200px] mx-auto px-5 lg:px-8 py-10 lg:py-14">
-        <div className="grid lg:grid-cols-[1fr_420px] gap-8 lg:gap-12 items-start">
-
-          {/* LEFT — contact form */}
-          <div>
-            <div className="bg-white rounded-3xl border border-[var(--border-default)] p-7 lg:p-10">
-              <h2 className="font-display font-bold text-[22px] mb-1" style={{ color: 'var(--text-primary)' }}>
-                Send us a message
-              </h2>
-              <p className="font-sans text-[14px] mb-6" style={{ color: 'var(--text-muted)' }}>
-                We'll get back to you within one business day.
-              </p>
-
-              {sent ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center py-10"
-                >
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                    style={{ backgroundColor: 'var(--green-50)' }}>
-                    <Check className="w-8 h-8" style={{ color: 'var(--green-700)' }} strokeWidth={2.5}/>
-                  </div>
-                  <h3 className="font-display font-bold text-xl mb-2" style={{ color: 'var(--text-primary)' }}>
-                    Message sent!
-                  </h3>
-                  <p className="font-sans text-[14px]" style={{ color: 'var(--text-muted)' }}>
-                    Thanks {name.split(' ')[0]}. Our team will reply to <strong>{email}</strong> within one business day.
-                  </p>
-                  <button type="button" onClick={() => { setSent(false); setName(''); setEmail(''); setPhone(''); setSubject(''); setMessage('') }}
-                    className="mt-5 h-10 px-6 rounded-xl font-sans font-medium text-[13px] border transition-colors hover:bg-[var(--surface-raised)]"
-                    style={{ borderColor: 'var(--border-medium)', color: 'var(--text-secondary)' }}>
-                    Send another message
-                  </button>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Full name *</label>
-                      <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Emeka Okafor"
-                        className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none transition-colors focus:border-[var(--green-700)]"
-                        style={{ borderColor: errors.name ? 'var(--error)' : 'var(--border-medium)', color: 'var(--text-primary)' }}/>
-                      {errors.name && <p className="font-sans text-[11px] mt-1 text-red-500">{errors.name}</p>}
-                    </div>
-                    <div>
-                      <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Email address *</label>
-                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
-                        className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none transition-colors focus:border-[var(--green-700)]"
-                        style={{ borderColor: errors.email ? 'var(--error)' : 'var(--border-medium)', color: 'var(--text-primary)' }}/>
-                      {errors.email && <p className="font-sans text-[11px] mt-1 text-red-500">{errors.email}</p>}
-                    </div>
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Phone number</label>
-                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="080XXXXXXXX"
-                        className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none transition-colors focus:border-[var(--green-700)]"
-                        style={{ borderColor: 'var(--border-medium)', color: 'var(--text-primary)' }}/>
-                    </div>
-                    <div>
-                      <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Subject</label>
-                      <select value={subject} onChange={e => setSubject(e.target.value)}
-                        className="w-full h-11 rounded-xl border-[1.5px] px-3.5 font-sans text-[14px] outline-none transition-colors focus:border-[var(--green-700)]"
-                        style={{ borderColor: 'var(--border-medium)', color: subject ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-                        <option value="">Select a topic</option>
-                        <option>Get a quote</option>
-                        <option>Policy enquiry</option>
-                        <option>Claims assistance</option>
-                        <option>Renewals</option>
-                        <option>Complaint</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="font-sans font-medium text-[12px] block mb-1.5" style={{ color: 'var(--text-secondary)' }}>Message *</label>
-                    <textarea value={message} onChange={e => setMessage(e.target.value)} rows={5}
-                      placeholder="Tell us how we can help you…"
-                      className="w-full rounded-xl border-[1.5px] px-3.5 py-3 font-sans text-[14px] outline-none transition-colors focus:border-[var(--green-700)] resize-none"
-                      style={{ borderColor: errors.message ? 'var(--error)' : 'var(--border-medium)', color: 'var(--text-primary)' }}/>
-                    {errors.message && <p className="font-sans text-[11px] mt-1 text-red-500">{errors.message}</p>}
-                  </div>
-                  <button type="submit" disabled={sending}
-                    className="h-12 rounded-xl font-sans font-semibold text-[14px] text-white flex items-center justify-center gap-2 transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-60"
-                    style={{ backgroundColor: 'var(--green-700)' }}>
-                    {sending ? (
-                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"/>
-                    ) : (
-                      <><Send className="w-4 h-4"/>Send message</>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-
-          {/* RIGHT — contact details */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-[5rem]">
-
-            {/* Phone */}
-            <div className="bg-white rounded-3xl border border-[var(--border-default)] p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--green-50)' }}>
-                  <Phone className="w-5 h-5" style={{ color: 'var(--green-700)' }}/>
-                </div>
-                <h3 className="font-display font-bold text-[16px]" style={{ color: 'var(--text-primary)' }}>Call us</h3>
-              </div>
-              <div className="flex flex-col gap-2">
-                {PHONES.map(p => (
-                  <a key={p} href={`tel:${p.replace(/\s/g,'')}`}
-                    className="font-sans font-semibold text-[15px] hover:underline"
-                    style={{ color: 'var(--green-700)' }}>
-                    {p}
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="bg-white rounded-3xl border border-[var(--border-default)] p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--green-50)' }}>
-                  <Mail className="w-5 h-5" style={{ color: 'var(--green-700)' }}/>
-                </div>
-                <h3 className="font-display font-bold text-[16px]" style={{ color: 'var(--text-primary)' }}>Email us</h3>
-              </div>
-              <a href="mailto:support@shopinsurance.com.ng"
-                className="font-sans font-semibold text-[15px] hover:underline"
-                style={{ color: 'var(--green-700)' }}>
-                support@shopinsurance.com.ng
-              </a>
-            </div>
-
-            {/* Hours */}
-            <div className="bg-white rounded-3xl border border-[var(--border-default)] p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--green-50)' }}>
-                  <Clock className="w-5 h-5" style={{ color: 'var(--green-700)' }}/>
-                </div>
-                <h3 className="font-display font-bold text-[16px]" style={{ color: 'var(--text-primary)' }}>Office hours</h3>
-              </div>
-              <p className="font-sans text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                <strong>Monday – Friday</strong>
-              </p>
-              <p className="font-sans text-[14px]" style={{ color: 'var(--text-muted)' }}>9:00 AM – 5:00 PM WAT</p>
-              <p className="font-sans text-[13px] mt-2 px-3 py-1.5 rounded-lg inline-block" style={{ backgroundColor: 'var(--green-50)', color: 'var(--green-700)' }}>
-                Closed weekends & public holidays
-              </p>
-            </div>
-
-            {/* Offices */}
-            <div className="bg-white rounded-3xl border border-[var(--border-default)] p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: 'var(--green-50)' }}>
-                  <MapPin className="w-5 h-5" style={{ color: 'var(--green-700)' }}/>
-                </div>
-                <h3 className="font-display font-bold text-[16px]" style={{ color: 'var(--text-primary)' }}>Our offices</h3>
-              </div>
-              <div className="flex flex-col gap-3">
-                {OFFICES.map(o => (
-                  <div key={o.city} className="flex gap-3 p-3.5 rounded-2xl" style={{ backgroundColor: o.bg }}>
-                    <div className="w-2 rounded-full shrink-0 mt-1" style={{ backgroundColor: o.color, minHeight: 16 }}/>
-                    <div>
-                      <p className="font-sans font-bold text-[13px]" style={{ color: o.color }}>{o.city}</p>
-                      <p className="font-sans text-[12px] mt-0.5 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{o.address}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+export default function ContactPage(){
+  const [name,setName]=useState('');const [email,setEmail]=useState('');const [phone,setPhone]=useState('');const [subject,setSubject]=useState('');const [message,setMessage]=useState('');const [prepared,setPrepared]=useState(false);const [errors,setErrors]=useState<Record<string,string>>({});const [office,setOffice]=useState(0)
+  const selected=OFFICES[office]
+  const bbox=[selected.lon-.075,selected.lat-.04,selected.lon+.075,selected.lat+.04].join(',')
+  const mapUrl=`https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${selected.lat}%2C${selected.lon}`
+  const mailto=`mailto:${SUPPORT}?subject=${encodeURIComponent(subject||'Website enquiry')}&body=${encodeURIComponent(`Name: ${name.trim()}\nEmail: ${email.trim()}\nPhone: ${phone.trim()||'Not provided'}\n\n${message.trim()}`)}`
+  function submit(event:React.FormEvent){event.preventDefault();const next:Record<string,string>={};if(!name.trim())next.name='Please enter your full name.';if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))next.email='Enter a valid email address.';if(phone&& !/^\+?[\d\s()-]{10,20}$/.test(phone))next.phone='Enter a valid phone number.';if(!message.trim())next.message='Please tell us how we can help.';setErrors(next);if(Object.keys(next).length===0)setPrepared(true)}
+  return <div className={s.page}>
+    <section className={s.hero}><Image src="/contact/support.webp" alt="Customer support adviser wearing a headset at her desk" fill priority sizes="100vw"/><div className={s.heroFade}/><div className={`${s.container} ${s.heroInner}`}><div className={s.heroCopy}><p className={s.eyebrow}>Contact us</p><h1>We’re here to help.</h1><p className={s.heroLead}>Whether it’s a quote, a claim, or a question about your policy — reach us by phone, email, or visit any of our offices.<br/>Our team is ready to assist you.</p><div className={s.trust}>{[{icon:Zap,title:'Here to help',sub:'Speak to our support team'},{icon:Users,title:'Expert support',sub:'For your insurance questions'},{icon:ShieldCheck,title:'Personal assistance',sub:'Help with your next steps'}].map(({icon:Icon,title,sub})=><div key={title}><span><Icon size={23}/></span><div><strong>{title}</strong><small>{sub}</small></div></div>)}</div></div><div className={s.heroBadge}><MessagesSquare size={26}/><div><strong>Need help?</strong><small>Let’s find the right<br/>next step together.</small></div></div></div></section>
+    <div className={s.container}><div className={s.contactGrid}><section className={`${s.card} ${s.formCard}`}><div className={s.cardHeading}><span className={s.icon}><Mail size={25}/></span><div><h2>Send us a message</h2><p>Tell us what you need help with.</p></div></div>{prepared?<div className={s.prepared} role="status"><span className={s.icon}><Check size={28}/></span><h3>Your message is ready</h3><p>Complete sending it in your email app. Nothing has been sent from this demo.</p><a className={s.primary} href={mailto}><Send size={16}/>Open email draft</a><button className={s.secondary} type="button" onClick={()=>setPrepared(false)}><ArrowLeft size={15}/>Edit message</button></div>:<form onSubmit={submit} noValidate className={s.form}><div className={s.formRow}><label className={s.field}>Full name <span>*</span><input required value={name} onChange={e=>setName(e.target.value)} placeholder="e.g. Emeka Okafor" autoComplete="name" aria-invalid={!!errors.name} aria-describedby={errors.name?'contact-name-error':undefined}/>{errors.name&&<small className={s.error} id="contact-name-error">{errors.name}</small>}</label><label className={s.field}>Email address <span>*</span><input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" aria-invalid={!!errors.email} aria-describedby={errors.email?'contact-email-error':undefined}/>{errors.email&&<small className={s.error} id="contact-email-error">{errors.email}</small>}</label></div><div className={s.formRow}><label className={s.field}>Phone number<div className={s.phone}><span><i aria-hidden="true"/>NG</span><input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="08012345678" autoComplete="tel" aria-invalid={!!errors.phone}/></div>{errors.phone&&<small className={s.error}>{errors.phone}</small>}</label><label className={s.field}>Subject<select value={subject} onChange={e=>setSubject(e.target.value)}><option value="">Select a topic</option>{topics.map(topic=><option key={topic}>{topic}</option>)}</select></label></div><label className={s.field}>Message <span>*</span><textarea required value={message} maxLength={500} onChange={e=>setMessage(e.target.value)} placeholder="Tell us how we can help you…" rows={5} aria-invalid={!!errors.message} aria-describedby={errors.message?'contact-message-error':undefined}/><small className={s.counter}>{message.length}/500</small>{errors.message&&<small id="contact-message-error" className={s.error}>{errors.message}</small>}</label><button className={s.primary} type="submit"><Send size={17}/>Send message</button><p className={s.formNote}>This demo prepares an email draft. Use your email app to send it.</p></form>}</section><aside className={s.details}><section className={s.card}><div className={s.detailHeading}><span className={s.icon}><Phone size={23}/></span><div><h3>Call us</h3><p>Speak directly with our support team.</p><div className={s.phoneLinks}>{PHONES.map(p=><a key={p} href={`tel:${p.replace(/\s/g,'')}`}>{p}</a>)}</div></div><ChevronRight size={17}/></div></section><section className={s.card}><div className={s.detailHeading}><span className={s.icon}><Mail size={23}/></span><div><h3>Email us</h3><p>Send us an email anytime.</p><a className={s.email} href={`mailto:${SUPPORT}`}>{SUPPORT}</a></div><ChevronRight size={17}/></div></section><section className={s.card}><div className={s.detailHeading}><span className={s.icon}><Clock size={23}/></span><div><h3>Office hours</h3><strong className={s.hours}>Monday – Friday</strong><p>9:00 AM – 5:00 PM WAT</p><span className={s.hoursBadge}>Closed weekends &amp; public holidays</span></div><ChevronRight size={17}/></div></section></aside></div>
+    <section className={s.offices}><div className={s.cardHeading}><span className={s.icon}><MapPin size={24}/></span><div><h2>Our offices</h2><p>Visit us at any of our locations. Our teams are ready to assist you.</p></div></div><div className={s.officeGrid}>{OFFICES.map((location,index)=><article className={`${s.office} ${office===index?s.activeOffice:''}`} key={location.city}><div className={s.cityPhoto} role="img" aria-label={`${location.city} city illustration`} style={{backgroundPosition:`${index*50}% center`}}/><div className={s.officeBody}><span className={s.pin}><MapPin size={17}/></span><div><button type="button" onClick={()=>setOffice(index)} aria-pressed={office===index}><h3>{location.city}</h3><ChevronRight size={16}/></button><p>{location.address}</p><a href={directions(location.address)} target="_blank" rel="noreferrer">Get directions <ExternalLink size={12}/></a></div></div></article>)}</div><p className={s.imageNote}>City imagery is illustrative. Use the listed address for your visit.</p></section>
+    <section className={s.mapCard}><div className={s.mapInfo}><h2>Find us on the map</h2><p>{selected.city} · City-level view</p><a className={s.secondary} href={directions(selected.address)} target="_blank" rel="noreferrer">Get directions <ExternalLink size={14}/></a></div><iframe key={office} title={`Map of ${selected.city}`} src={mapUrl} loading="lazy" className={s.map} referrerPolicy="no-referrer"/></section>
     </div>
-  )
+  </div>
 }
