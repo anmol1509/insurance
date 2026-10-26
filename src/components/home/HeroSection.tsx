@@ -19,11 +19,7 @@ import {
 } from 'lucide-react'
 import BlurText from '@/components/motion/BlurText'
 import { useQuoteStore } from '@/store/quoteStore'
-import {
-  BUSINESS_TYPES,
-  MEDICAL_COVER_OPTIONS,
-  TRAVEL_DESTINATIONS,
-} from '@/lib/constants'
+import HeroQuoteSelect from './HeroQuoteSelect'
 import { NEW_CAR_PREFILL } from '@/lib/motorRegistration'
 import s from './homepage.module.css'
 
@@ -266,44 +262,14 @@ export default function HeroSection() {
                   />
                 </div>
               ) : (
-                <select
-                  aria-label={
-                    active === 'medical'
-                      ? 'Who needs cover?'
-                      : active === 'travel'
-                        ? 'Travel destination'
-                        : 'Business type'
-                  }
+                <HeroQuoteSelect
+                  key={active}
+                  product={active}
                   value={values[active]}
-                  onChange={(event) =>
-                    setValues({ ...values, [active]: event.target.value })
-                  }
-                >
-                  <option value="">
-                    {active === 'medical'
-                      ? 'Who needs cover?'
-                      : active === 'travel'
-                        ? 'Select your destination'
-                        : 'Select your business type'}
-                  </option>
-                  {active === 'medical'
-                    ? MEDICAL_COVER_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))
-                    : active === 'travel'
-                      ? TRAVEL_DESTINATIONS.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))
-                      : BUSINESS_TYPES.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                </select>
+                  onChange={(value) => setValues((previous) => ({ ...previous, [active]: value }))}
+                  accent={hero.accent}
+                  wash={hero.wash}
+                />
               )}
               <button type="submit" className={s.button}>
                 Get Quotes <ArrowRight size={17} />

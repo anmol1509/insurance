@@ -461,17 +461,6 @@
 .plateField input::placeholder {
   color: #8991a2;
 }
-.quoteForm select {
-  flex: 1;
-  min-width: 0;
-  border: 1px solid #d8dee5;
-  border-radius: 10px;
-  background: white;
-  font-size: 13px;
-  padding: 0 14px;
-  min-height: 46px;
-  color: #536172;
-}
 .quoteForm > .button {
   min-width: 170px;
   border-radius: 10px;
