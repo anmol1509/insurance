@@ -5,6 +5,7 @@ import { X, Car, Heart, Plane, Building2, Ship, HeartPulse } from 'lucide-react'
 import StepRail from '@/components/quote/StepRail'
 import { PRODUCT_STEPS } from '@/lib/constants'
 import MotorQuoteLayout from '@/components/quote/motor/MotorQuoteLayout'
+import MedicalQuoteAside from '@/components/quote/MedicalQuoteAside'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
@@ -119,10 +120,11 @@ export default function QuoteLayout({
       </div>
 
       <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
-      <div className={`mx-auto ${planSelect ? 'max-w-[1100px]' : 'max-w-[860px]'}`}>
+      <div className={`mx-auto ${product === 'medical' && !planSelect ? 'max-w-[1380px]' : planSelect ? 'max-w-[1100px]' : 'max-w-[860px]'}`}>
 
-        <div>
-          <main className="min-w-0">
+        <div className={product === 'medical' && !planSelect ? 'grid gap-6 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] items-stretch' : undefined}>
+          {product === 'medical' && !planSelect && <div className="order-2 lg:order-1"><MedicalQuoteAside /></div>}
+          <main className="min-w-0 order-1 lg:order-2">
             {planSelect ? (
               <>
                 <div className="mb-5">
