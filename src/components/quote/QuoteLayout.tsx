@@ -6,6 +6,8 @@ import StepRail from '@/components/quote/StepRail'
 import { PRODUCT_STEPS } from '@/lib/constants'
 import MotorQuoteLayout from '@/components/quote/motor/MotorQuoteLayout'
 import MedicalQuoteAside from '@/components/quote/MedicalQuoteAside'
+import TravelQuoteAside from '@/components/quote/TravelQuoteAside'
+import travelStyles from '@/components/quote/travelQuote.module.css'
 
 type Product = 'motor' | 'medical' | 'travel' | 'business' | 'marine' | 'personal-accident'
 
@@ -67,6 +69,7 @@ export default function QuoteLayout({
 }: QuoteLayoutProps) {
   const config = PRODUCT_CONFIG[product]
   const visibleSteps = stepsOverride ?? PRODUCT_STEPS[product]
+  const hasAside = (product === 'medical' || product === 'travel') && !planSelect
 
   if (product === 'motor') {
     return (
@@ -79,7 +82,7 @@ export default function QuoteLayout({
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--page-bg)' }}>
+    <div className={`min-h-screen flex flex-col ${product === 'travel' ? travelStyles.flow : ''}`} style={product === 'travel' ? undefined : { backgroundColor: 'var(--page-bg)' }}>
       <div className="bg-white/95 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center px-4 lg:px-8 h-14 max-w-[1280px] mx-auto">
           <div className="flex-1 flex items-center gap-2">
@@ -120,10 +123,10 @@ export default function QuoteLayout({
       </div>
 
       <div className="flex-1 px-5 lg:px-20 py-6 lg:py-10">
-      <div className={`mx-auto ${product === 'medical' && !planSelect ? 'max-w-[1380px]' : planSelect ? 'max-w-[1100px]' : 'max-w-[860px]'}`}>
+      <div className={`mx-auto ${hasAside ? 'max-w-[1380px]' : planSelect ? 'max-w-[1100px]' : 'max-w-[860px]'}`}>
 
-        <div className={product === 'medical' && !planSelect ? 'grid gap-6 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] items-stretch' : undefined}>
-          {product === 'medical' && !planSelect && <div className="order-2 lg:order-1"><MedicalQuoteAside /></div>}
+        <div className={hasAside ? 'grid gap-6 lg:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)] items-stretch' : undefined}>
+          {hasAside && <div className="order-2 lg:order-1">{product === 'medical' ? <MedicalQuoteAside /> : <TravelQuoteAside />}</div>}
           <main className="min-w-0 order-1 lg:order-2">
             {planSelect ? (
               <>
@@ -168,14 +171,14 @@ export default function QuoteLayout({
                     onClick={onNext}
                     disabled={nextDisabled}
                     className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
-                    style={{ backgroundColor: 'var(--green-700)' }}
+                    style={{ backgroundColor: product === 'travel' ? 'var(--travel-600)' : 'var(--green-700)' }}
                   >
                     {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
                   </button>
                 </div>
               </>
             ) : (
-              <div className="bg-white rounded-2xl border border-[var(--border-default)] p-8 lg:p-10">
+              <div className={`bg-white rounded-2xl border border-[var(--border-default)] ${product === 'travel' ? `p-6 sm:p-8 lg:p-7 ${travelStyles.formCard}` : 'p-8 lg:p-10'}`}>
                 <div className="mb-8">
                   <h2
                     className="font-display font-bold text-3xl tracking-tight"
@@ -226,7 +229,7 @@ export default function QuoteLayout({
                     onClick={onNext}
                     disabled={nextDisabled}
                     className="h-12 px-7 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white transition-all hover:-translate-y-px hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0 disabled:shadow-none"
-                    style={{ backgroundColor: 'var(--green-700)' }}
+                    style={{ backgroundColor: product === 'travel' ? 'var(--travel-600)' : 'var(--green-700)' }}
                   >
                     {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
                   </button>
@@ -252,7 +255,7 @@ export default function QuoteLayout({
             onClick={onNext}
             disabled={nextDisabled}
             className="flex-1 h-12 rounded-[var(--radius-xl)] font-display font-semibold text-[15px] text-white disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: 'var(--green-700)' }}
+            style={{ backgroundColor: product === 'travel' ? 'var(--travel-600)' : 'var(--green-700)' }}
           >
             {nextLabel ?? (isFinalStep ? 'Submit →' : 'Next step →')}
           </button>

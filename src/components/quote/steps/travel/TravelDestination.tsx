@@ -1,47 +1,29 @@
 'use client'
 import { useQuoteStore } from '@/store/quoteStore'
-import ChoiceCard from '@/components/ui/ChoiceCard'
 import { TRAVEL_DESTINATIONS } from '@/lib/constants'
-import { Landmark, Crown, Building2, Sun, Sunrise, Globe2, Plane } from 'lucide-react'
+import { Plane } from 'lucide-react'
+import s from '@/components/quote/travelQuote.module.css'
 
-const ICONS = {
-  schengen: Landmark, uk: Crown, usa_canada: Building2,
-  africa: Sun, asia: Sunrise, worldwide: Globe2,
-} as const
-
-/**
- * Step 1 — the same question the homepage quick-quote widget asks, so an
- * answer given there carries straight into the flow and is not repeated.
- */
 export default function TravelDestination() {
   const { travelData, updateTravel } = useQuoteStore()
-
-  return (
-    <div className="max-w-2xl mx-auto">
-      <div className="grid sm:grid-cols-2 gap-3">
-        {TRAVEL_DESTINATIONS.map((d) => (
-          <ChoiceCard
-            key={d.value}
-            icon={ICONS[d.value as keyof typeof ICONS]}
-            label={d.label}
-            sub={d.sub}
-            selected={travelData.destination === d.value}
-            onClick={() => updateTravel({ destination: d.value })}
-            productColor="var(--travel-600)"
-            productColorBg="var(--travel-50)"
-          />
-        ))}
-      </div>
-
-      <div
-        className="mt-5 rounded-2xl border px-4 py-3.5 flex items-center gap-3"
-        style={{ backgroundColor: 'var(--travel-50)', borderColor: 'var(--travel-100)' }}
-      >
-        <Plane className="w-5 h-5 shrink-0" style={{ color: 'var(--travel-600)' }} />
-        <p className="font-sans text-[13px]" style={{ color: 'var(--text-secondary)' }}>
-          Schengen-compliant certificate in 60 seconds · accepted by embassies
-        </p>
-      </div>
+  return <div>
+    <div className={s.destinations} role="radiogroup" aria-label="Travel destination">
+      {TRAVEL_DESTINATIONS.map((destination,index)=><button
+        key={destination.value} type="button" role="radio" aria-checked={travelData.destination===destination.value}
+        className={s.destination} onClick={()=>updateTravel({destination:destination.value})}
+        onKeyDown={event=>{
+          const offset=event.key==='ArrowRight'||event.key==='ArrowDown'?1:event.key==='ArrowLeft'||event.key==='ArrowUp'?-1:0
+          if(!offset)return
+          event.preventDefault()
+          const next=(index+offset+TRAVEL_DESTINATIONS.length)%TRAVEL_DESTINATIONS.length
+          updateTravel({destination:TRAVEL_DESTINATIONS[next].value})
+          const buttons=event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+          buttons?.[next]?.focus()
+        }}>
+        <span className={s.thumbnail} aria-hidden="true" style={{backgroundPosition:`${(index%3)*50}% ${index<3?0:100}%`}}/>
+        <span className={s.destinationText}><strong>{destination.label}</strong><small>{destination.sub}</small></span><span className={s.radio} aria-hidden="true"/>
+      </button>)}
     </div>
-  )
+    <div className={s.notice}><Plane size={22}/><p>Choose your destination and review the policy’s medical limits, covered territories and any visa requirements before purchase.</p></div>
+  </div>
 }
